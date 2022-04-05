@@ -184,7 +184,7 @@ public class FAWEUtilities {
 
     /**
      * Allows you to check if a location is in an area from two corners.
-     * This should be used for zone or mine based systems and checking if players are within them.
+     * This should be used for mine or based systems and checking if players are within them.
      * Uses FastAsyncWorldEdit's API.
      *
      * @return If the location is within the area from two corners.
