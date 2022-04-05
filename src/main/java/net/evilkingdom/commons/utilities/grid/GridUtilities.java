@@ -37,33 +37,23 @@ public class GridUtilities {
      */
     public static int[] getPoint(final int index) {
         final int[] point = new int[2];
-        int dx = 0;
-        int dz = 1;
-        int segment_length = 1;
-        int x = 0;
-        int z = 0;
-        int segment_passed = 0;
-        if (index == 0) {
-            point[0] = x;
-            point[1] = z;
-            return point;
+        final double sqrt = Math.sqrt(index);
+        final int lower_sqrt = (int) ((sqrt % 1 == 0) ? sqrt - 1 : Math.floor(sqrt));
+        final int higher_sqrt = lower_sqrt + 1;
+        final int layers = (int) Math.ceil((float) (lower_sqrt - 2) / 2);
+        final int corner_number = (int) Math.ceil((float) (higher_sqrt ^ 2 - lower_sqrt ^ 2) / 2) + lower_sqrt ^ 2;
+        final int diff = index - corner_number;
+        if (higher_sqrt % 2 == 0) {
+            point[0] = -layers;
+            point[1] = layers;
+            point[0] += (diff <= 0) ? 1 : 1 + (corner_number - index);
+            point[1] -= (diff >= 0) ? 1 : 1 - (corner_number - index);
+        } else {
+            point[0] = layers;
+            point[1] = -layers;
+            point[0] -= (diff <= 0) ? 1 : 1 + (corner_number - index);
+            point[1] += (diff >= 0) ? 1 : 1 - (corner_number - index);
         }
-        for (int n = 0; n < index; ++n) {
-            x += dx;
-            z += dz;
-            ++segment_passed;
-            if (segment_passed == segment_length) {
-                segment_passed = 0;
-                int buffer = dz;
-                dz = -dx;
-                dx = buffer;
-                if (dx == 0) {
-                    ++segment_length;
-                }
-            }
-        }
-        point[0] = x;
-        point[1] = z;
         return point;
     }
 

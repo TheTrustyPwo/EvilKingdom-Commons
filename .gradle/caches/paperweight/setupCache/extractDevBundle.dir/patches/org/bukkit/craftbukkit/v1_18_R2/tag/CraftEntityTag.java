@@ -16,9 +16,10 @@ public class CraftEntityTag extends CraftTag<net.minecraft.world.entity.EntityTy
         super(registry, tag);
     }
 
+    private static final java.util.Map<org.bukkit.entity.EntityType, net.minecraft.resources.ResourceKey<net.minecraft.world.entity.EntityType<?>>> KEY_CACHE = Collections.synchronizedMap(new java.util.EnumMap<>(EntityType.class)); // Paper
     @Override
     public boolean isTagged(EntityType entity) {
-        return registry.getHolderOrThrow(ResourceKey.create(net.minecraft.core.Registry.ENTITY_TYPE_REGISTRY, CraftNamespacedKey.toMinecraft(entity.getKey()))).is(tag);
+        return registry.getHolderOrThrow(KEY_CACHE.computeIfAbsent(entity, type -> ResourceKey.create(net.minecraft.core.Registry.ENTITY_TYPE_REGISTRY, CraftNamespacedKey.toMinecraft(type.getKey())))).is(tag); // Paper - cache key
     }
 
     @Override

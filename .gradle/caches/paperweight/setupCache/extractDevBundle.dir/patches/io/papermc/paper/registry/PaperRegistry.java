@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 @DefaultQualifier(NonNull.class)
@@ -36,7 +37,8 @@ public abstract class PaperRegistry<API extends Keyed, MINECRAFT> implements org
     private boolean registered;
     private final RegistryKey<API, MINECRAFT> registryKey;
     private final Supplier<Registry<MINECRAFT>> registry;
-    private final Map<NamespacedKey, API> cache = new HashMap<>();
+    private final Map<NamespacedKey, API> cache = new ConcurrentHashMap<>();
+    private final Map<NamespacedKey, ResourceKey<MINECRAFT>> resourceKeyCache = new ConcurrentHashMap<>();
 
     public PaperRegistry(RegistryKey<API, MINECRAFT> registryKey) {
         this.registryKey = registryKey;
@@ -80,7 +82,7 @@ public abstract class PaperRegistry<API extends Keyed, MINECRAFT> implements org
     }
 
     public Holder<MINECRAFT> getMinecraftHolder(API apiValue) {
-        return this.registry.get().getHolderOrThrow(ResourceKey.create(this.registryKey.resourceKey(), CraftNamespacedKey.toMinecraft(apiValue.getKey())));
+        return this.registry.get().getHolderOrThrow(this.resourceKeyCache.computeIfAbsent(apiValue.getKey(), key -> ResourceKey.create(this.registryKey.resourceKey(), CraftNamespacedKey.toMinecraft(key))));
     }
 
     @Override

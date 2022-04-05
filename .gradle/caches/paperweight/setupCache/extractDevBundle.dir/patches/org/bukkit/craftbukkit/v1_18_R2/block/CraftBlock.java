@@ -366,12 +366,13 @@ public class CraftBlock implements Block {
         return (biome == null) ? Biome.CUSTOM : biome;
     }
 
+    private static final java.util.Map<org.bukkit.block.Biome, net.minecraft.resources.ResourceKey<net.minecraft.world.level.biome.Biome>> BIOME_KEY_CACHE = Collections.synchronizedMap(new java.util.EnumMap<>(Biome.class)); // Paper
     public static Holder<net.minecraft.world.level.biome.Biome> biomeToBiomeBase(net.minecraft.core.Registry<net.minecraft.world.level.biome.Biome> registry, Biome bio) {
         if (bio == null || bio == Biome.CUSTOM) {
             return null;
         }
 
-        return registry.getHolderOrThrow(ResourceKey.create(net.minecraft.core.Registry.BIOME_REGISTRY, CraftNamespacedKey.toMinecraft(bio.getKey())));
+        return registry.getHolderOrThrow(BIOME_KEY_CACHE.computeIfAbsent(bio, b -> ResourceKey.create(net.minecraft.core.Registry.BIOME_REGISTRY, CraftNamespacedKey.toMinecraft(b.getKey())))); // Paper - cache key
     }
 
     @Override

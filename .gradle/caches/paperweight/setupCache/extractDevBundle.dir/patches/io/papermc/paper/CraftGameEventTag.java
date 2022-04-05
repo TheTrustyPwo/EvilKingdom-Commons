@@ -8,6 +8,9 @@ import org.bukkit.craftbukkit.v1_18_R2.tag.CraftTag;
 import org.bukkit.craftbukkit.v1_18_R2.util.CraftNamespacedKey;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,9 +21,10 @@ public class CraftGameEventTag extends CraftTag<net.minecraft.world.level.gameev
         super(registry, tag);
     }
 
+    private static final Map<GameEvent, ResourceKey<net.minecraft.world.level.gameevent.GameEvent>> KEY_CACHE = Collections.synchronizedMap(new IdentityHashMap<>());
     @Override
-    public boolean isTagged(@NotNull GameEvent item) {
-        return registry.getHolderOrThrow(ResourceKey.create(Registry.GAME_EVENT_REGISTRY, CraftNamespacedKey.toMinecraft(item.getKey()))).is(tag);
+    public boolean isTagged(@NotNull GameEvent gameEvent) {
+        return registry.getHolderOrThrow(KEY_CACHE.computeIfAbsent(gameEvent, event -> ResourceKey.create(Registry.GAME_EVENT_REGISTRY, CraftNamespacedKey.toMinecraft(event.getKey())))).is(tag);
     }
 
     @Override
