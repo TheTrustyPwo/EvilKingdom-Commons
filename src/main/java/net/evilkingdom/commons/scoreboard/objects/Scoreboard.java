@@ -24,10 +24,14 @@ package net.evilkingdom.commons.scoreboard.objects;
  *  SOFTWARE.
  */
 
+import com.mojang.authlib.GameProfile;
 import net.evilkingdom.commons.scoreboard.ScoreboardImplementor;
 import net.evilkingdom.commons.utilities.string.StringUtilities;
 import net.kyori.adventure.text.Component;
+import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -43,9 +47,9 @@ public class Scoreboard {
     private Player player;
     private ArrayList<String> lines;
     private String title;
-    private HashMap<Integer, Team> lineTeams;
     private Optional<Objective> objective;
     private Optional<Runnable> runnable;
+    private HashMap<Integer, ServerPlayer> lineFakePlayers;
 
     /**
      * Allows you to create a scoreboard for a plugin.
@@ -57,7 +61,7 @@ public class Scoreboard {
         this.plugin = plugin;
         this.player = player;
         this.lines = new ArrayList<String>();
-        this.lineTeams = new HashMap<Integer, Team>();
+        this.lineFakePlayers = new HashMap<Integer, ServerPlayer>();
     }
 
     /**
@@ -66,6 +70,9 @@ public class Scoreboard {
      * @param lines ~ The lines that will be set.
      */
     public void setLines(final ArrayList<String> lines) {
+        if (lines.size() > 15) {
+            return;
+        }
         this.lines = lines;
     }
 
@@ -146,18 +153,20 @@ public class Scoreboard {
         } else {
             scoreboard = this.player.getScoreboard();
         }
-        Objective objective = scoreboard.registerNewObjective("csb-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12), "dummy", Component.text(StringUtilities.colorize(this.title)));
+        final Objective objective = scoreboard.registerNewObjective("csbo" + UUID.randomUUID().toString().replace("-", "").substring(0, 10), "dummy", Component.text(StringUtilities.colorize(this.title)));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         this.objective = Optional.of(objective);
         for (int i = this.lines.size(); i > 0; i--) {
-            String line = this.lines.stream().sorted(Comparator.reverseOrder()).toList().get(i);
-            Team team = scoreboard.registerNewTeam(UUID.randomUUID().toString().replace("-", "").substring(0, 16));
-            team.addEntries(team.getName());
-            team.displayName(Component.text(StringUtilities.colorize(line)));
-            objective.getScore(team.getName()).setScore(i);
-            this.lineTeams.put(i, team);
+            final String line = this.lines.stream().sorted(Comparator.reverseOrder()).toList().get(i);
+            final GameProfile fakePlayerProfile = new GameProfile(UUID.randomUUID(), "csbfp-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10));
+            final ServerPlayer fakePlayer = new ServerPlayer(((CraftServer) Bukkit.getServer()).getHandle().getServer(), ((CraftWorld) Bukkit.getServer().getWorlds().get(0)).getHandle(), fakePlayerProfile);
+            fakePlayer.listName = net.minecraft.network.chat.Component.nullToEmpty(line);
+            objective.getScore(fakePlayer.getName().getString()).setScore(i);
+            this.lineFakePlayers.put(i, fakePlayer);
         }
-        this.player.setScoreboard(scoreboard);
+        if (this.player.getScoreboard() == Bukkit.getScoreboardManager().getMainScoreboard()) {
+            this.player.setScoreboard(scoreboard);
+        }
         final ScoreboardImplementor scoreboardImplementor = ScoreboardImplementor.get(this.plugin);
         scoreboardImplementor.getScoreboards().add(this);
     }
@@ -170,20 +179,22 @@ public class Scoreboard {
             return;
         }
         final Objective objective = this.objective.get();
-        for (int i = 0; i < (this.lineTeams.keySet().size() - this.lines.size()); i++) {
-            this.lineTeams.get(i).unregister();
+        for (int i = this.lineFakePlayers.keySet().size(); i > this.lines.size(); i--) {
+            final ServerPlayer fakePlayer = this.lineFakePlayers.get(i);
+            objective.getScore(fakePlayer.getName().getString()).resetScore();
+            this.lineFakePlayers.remove(i);
         }
         for (int i = this.lines.size(); i > 0; i--) {
-            String line = this.lines.stream().sorted(Comparator.reverseOrder()).toList().get(i);
-            Team team;
-            if (this.lineTeams.containsKey(i)) {
-                team = this.lineTeams.get(i);
+            final String line = this.lines.stream().sorted(Comparator.reverseOrder()).toList().get(i);
+            ServerPlayer fakePlayer;
+            if (this.lineFakePlayers.containsKey(i)) {
+                fakePlayer = this.lineFakePlayers.get(i);
             } else {
-                team = objective.getScoreboard().registerNewTeam(UUID.randomUUID().toString().replace("-", "").substring(0, 16));
-                team.addEntries(team.getName());
+                final GameProfile fakePlayerProfile = new GameProfile(UUID.randomUUID(), "csbfp-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10));
+                fakePlayer = new ServerPlayer(((CraftServer) Bukkit.getServer()).getHandle().getServer(), ((CraftWorld) Bukkit.getServer().getWorlds().get(0)).getHandle(), fakePlayerProfile);
+                objective.getScore(fakePlayer.getName().getString()).setScore(i);
             }
-            team.displayName(Component.text(StringUtilities.colorize(line)));
-            objective.getScore(team.getName()).setScore(i);
+            fakePlayer.listName = net.minecraft.network.chat.Component.nullToEmpty(line);
         }
     }
 
@@ -196,6 +207,7 @@ public class Scoreboard {
         }
         this.objective.get().unregister();
         this.objective = Optional.empty();
+        this.lineFakePlayers.clear();
         final ScoreboardImplementor scoreboardImplementor = ScoreboardImplementor.get(this.plugin);
         scoreboardImplementor.getScoreboards().remove(this);
     }
