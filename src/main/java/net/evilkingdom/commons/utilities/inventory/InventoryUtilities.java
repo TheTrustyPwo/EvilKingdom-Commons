@@ -34,8 +34,8 @@ public class InventoryUtilities {
      * Allows you to check if an inventory can fit an ItemStack.
      *
      * @param inventory ~ The inventory that needs to be checked.
-     * @param itemStack ~ The ItemStack that needs to fit in the checked inventory.
-     * @return If checked ItemStack can fit in the checked inventory.
+     * @param itemStack ~ The ItemStack that needs to be checked.
+     * @return If the checked ItemStack can fit in the checked inventory.
      */
     public static boolean canFit(final Inventory inventory, final ItemStack itemStack) {
         return inventory.addItem(itemStack).isEmpty();

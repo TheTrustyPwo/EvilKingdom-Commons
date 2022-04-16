@@ -68,11 +68,15 @@
      public float oFlapTime;
      public float flapTime;
      public boolean inWall;
-@@ -85,23 +99,16 @@
+@@ -85,23 +99,20 @@
      private final Node[] nodes = new Node[24];
      private final int[] nodeAdjacency = new int[24];
      private final BinaryHeap openSet = new BinaryHeap();
 +    private Explosion explosionSource = new Explosion(null, this, null, null, Double.NaN, Double.NaN, Double.NaN, Float.NaN, true, Explosion.BlockInteraction.DESTROY); // CraftBukkit - reusable source for CraftTNTPrimed.getSource()
++    // Paper start - add var for save custom podium
++    @Nullable
++    private BlockPos podium;
++    // Paper end
  
 -    public EnderDragon(EntityType<? extends EnderDragon> entityType, Level world) {
 +    public EnderDragon(EntityType<? extends EnderDragon> entitytypes, Level world) {
@@ -95,8 +99,23 @@
          } else {
              this.dragonFight = null;
          }
-@@ -115,9 +122,10 @@
+@@ -113,11 +124,25 @@
+         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 200.0D);
+     }
  
++    // Paper start
++    public BlockPos getPodium() {
++        if (this.podium == null) {
++            return EndPodiumFeature.END_PODIUM_LOCATION;
++        }
++        return this.podium;
++    }
++
++    public void setPodium(@Nullable BlockPos blockPos) {
++        this.podium = blockPos;
++    }
++    // Paper end
++
      @Override
      public boolean isFlapping() {
 -        float f = Mth.cos(this.flapTime * ((float)Math.PI * 2F));
@@ -109,7 +128,7 @@
      }
  
      @Override
-@@ -131,7 +139,7 @@
+@@ -131,7 +156,7 @@
      @Override
      protected void defineSynchedData() {
          super.defineSynchedData();
@@ -118,7 +137,7 @@
      }
  
      public double[] getLatencyPos(int segmentNumber, float tickDelta) {
-@@ -140,17 +148,18 @@
+@@ -140,17 +165,18 @@
          }
  
          tickDelta = 1.0F - tickDelta;
@@ -148,7 +167,7 @@
      }
  
      @Override
-@@ -165,22 +174,27 @@
+@@ -165,22 +191,27 @@
          }
  
          this.oFlapTime = this.flapTime;
@@ -185,7 +204,7 @@
              }
  
              this.setYRot(Mth.wrapDegrees(this.getYRot()));
-@@ -188,9 +202,9 @@
+@@ -188,9 +219,9 @@
                  this.flapTime = 0.5F;
              } else {
                  if (this.posPointer < 0) {
@@ -198,7 +217,7 @@
                      }
                  }
  
-@@ -198,120 +212,140 @@
+@@ -198,120 +229,140 @@
                      this.posPointer = 0;
                  }
  
@@ -413,7 +432,7 @@
                  }
  
                  if (!this.level.isClientSide) {
-@@ -321,13 +355,13 @@
+@@ -321,13 +372,13 @@
                      }
                  }
  
@@ -434,7 +453,7 @@
                  }
  
              }
-@@ -342,9 +376,10 @@
+@@ -342,9 +393,10 @@
          if (this.phaseManager.getCurrentPhase().isSitting()) {
              return -1.0F;
          } else {
@@ -448,7 +467,7 @@
          }
      }
  
-@@ -353,39 +388,53 @@
+@@ -353,39 +405,53 @@
              if (this.nearestCrystal.isRemoved()) {
                  this.nearestCrystal = null;
              } else if (this.tickCount % 10 == 0 && this.getHealth() < this.getMaxHealth()) {
@@ -519,7 +538,7 @@
                      entity.hurt(DamageSource.mobAttack(this), 5.0F);
                      this.doEnchantDamageEffects(this, entity);
                  }
-@@ -395,7 +444,11 @@
+@@ -395,7 +461,11 @@
      }
  
      private void hurt(List<Entity> entities) {
@@ -532,7 +551,7 @@
              if (entity instanceof LivingEntity) {
                  entity.hurt(DamageSource.mobAttack(this), 10.0F);
                  this.doEnchantDamageEffects(this, entity);
-@@ -405,7 +458,7 @@
+@@ -405,7 +475,7 @@
      }
  
      private float rotWrap(double yawDegrees) {
@@ -541,7 +560,7 @@
      }
  
      private boolean checkWalls(AABB box) {
-@@ -413,33 +466,92 @@
+@@ -413,33 +483,92 @@
          int j = Mth.floor(box.minY);
          int k = Mth.floor(box.minZ);
          int l = Mth.floor(box.maxX);
@@ -651,7 +670,7 @@
      }
  
      public boolean hurt(EnderDragonPart part, DamageSource source, float amount) {
-@@ -455,7 +567,8 @@
+@@ -455,7 +584,8 @@
                  return false;
              } else {
                  if (source.getEntity() instanceof Player || source.isExplosion()) {
@@ -661,7 +680,7 @@
                      this.reallyHurt(source, amount);
                      if (this.isDeadOrDying() && !this.phaseManager.getCurrentPhase().isSitting()) {
                          this.setHealth(1.0F);
-@@ -463,7 +576,7 @@
+@@ -463,7 +593,7 @@
                      }
  
                      if (this.phaseManager.getCurrentPhase().isSitting()) {
@@ -670,7 +689,7 @@
                          if (this.sittingDamageReceived > 0.25F * this.getMaxHealth()) {
                              this.sittingDamageReceived = 0.0F;
                              this.phaseManager.setPhase(EnderDragonPhase.TAKEOFF);
-@@ -478,7 +591,7 @@
+@@ -478,7 +608,7 @@
  
      @Override
      public boolean hurt(DamageSource source, float amount) {
@@ -679,7 +698,7 @@
              this.hurt(this.body, source, amount);
          }
  
-@@ -508,33 +621,53 @@
+@@ -508,33 +638,53 @@
          ++this.dragonDeathTime;
          if (this.dragonDeathTime >= 180 && this.dragonDeathTime <= 200) {
              float f = (this.random.nextFloat() - 0.5F) * 8.0F;
@@ -745,7 +764,7 @@
              }
  
              if (this.dragonFight != null) {
-@@ -548,26 +681,32 @@
+@@ -548,26 +698,32 @@
  
      public int findClosestNode() {
          if (this.nodes[0] == null) {
@@ -792,7 +811,7 @@
              }
  
              this.nodeAdjacency[0] = 6146;
-@@ -602,18 +741,20 @@
+@@ -602,18 +758,20 @@
      public int findClosestNode(double x, double y, double z) {
          float f = 10000.0F;
          int i = 0;
@@ -822,7 +841,7 @@
                  }
              }
          }
-@@ -623,96 +764,118 @@
+@@ -623,96 +781,118 @@
  
      @Nullable
      public Path findPath(int from, int to, @Nullable Node pathNode) {
@@ -996,7 +1015,7 @@
          }
  
          return new Path(list, new BlockPos(node.x, node.y, node.z), true);
-@@ -739,8 +902,7 @@
+@@ -739,8 +919,7 @@
      }
  
      @Override
@@ -1006,7 +1025,7 @@
  
      public EnderDragonPart[] getSubEntities() {
          return this.subEntities;
-@@ -772,73 +934,81 @@
+@@ -772,73 +951,81 @@
      }
  
      public float getHeadPartYOffset(int segmentOffset, double[] segment1, double[] segment2) {
@@ -1034,7 +1053,7 @@
 -            BlockPos blockPos = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
 -            double d = Math.max(Math.sqrt(blockPos.distToCenterSqr(this.position())) / 4.0D, 1.0D);
 -            f = (double)segmentOffset / d;
-+            BlockPos blockposition = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
++            BlockPos blockposition = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.getPodium()); // Paper - use custom podium
 +            double d1 = Math.max(Math.sqrt(blockposition.distToCenterSqr(this.position())) / 4.0D, 1.0D);
 +
 +            d0 = (double) segmentOffset / d1;
@@ -1080,7 +1099,7 @@
 -            this.setXRot(-g * 1.5F * 5.0F);
 -            vec32 = this.getViewVector(tickDelta);
 -            this.setXRot(h);
-+            BlockPos blockposition = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
++            BlockPos blockposition = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.getPodium()); // Paper - use custom podium
 +
 +            f1 = Math.max((float) Math.sqrt(blockposition.distToCenterSqr(this.position())) / 4.0F, 1.0F);
 +            float f3 = 6.0F / f1;
@@ -1126,7 +1145,7 @@
          }
  
          super.onSyncedDataUpdated(data);
-@@ -871,10 +1041,10 @@
+@@ -871,10 +1058,10 @@
      @Override
      public void recreateFromPacket(ClientboundAddMobPacket packet) {
          super.recreateFromPacket(packet);

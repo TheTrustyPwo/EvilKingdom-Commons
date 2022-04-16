@@ -10,15 +10,16 @@ java {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://maven.enginehub.org/repo/")
+    }
 }
 
 dependencies {
     paperDevBundle("1.18.2-R0.1-SNAPSHOT")
     implementation("org.mongodb:mongo-java-driver:3.12.10")
-//    compileOnly("com.google.code.gson:gson:2.7")
-//    compileOnly("org.json:json:20090211")
-    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.1.0")
-    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.1.0") {
+    compileOnly("com.sk89q.worldedit:worldedit-core:7.2.10")
+    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.10") {
         isTransitive = false
     }
 }

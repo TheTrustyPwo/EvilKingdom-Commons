@@ -357,7 +357,7 @@
  
      public ItemStack quickMoveStack(Player player, int index) {
 -        return this.slots.get(index).getItem();
-+        return ((Slot) this.slots.get(index)).getItem();
++        return ItemStack.EMPTY; // CraftBukkit - previous implementation was useless and broken
      }
  
      public void clicked(int slotIndex, int button, ClickType actionType, Player player) {

@@ -1131,9 +1131,9 @@
 +            iblockdata.tick(this, pos, this.random);
          }
 +        MinecraftServer.getServer().executeMidTickTasks(); // Paper - exec chunk tasks during world tick
-+
-+    }
-+
+ 
+     }
+ 
 +    // Paper start - log detailed entity tick information
 +    // TODO replace with varhandle
 +    static final java.util.concurrent.atomic.AtomicReference<Entity> currentlyTickingEntity = new java.util.concurrent.atomic.AtomicReference<>();
@@ -1141,11 +1141,11 @@
 +    public static List<Entity> getCurrentlyTickingEntities() {
 +        Entity ticking = currentlyTickingEntity.get();
 +        List<Entity> ret = java.util.Arrays.asList(ticking == null ? new Entity[0] : new Entity[] { ticking });
- 
++
 +        return ret;
-     }
++    }
 +    // Paper end - log detailed entity tick information
- 
++
      public void tickNonPassenger(Entity entity) {
 +        // Paper start - log detailed entity tick information
 +        io.papermc.paper.util.TickThread.ensureTickThread("Cannot tick an entity off-main");
@@ -1902,8 +1902,8 @@
      public int getFreeMapId() {
 -        return this.getServer().overworld().getDataStorage().computeIfAbsent(MapIndex::load, MapIndex::new, "idcounts").getFreeAuxValueForMap();
 +        return ((MapIndex) this.getServer().overworld().getDataStorage().computeIfAbsent(MapIndex::load, MapIndex::new, "idcounts")).getFreeAuxValueForMap();
-     }
- 
++    }
++
 +    // Paper start - helper function for configurable spawn radius
 +    public void addTicketsForSpawn(int radiusInBlocks, BlockPos spawn) {
 +        // In order to respect vanilla behavior, which is ensuring everything but the spawn border can tick, we add tickets
@@ -1936,7 +1936,7 @@
 +            // left
 +            chunkproviderserver.addRegionTicket(TicketType.START, new ChunkPos(spawn.offset(-radiusInBlocks, 0, z)), 1, Unit.INSTANCE); // level 32
 +        }
-+    }
+     }
 +    public void removeTicketsForSpawn(int radiusInBlocks, BlockPos spawn) {
 +        // In order to respect vanilla behavior, which is ensuring everything but the spawn border can tick, we added tickets
 +        // with level 31 for the non-border spawn chunks
@@ -1970,7 +1970,7 @@
 +        }
 +    }
 +    // Paper end
-+
+ 
      public void setDefaultSpawnPos(BlockPos pos, float angle) {
 -        ChunkPos chunkPos = new ChunkPos(new BlockPos(this.levelData.getXSpawn(), 0, this.levelData.getZSpawn()));
 +        // Paper - configurable spawn radius
@@ -2500,7 +2500,7 @@
      }
  
      public boolean areEntitiesLoaded(long chunkPos) {
-@@ -1484,102 +2389,177 @@
+@@ -1484,102 +2389,183 @@
      }
  
      private boolean isPositionTickingWithEntitiesLoaded(long chunkPos) {
@@ -2551,6 +2551,12 @@
          public void onTickingEnd(Entity entity) {
              ServerLevel.this.entityTickList.remove(entity);
 +            ServerLevel.this.entityManager.removeNavigatorsFromData(entity); // Paper - optimise notify
++            // Paper start - Reset pearls when they stop being ticked
++            if (paperConfig.disableEnderpearlExploit && entity instanceof net.minecraft.world.entity.projectile.ThrownEnderpearl pearl) {
++                pearl.cachedOwner = null;
++                pearl.ownerUUID = null;
++            }
++            // Paper end
          }
  
 -        @Override

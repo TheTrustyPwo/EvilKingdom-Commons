@@ -92,7 +92,7 @@
      public boolean growMushroom(ServerLevel world, BlockPos pos, BlockState state, Random random) {
          world.removeBlock(pos, false);
 -        if (this.featureSupplier.get().value().place(world, world.getChunkSource().getGenerator(), random, pos)) {
-+        SaplingBlock.treeType = (this == Blocks.BROWN_MUSHROOM) ? TreeType.BROWN_MUSHROOM : TreeType.BROWN_MUSHROOM; // CraftBukkit
++        SaplingBlock.treeType = (this == Blocks.BROWN_MUSHROOM) ? TreeType.BROWN_MUSHROOM : TreeType.RED_MUSHROOM; // CraftBukkit // Paper
 +        if (((ConfiguredFeature) ((Holder) this.featureSupplier.get()).value()).place(world, world.getChunkSource().getGenerator(), random, pos)) {
              return true;
          } else {

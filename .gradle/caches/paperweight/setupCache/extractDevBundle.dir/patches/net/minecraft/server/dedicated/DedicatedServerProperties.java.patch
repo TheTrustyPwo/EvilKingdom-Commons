@@ -192,17 +192,12 @@
      }
  
      public WorldGenSettings getWorldGenSettings(RegistryAccess registryManager) {
-@@ -101,12 +154,38 @@
+@@ -101,6 +154,38 @@
          return this.worldGenSettings;
      }
  
 +    // CraftBukkit start - decompile error
      public static record WorldGenProperties(String levelSeed, JsonObject generatorSettings, boolean generateStructures, String levelType) {
--        public WorldGenProperties(String string, JsonObject jsonObject, boolean bl, String string2) {
--            this.levelSeed = string;
--            this.generatorSettings = jsonObject;
--            this.generateStructures = bl;
--            this.levelType = string2;
 +
 +        /*
 +        private final String levelSeed;
@@ -233,6 +228,6 @@
 +
 +        public String levelType() {
 +            return this.levelType;
-         }
++        }
      }
  }

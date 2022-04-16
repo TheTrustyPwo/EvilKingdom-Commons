@@ -3729,7 +3729,7 @@
      }
  
      public boolean isEffectiveAi() {
-@@ -2741,15 +3565,29 @@
+@@ -2741,14 +3565,28 @@
  
      @Override
      public boolean isPickable() {
@@ -3742,14 +3742,14 @@
      public boolean isPushable() {
 -        return this.isAlive() && !this.isSpectator() && !this.onClimbable();
 +        return this.isCollidable(level.paperConfig.fixClimbingBypassingCrammingRule);
-     }
- 
-     @Override
++    }
++
++    @Override
 +    public boolean isCollidable(boolean ignoreClimbing) {
 +        return this.isAlive() && !this.isSpectator() && (ignoreClimbing || !this.onClimbable()) && this.collides; // CraftBukkit
 +        // Paper end
-+    }
-+
+     }
+ 
 +    // CraftBukkit start - collidable API
 +    @Override
 +    public boolean canCollideWithBukkit(Entity entity) {
@@ -3757,10 +3757,9 @@
 +    }
 +    // CraftBukkit end
 +
-+    @Override
+     @Override
      public float getYHeadRot() {
          return this.yHeadRot;
-     }
 @@ -2766,7 +3604,7 @@
  
      @Override
@@ -4484,7 +4483,7 @@
          }
      }
  
-@@ -3305,26 +4294,43 @@
+@@ -3305,22 +4294,43 @@
      }
  
      public void recreateFromPacket(ClientboundAddMobPacket packet) {
@@ -4517,9 +4516,6 @@
  
 +    // CraftBukkit start - decompile error
      public static record Fallsounds(SoundEvent small, SoundEvent big) {
--        public Fallsounds(SoundEvent soundEvent, SoundEvent soundEvent2) {
--            this.small = soundEvent;
--            this.big = soundEvent2;
 +
 +        /*
 +        private final SoundEffect small;
@@ -4532,7 +4528,7 @@
 +
 +        public SoundEffect small() {
 +            return this.small;
-         }
++        }
 +
 +        public SoundEffect big() {
 +            return this.big;

@@ -309,9 +309,9 @@
              });
 -            throw new ReportedException(crashReport);
 +            throw new ReportedException(crashreport);
-+        }
-+    }
-+
+         }
+     }
+ 
 +    // CraftBukkit start
 +    public void setBiome(int i, int j, int k, Holder<Biome> biome) {
 +        try {
@@ -329,10 +329,10 @@
 +                return CrashReportCategory.formatLocation(this, i, j, k);
 +            });
 +            throw new ReportedException(crashreport);
-         }
-     }
++        }
++    }
 +    // CraftBukkit end
- 
++
      public void fillBiomesFromNoise(BiomeResolver biomeSupplier, Climate.Sampler sampler) {
 -        ChunkPos chunkPos = this.getPos();
 -        int i = QuartPos.fromBlock(chunkPos.getMinBlockX());
@@ -353,7 +353,7 @@
          }
  
      }
-@@ -417,11 +499,28 @@
+@@ -417,7 +499,28 @@
      public LevelHeightAccessor getHeightAccessorForGeneration() {
          return this;
      }
@@ -361,9 +361,6 @@
  
 +    // CraftBukkit start - decompile error
      public static record TicksToSave(SerializableTickContainer<Block> blocks, SerializableTickContainer<Fluid> fluids) {
--        public TicksToSave(SerializableTickContainer<Block> serializableTickContainer, SerializableTickContainer<Fluid> serializableTickContainer2) {
--            this.blocks = serializableTickContainer;
--            this.fluids = serializableTickContainer2;
 +
 +        /*
 +        private final SerializableTickContainer<Block> blocks;
@@ -376,7 +373,7 @@
 +
 +        public SerializableTickContainer<Block> blocks() {
 +            return this.blocks;
-         }
++        }
 +
 +        public SerializableTickContainer<FluidType> fluids() {
 +            return this.fluids;

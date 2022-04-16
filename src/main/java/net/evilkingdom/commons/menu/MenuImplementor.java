@@ -30,6 +30,7 @@ import net.evilkingdom.commons.command.objects.Command;
 import net.evilkingdom.commons.menu.objects.Menu;
 import net.evilkingdom.commons.menu.implementations.MenuListener;
 import net.evilkingdom.commons.menu.implementations.MenuRunnable;
+import net.evilkingdom.commons.scoreboard.implementations.ScoreboardRunnable;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
 import org.bukkit.entity.Player;
@@ -57,6 +58,8 @@ public class MenuImplementor {
         this.plugin = plugin;
 
         this.menus = new ArrayList<Menu>();
+        new MenuRunnable(this.plugin);
+        new MenuListener(this.plugin);
 
         cache.add(this);
     }

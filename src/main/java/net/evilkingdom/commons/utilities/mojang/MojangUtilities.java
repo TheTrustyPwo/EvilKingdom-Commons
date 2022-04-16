@@ -43,7 +43,7 @@ public class MojangUtilities {
      * Allows you to retrieve a UUID from a player's name.
      * Uses Mojang's API, website magic, and runs asynchronously in order to keep the server from lagging.
      *
-     * @param name ~ The player's name.
+     * @param name ~ The player's name if the UUID exists- if it doesn't it will return an empty optional.
      * @return The player's UUID.
      */
     public static CompletableFuture<Optional<UUID>> getUUID(final String name) {

@@ -7,6 +7,6 @@ description: Used as a library for the servers of Evil Kingdom.
 main: net.evilkingdom.commons.Commons
 version: 1.0
 api-version: 1.18
-depend: [FastAsyncWorldEdit]
+depend: [WorldEdit]
 
 commands:

@@ -184,7 +184,7 @@
 -        VoxelShape voxelShape7 = Block.box(14.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D);
 -        VoxelShape voxelShape8 = Block.box(0.0D, 0.0D, 14.0D, 16.0D, 2.0D, 16.0D);
 -        VoxelShape voxelShape9 = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 2.0D);
--        UNSTABLE_SHAPE = Shapes.or(ScaffoldingBlock.UNSTABLE_SHAPE_BOTTOM, STABLE_SHAPE, voxelShape7, voxelShape6, voxelShape9, voxelShape8);
+-        UNSTABLE_SHAPE = Shapes.or(UNSTABLE_SHAPE_BOTTOM, STABLE_SHAPE, voxelShape7, voxelShape6, voxelShape9, voxelShape8);
 +        VoxelShape voxelshape = Block.box(0.0D, 14.0D, 0.0D, 16.0D, 16.0D, 16.0D);
 +        VoxelShape voxelshape1 = Block.box(0.0D, 0.0D, 0.0D, 2.0D, 16.0D, 2.0D);
 +        VoxelShape voxelshape2 = Block.box(14.0D, 0.0D, 0.0D, 16.0D, 16.0D, 2.0D);

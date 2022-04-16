@@ -866,14 +866,14 @@
              return true;
          }
 +        } finally { co.aikar.timings.MinecraftTimings.distanceManagerTick.stopTiming(); } // Paper - add timings for distance manager
-     }
- 
++    }
++
 +    // Paper start - helper
 +    public boolean isPositionTicking(Entity entity) {
 +        return this.isPositionTicking(ChunkPos.asLong(net.minecraft.util.Mth.floor(entity.getX()) >> 4, net.minecraft.util.Mth.floor(entity.getZ()) >> 4));
-+    }
+     }
 +    // Paper end
-+
+ 
      public boolean isPositionTicking(long pos) {
 -        ChunkHolder chunkHolder = this.getVisibleChunkIfPresent(pos);
 -        if (chunkHolder == null) {
@@ -895,17 +895,17 @@
 +        try (co.aikar.timings.Timing timed = level.timings.chunkSaveData.startTiming()) { // Paper - Timings
          this.chunkMap.saveAllChunks(flush);
 +        } // Paper - Timings
-     }
- 
++    }
++
 +    // Paper start - duplicate save, but call incremental
 +    public void saveIncrementally() {
 +        this.runDistanceManagerUpdates();
 +        try (co.aikar.timings.Timing timed = level.timings.chunkSaveData.startTiming()) { // Paper - Timings
 +            this.chunkMap.saveIncrementally();
 +        } // Paper - Timings
-+    }
+     }
 +    // Paper end
-+
+ 
      @Override
      public void close() throws IOException {
 -        this.save(true);
@@ -1206,15 +1206,11 @@
              }
  
          });
-@@ -507,14 +1211,8 @@
+@@ -507,10 +1211,8 @@
          this.distanceManager.removeTicketsOnClosing();
      }
  
 -    static record ChunkAndHolder(LevelChunk chunk, ChunkHolder holder) {
--        ChunkAndHolder(LevelChunk levelChunk, ChunkHolder chunkHolder) {
--            this.chunk = levelChunk;
--            this.holder = chunkHolder;
--        }
 -    }
 -
      public final class MainThreadExecutor extends BlockableEventLoop<Runnable> {
@@ -1222,7 +1218,7 @@
          MainThreadExecutor(Level world) {
              super("Chunk source main thread executor for " + world.dimension().location());
          }
-@@ -546,13 +1244,45 @@
+@@ -542,13 +1244,45 @@
          }
  
          @Override
@@ -1242,7 +1238,7 @@
 +        } finally {
 +            chunkMap.chunkLoadConversionCallbackExecutor.run(); // Paper - Add chunk load conversion callback executor to prevent deadlock due to recursion in the chunk task queue sorter
 +            chunkMap.callbackExecutor.run();
-         }
++        }
 +        // CraftBukkit end
 +        }
 +    }
@@ -1265,7 +1261,7 @@
 +
 +        public PlayerChunk holder() {
 +            return this.holder;
-+        }
+         }
 +         */
 +        // CraftBukkit end
      }

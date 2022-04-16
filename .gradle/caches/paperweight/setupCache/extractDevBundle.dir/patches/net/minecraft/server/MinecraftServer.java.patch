@@ -2505,7 +2505,7 @@
      }
  
      @Nullable
-@@ -1793,25 +2595,42 @@
+@@ -1793,20 +2595,42 @@
          if (this.debugCommandProfiler == null) {
              return EmptyProfileResults.EMPTY;
          } else {
@@ -2519,9 +2519,7 @@
      }
  
 -    static record ReloadableResources(CloseableResourceManager resourceManager, ReloadableServerResources managers) implements AutoCloseable {
--        ReloadableResources(CloseableResourceManager closeableResourceManager, ReloadableServerResources reloadableServerResources) {
--            this.resourceManager = closeableResourceManager;
--            this.managers = reloadableServerResources;
+-        @Override
 +    // CraftBukkit start - decompile error
 +    public static record ReloadableResources(CloseableResourceManager resourceManager, ReloadableServerResources managers) implements AutoCloseable {
 +
@@ -2532,11 +2530,10 @@
 +        a(IReloadableResourceManager ireloadableresourcemanager, DataPackResources datapackresources) {
 +            this.resourceManager = ireloadableresourcemanager;
 +            this.managers = datapackresources;
-         }
++        }
 +         */
 +        // CraftBukkit end
- 
--        @Override
++
          public void close() {
              this.resourceManager.close();
          }
@@ -2556,7 +2553,7 @@
          final long startNanos;
          final int startTick;
  
-@@ -1820,7 +2639,7 @@
+@@ -1815,7 +2639,7 @@
              this.startTick = tick;
          }
  
@@ -2565,7 +2562,7 @@
              return new ProfileResults() {
                  @Override
                  public List<ResultField> getTimes(String parentPath) {
-@@ -1859,4 +2678,99 @@
+@@ -1854,4 +2678,99 @@
              };
          }
      }

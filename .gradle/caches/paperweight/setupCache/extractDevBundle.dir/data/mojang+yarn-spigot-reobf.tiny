@@ -8439,9 +8439,6 @@ c	net/minecraft/resources/ResourceKey	net/minecraft/resources/ResourceKey
 	m	(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/resources/ResourceKey;	createRegistryKey	a
 	m	(Lnet/minecraft/resources/ResourceKey;)Ljava/util/function/Function;	elementKey	d
 	m	(Lnet/minecraft/resources/ResourceKey;)Z	isFor	b
-	m	(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/resources/ResourceKey;	lambda$codec$0	c
-	m	(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Ljava/lang/String;)Lnet/minecraft/resources/ResourceKey;	lambda$create$1	a
-	m	(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/resources/ResourceKey;	lambda$elementKey$2	b
 	m	()Lnet/minecraft/resources/ResourceLocation;	location	a
 	m	()Lnet/minecraft/resources/ResourceLocation;	registry	b
 	f	Ljava/util/Map;	VALUES	a

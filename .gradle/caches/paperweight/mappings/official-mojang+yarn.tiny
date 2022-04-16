@@ -89777,7 +89777,12 @@ c	cui	net/minecraft/world/level/levelgen/Noises
 	f	Lys;	z	SPAGHETTI_ROUGHNESS
 c	cuj	net/minecraft/world/level/levelgen/OreVeinifier
 	m	(Lctp;Lcov;Lcum;Lctp;Lctp;Lctp$b;)Lcov;	a	lambda$create$0
+		p	5		pos
 	m	(Lctp;Lctp;Lctp;Lcum;)Lcua$c;	a	create
+		p	0		veinToggle
+		p	1		veinRidged
+		p	2		veinGap
+		p	3		randomDeriver
 	f	F	a	VEININESS_THRESHOLD
 	f	I	b	EDGE_ROUNDOFF_BEGIN
 	f	D	c	MAX_EDGE_ROUNDOFF
@@ -89790,7 +89795,7 @@ c	cuj	net/minecraft/world/level/levelgen/OreVeinifier
 c	cuj$a	net/minecraft/world/level/levelgen/OreVeinifier$VeinType
 	m	(Ljava/lang/String;ILcov;Lcov;Lcov;II)V	<init>	<init>
 		p	3		ore
-		p	4		rawBlock
+		p	4		rawOreBlock
 		p	5		stone
 		p	6		minY
 		p	7		maxY

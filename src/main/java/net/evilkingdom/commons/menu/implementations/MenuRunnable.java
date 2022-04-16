@@ -29,6 +29,7 @@ import net.evilkingdom.commons.menu.objects.Menu;
 import net.evilkingdom.commons.menu.objects.MenuItem;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Optional;
 
@@ -38,18 +39,13 @@ public class MenuRunnable implements Runnable {
 
     /**
      * Allows you to create a MenuRunnable for a plugin.
-     * This is used in the MenuImplementor to register the menu system on plugins.
+     * This should not be used inside your plugin whatsoever!
      *
      * @param plugin ~ The plugin the MenuRunnable is for.
      */
     public MenuRunnable(final JavaPlugin plugin) {
         this.plugin = plugin;
-    }
 
-    /**
-     * Allows you to register the runnable.
-     */
-    public void register() {
         Bukkit.getScheduler().runTaskTimer(this.plugin, this, 0L, 20L);
     }
 

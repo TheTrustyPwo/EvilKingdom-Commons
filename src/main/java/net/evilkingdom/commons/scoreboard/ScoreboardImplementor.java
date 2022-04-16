@@ -24,6 +24,7 @@ package net.evilkingdom.commons.scoreboard;
  *  SOFTWARE.
  */
 
+import net.evilkingdom.commons.scoreboard.implementations.ScoreboardRunnable;
 import net.evilkingdom.commons.scoreboard.objects.Scoreboard;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -49,6 +50,7 @@ public class ScoreboardImplementor {
         this.plugin = plugin;
 
         this.scoreboards = new ArrayList<Scoreboard>();
+        new ScoreboardRunnable(this.plugin);
 
         cache.add(this);
     }

@@ -215,7 +215,7 @@
      }
  
      public boolean placeInWorld(ServerLevelAccessor world, BlockPos pos, BlockPos pivot, StructurePlaceSettings placementData, Random random, int flags) {
-@@ -205,55 +238,65 @@
+@@ -205,55 +238,69 @@
              return false;
          } else {
              List<StructureTemplate.StructureBlockInfo> list = placementData.getRandomPalette(this.palettes, pos).blocks();
@@ -262,7 +262,11 @@
 +
 +                        if (definedstructure_blockinfo.nbt != null) {
 +                            tileentity = world.getBlockEntity(blockposition2);
-+                            Clearable.tryClear(tileentity);
++                            // Paper start - Fix NBT pieces overriding a block entity during worldgen deadlock
++                            if (!(world instanceof net.minecraft.world.level.WorldGenLevel)) {
++                                Clearable.tryClear(tileentity);
++                            }
++                            // Paper end
 +                            world.setBlock(blockposition2, Blocks.BARRIER.defaultBlockState(), 20);
                          }
  
@@ -318,7 +322,7 @@
                                      }
                                  }
                              }
-@@ -261,75 +304,90 @@
+@@ -261,75 +308,94 @@
                      }
                  }
  
@@ -437,7 +441,11 @@
 +                        if (pair1.getSecond() != null) {
 +                            tileentity = world.getBlockEntity(blockposition6);
 +                            if (tileentity != null) {
-+                                tileentity.setChanged();
++                                // Paper start - Fix NBT pieces overriding a block entity during worldgen deadlock
++                                if (!(world instanceof net.minecraft.world.level.WorldGenLevel)) {
++                                    tileentity.setChanged();
++                                }
++                                // Paper end
                              }
                          }
                      }
@@ -449,7 +457,7 @@
                  }
  
                  return true;
-@@ -339,62 +397,73 @@
+@@ -339,62 +405,73 @@
          }
      }
  
@@ -561,7 +569,7 @@
                      }
  
                      world.addFreshEntityWithPassengers(entity);
-@@ -405,20 +474,22 @@
+@@ -405,20 +482,22 @@
      }
  
      private static Optional<Entity> createEntityIgnoreException(ServerLevelAccessor world, CompoundTag nbt) {
@@ -595,7 +603,7 @@
          }
      }
  
-@@ -426,87 +497,92 @@
+@@ -426,87 +505,92 @@
          int i = pos.getX();
          int j = pos.getY();
          int k = pos.getZ();
@@ -747,7 +755,7 @@
      }
  
      public BoundingBox getBoundingBox(StructurePlaceSettings placementData, BlockPos pos) {
-@@ -514,15 +590,16 @@
+@@ -514,15 +598,16 @@
      }
  
      public BoundingBox getBoundingBox(BlockPos pos, Rotation rotation, BlockPos pivot, Mirror mirror) {
@@ -769,7 +777,7 @@
      }
  
      public CompoundTag save(CompoundTag nbt) {
-@@ -531,165 +608,230 @@
+@@ -531,165 +616,230 @@
              nbt.put("palette", new ListTag());
          } else {
              List<StructureTemplate.SimplePalette> list = Lists.newArrayList();
@@ -1082,7 +1090,7 @@
  
          Palette(List<StructureTemplate.StructureBlockInfo> infos) {
              this.blocks = infos;
-@@ -700,21 +842,38 @@
+@@ -700,21 +850,38 @@
          }
  
          public List<StructureTemplate.StructureBlockInfo> blocks(Block block) {
@@ -1125,7 +1133,7 @@
              if (i == -1) {
                  i = this.lastId++;
                  this.ids.addMapping(state, i);
-@@ -725,11 +884,11 @@
+@@ -725,11 +892,11 @@
  
          @Nullable
          public BlockState stateFor(int id) {
@@ -1140,7 +1148,7 @@
          public Iterator<BlockState> iterator() {
              return this.ids.iterator();
          }
-@@ -738,33 +897,4 @@
+@@ -738,33 +905,4 @@
              this.ids.addMapping(state, id);
          }
      }

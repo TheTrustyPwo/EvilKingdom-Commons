@@ -43,18 +43,13 @@ public class MenuListener implements Listener {
 
     /**
      * Allows you to create a MenuListener for a plugin.
-     * This is used in the MenuImplementor to register the menu system on plugins.
+     * This should not be used inside your plugin whatsoever!
      *
      * @param plugin ~ The plugin the MenuListener is for.
      */
     public MenuListener(final JavaPlugin plugin) {
         this.plugin = plugin;
-    }
 
-    /**
-     * Allows you to register the listener.
-     */
-    public void register() {
         Bukkit.getPluginManager().registerEvents(this, this.plugin);
     }
 

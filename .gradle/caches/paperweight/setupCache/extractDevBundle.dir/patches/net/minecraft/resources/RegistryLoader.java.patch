@@ -22,14 +22,3 @@
              return new RegistryLoader.ReadCache();
          });
      }
-@@ -83,10 +89,6 @@
-     }
- 
-     public static record Bound(RegistryAccess.Writable access, RegistryLoader loader) {
--        public Bound(RegistryAccess.Writable writable, RegistryLoader registryLoader) {
--            this.access = writable;
--            this.loader = registryLoader;
--        }
- 
-         public <E> DataResult<? extends Registry<E>> overrideRegistryFromResources(ResourceKey<? extends Registry<E>> registryRef, Codec<E> codec, DynamicOps<JsonElement> ops) {
-             WritableRegistry<E> writableRegistry = this.access.ownedWritableRegistryOrThrow(registryRef);

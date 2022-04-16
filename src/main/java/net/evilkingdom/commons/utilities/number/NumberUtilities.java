@@ -94,23 +94,12 @@ public class NumberUtilities {
             numberFormat.setGroupingUsed(true);
             return numberFormat.format(number);
         } else if (numberFormatType == NumberFormatType.LETTERS) {
-            numberFormat.setMaximumFractionDigits(2);
-            numberFormat.setMinimumFractionDigits(0);
-            if (number < 1000.0) {
-                return numberFormat.format(number);
-            } else if (number < 1000000.0) {
-                return numberFormat.format((number / 1000.0)) + "k";
-            } else if (number < 1.0E9) {
-                return numberFormat.format((number / 1000000.0)) + "m";
-            } else if (number < 1.0E12) {
-                return numberFormat.format((number / 1.0E9)) + "b";
-            } else if (number < 1.0E15) {
-                return numberFormat.format((number / 1.0E12)) + "t";
-            } else if (number < 1.0E18) {
-                return numberFormat.format((number / 1.0E15)) + "q";
-            } else if (number < 1.0E21) {
-                return numberFormat.format((number / 1.0E18)) + "qt";
+            if (number < 1000) {
+                return String.valueOf(number);
             }
+            final String[] units = new String[] {"k", "m", "b", "t", "q", "qt"};
+            final int exp = (int) (Math.log(number) / 3);
+            return String.format("%8s%n", String.format("%.2f %s", (number / Math.pow(1000, exp)), units[exp - 1]));
         }
         return String.valueOf(number);
     }

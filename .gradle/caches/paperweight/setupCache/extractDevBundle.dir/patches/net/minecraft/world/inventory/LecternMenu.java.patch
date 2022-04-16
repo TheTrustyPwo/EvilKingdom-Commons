@@ -35,7 +35,7 @@
      private static final int DATA_COUNT = 1;
      private static final int SLOT_COUNT = 1;
      public static final int BUTTON_PREV_PAGE = 1;
-@@ -15,60 +38,95 @@
+@@ -15,56 +38,84 @@
      private final Container lectern;
      private final ContainerData lecternData;
  
@@ -154,18 +154,7 @@
              }
          }
      }
- 
-+    // Paper start
-+    @Override
-+    public ItemStack quickMoveStack(net.minecraft.world.entity.player.Player player, int index) {
-+        return ItemStack.EMPTY;
-+    }
-+    // Paper end
-+
-     @Override
-     public void setData(int id, int value) {
-         super.setData(id, value);
-@@ -76,7 +134,9 @@
+@@ -76,7 +127,9 @@
      }
  
      @Override

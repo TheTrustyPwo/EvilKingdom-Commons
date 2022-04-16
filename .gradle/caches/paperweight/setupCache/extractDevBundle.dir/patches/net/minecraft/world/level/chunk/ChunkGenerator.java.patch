@@ -45,11 +45,9 @@
  import org.slf4j.Logger;
  
  public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
--    private static final Logger LOGGER = LogUtils.getLogger();
--    public static final Codec<ChunkGenerator> CODEC = Registry.CHUNK_GENERATOR.byNameCodec().dispatchStable(ChunkGenerator::codec, Function.identity());
 +
-+    private static final Logger LOGGER;
-+    public static final Codec<ChunkGenerator> CODEC;
+     private static final Logger LOGGER;
+     public static final Codec<ChunkGenerator> CODEC;
      public final Registry<StructureSet> structureSets;
      protected final BiomeSource biomeSource;
      protected final BiomeSource runtimeBiomeSource;
@@ -1120,11 +1118,3 @@
      }
  
      public abstract void addDebugScreenInfo(List<String> text, BlockPos pos);
-@@ -706,5 +938,7 @@
-         Registry.register(Registry.CHUNK_GENERATOR, "noise", NoiseBasedChunkGenerator.CODEC);
-         Registry.register(Registry.CHUNK_GENERATOR, "flat", FlatLevelSource.CODEC);
-         Registry.register(Registry.CHUNK_GENERATOR, "debug", DebugLevelSource.CODEC);
-+        LOGGER = LogUtils.getLogger();
-+        CODEC = Registry.CHUNK_GENERATOR.byNameCodec().dispatchStable(ChunkGenerator::codec, Function.identity());
-     }
- }

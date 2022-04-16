@@ -26,8 +26,12 @@ package net.evilkingdom.commons;
 
 import net.evilkingdom.commons.utilities.string.StringUtilities;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
-public class Commons {
+public class Commons extends JavaPlugin implements Listener {
 
     private static Commons plugin;
 

@@ -5,9 +5,9 @@
   "mojangApiCoordinates": "io.papermc.paper:paper-mojangapi:1.18.2-R0.1-SNAPSHOT",
   "buildData": {
     "paramMappings": {
-      "url": "https://maven.fabricmc.net/",
+      "url": "https://papermc.io/repo/repository/maven-public/",
       "coordinates": [
-        "net.fabricmc:yarn:1.18.2+build.1:mergedv2"
+        "net.fabricmc:yarn:1.18.2+build.2:mergedv2"
       ]
     },
     "reobfMappingsFile": "data/mojang+yarn-spigot-reobf.tiny",
@@ -126,9 +126,7 @@
     ],
     "libraryRepositories": [
       "https://repo.maven.apache.org/maven2/",
-      "https://libraries.minecraft.net/",
-      "https://papermc.io/repo/repository/maven-public/",
-      "https://maven.fabricmc.net/"
+      "https://papermc.io/repo/repository/maven-public/"
     ],
     "relocations": [
       {
@@ -164,9 +162,9 @@
   },
   "decompile": {
     "dep": {
-      "url": "https://files.minecraftforge.net/maven/",
+      "url": "https://papermc.io/repo/repository/maven-public/",
       "coordinates": [
-        "net.minecraftforge:forgeflower:1.5.498.22"
+        "net.minecraftforge:forgeflower:1.5.498.29"
       ]
     },
     "args": [
@@ -189,7 +187,7 @@
     ]
   },
   "remapper": {
-    "url": "https://maven.fabricmc.net/",
+    "url": "https://papermc.io/repo/repository/maven-public/",
     "coordinates": [
       "net.fabricmc:tiny-remapper:0.8.1:fat"
     ]

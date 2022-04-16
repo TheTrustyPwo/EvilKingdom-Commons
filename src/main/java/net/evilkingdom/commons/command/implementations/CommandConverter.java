@@ -38,6 +38,7 @@ public class CommandConverter extends org.bukkit.command.Command {
 
     /**
      * Allows you to convert a command to a bukkit command.
+     * This should not be used inside your plugin whatsoever!
      *
      * @param command ~ The command to convert to a bukkit command.
      */
