@@ -35,7 +35,6 @@ public class Command {
     private final JavaPlugin plugin;
 
     private final String name;
-    private String description;
     private CommandHandler handler;
     private ArrayList<String> aliases;
 
@@ -76,24 +75,6 @@ public class Command {
      */
     public void setAliases(final ArrayList<String> aliases) {
         this.aliases = aliases;
-    }
-
-    /**
-     * Allows you to set the command's description.
-     *
-     * @param description ~ The command's description that will be set.
-     */
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
-    /**
-     * Allows you to retrieve the command's description.
-     *
-     * @return ~ The command's description.
-     */
-    public String getDescription() {
-        return this.description;
     }
 
     /**

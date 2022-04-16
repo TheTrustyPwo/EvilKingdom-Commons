@@ -34,7 +34,7 @@ public abstract class CommandHandler {
      * The execution of the command.
      * Just uses the bukkit arguments since bukkit handles the magic.
      */
-    public boolean onExecution(final CommandSender commandSender, final String commandLabel, final String[] arguments) {
+    public boolean onExecution(final CommandSender commandSender, final String[] arguments) {
         return false;
     }
 

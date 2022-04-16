@@ -49,9 +49,6 @@ public class CommandConverter extends org.bukkit.command.Command {
         if (!command.getAliases().isEmpty()) {
             this.setAliases(command.getAliases());
         }
-        if (command.getDescription() != null) {
-            this.setDescription(command.getDescription());
-        }
         this.command = command;
     }
 
@@ -61,7 +58,7 @@ public class CommandConverter extends org.bukkit.command.Command {
      */
     @Override
     public boolean execute(final CommandSender commandSender, final String commandLabel, final String[] arguments) {
-        return this.command.getHandler().onExecution(commandSender, commandLabel, arguments);
+        return this.command.getHandler().onExecution(commandSender, arguments);
     }
 
     /**
