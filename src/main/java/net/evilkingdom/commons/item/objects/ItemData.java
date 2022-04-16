@@ -29,22 +29,25 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ItemData {
 
-    private JavaPlugin plugin;
+    private final JavaPlugin plugin;
+
     private ItemStack itemStack;
 
     /**
-     * Allows you to build an item's data.
+     * Allows you to create an ItemData for a plugin.
      *
-     * @param itemStack ~ The item stack to build off.
-     * @param plugin ~ The plugin where the item's data is stored.
+     * @param plugin ~ The ItemData's plugin.
+     * @param itemStack ~ The ItemData's item.
      */
-    public ItemData(final ItemStack itemStack, final JavaPlugin plugin) {
-        this.itemStack = itemStack;
+    public ItemData(final JavaPlugin plugin, final ItemStack itemStack) {
         this.plugin = plugin;
+
+        this.itemStack = itemStack;
     }
 
     /**
@@ -104,12 +107,21 @@ public class ItemData {
     }
 
     /**
-     * Allows you to get the item's ItemStack.
+     * Allows you to retrieve the ItemData's ItemStack.
      *
-     * @return The item's ItemStack.
+     * @return The ItemData's ItemStack.
      */
     public ItemStack getItemStack() {
         return this.itemStack;
+    }
+
+    /**
+     * Allows you to retrieve the ItemData's plugin.
+     *
+     * @return The retrieve the ItemData's plugin.
+     */
+    public JavaPlugin getPlugin() {
+        return this.plugin;
     }
 
 }
