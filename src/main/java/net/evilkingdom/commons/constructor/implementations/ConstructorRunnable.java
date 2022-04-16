@@ -84,7 +84,7 @@ public class ConstructorRunnable implements Runnable {
                     final Clipboard clipboard = clipboardIterator.next();
                     clipboardIterator.remove();
                     try (final EditSession editSession = WorldEdit.getInstance().newEditSession(clipboard.getRegion().getWorld())) {
-                        final Operation operation = new ClipboardHolder(clipboard).createPaste(editSession).to(clipboard.getOrigin()).build();
+                        final Operation operation = new ClipboardHolder(clipboard).createPaste(editSession).to(clipboard.getOrigin()).copyEntities(true).ignoreAirBlocks(true).build();
                         Operations.completeBlindly(operation);
                     }
                 }

@@ -188,8 +188,9 @@ public class ConstructorSchematic {
             cuboidRegion.setWorld(BukkitAdapter.adapt(region.getCornerOne().getWorld()));
             final BlockArrayClipboard clipboard = new BlockArrayClipboard(cuboidRegion);
             try (final EditSession editSession = WorldEdit.getInstance().newEditSession(cuboidRegion.getWorld())) {
-                final Operation operation = new ForwardExtentCopy(cuboidRegion.getWorld(), clipboard.getRegion(), clipboard, BukkitAdapter.asBlockVector(this.center));
-                Operations.complete(operation);
+                final ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(cuboidRegion.getWorld(), clipboard.getRegion(), clipboard, BukkitAdapter.asBlockVector(this.center));
+                forwardExtentCopy.setCopyingEntities(true);
+                Operations.complete(forwardExtentCopy);
             }  catch (final WorldEditException worldEditException) {
                 return false;
             }
