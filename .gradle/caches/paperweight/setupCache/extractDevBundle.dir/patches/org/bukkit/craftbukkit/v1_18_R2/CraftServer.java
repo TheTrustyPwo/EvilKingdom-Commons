@@ -125,6 +125,7 @@ import org.bukkit.UnsafeValues;
 import org.bukkit.Warning.WarningState;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
+import org.bukkit.WorldBorder;
 import org.bukkit.WorldCreator;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.boss.BarColor;
@@ -1348,6 +1349,11 @@ public final class CraftServer implements Server {
             return;
         }
         this.worlds.put(world.getName().toLowerCase(java.util.Locale.ENGLISH), world);
+    }
+
+    @Override
+    public WorldBorder createWorldBorder() {
+        return new CraftWorldBorder(new net.minecraft.world.level.border.WorldBorder());
     }
 
     @Override

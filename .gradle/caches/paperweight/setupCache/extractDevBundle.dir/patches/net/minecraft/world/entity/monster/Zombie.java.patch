@@ -237,7 +237,7 @@
                      this.setSecondsOnFire(8);
                  }
              }
-@@ -243,31 +268,49 @@
+@@ -243,32 +268,50 @@
          super.aiStep();
      }
  
@@ -284,16 +284,17 @@
      public boolean isSunSensitive() {
 -        return true;
 +        return this.shouldBurnInDay; // Paper - use api value instead
-+    }
-+
+     }
+ 
 +    // Paper start
 +    public void setShouldBurnInDay(boolean shouldBurnInDay) {
 +        this.shouldBurnInDay = shouldBurnInDay;
-     }
++    }
 +    // Paper end
- 
++
      @Override
      public boolean hurt(DamageSource source, float amount) {
+         if (!super.hurt(source, amount)) {
 @@ -276,33 +319,35 @@
          } else if (!(this.level instanceof ServerLevel)) {
              return false;
@@ -396,7 +397,7 @@
      }
  
      @Override
-@@ -387,26 +443,40 @@
+@@ -387,29 +443,48 @@
          if (nbt.contains("DrownedConversionTime", 99) && nbt.getInt("DrownedConversionTime") > -1) {
              this.startUnderWaterConversion(nbt.getInt("DrownedConversionTime"));
          }
@@ -428,26 +429,35 @@
 -            zombieVillager.setGossips(villager.getGossips().store(NbtOps.INSTANCE).getValue());
 -            zombieVillager.setTradeOffers(villager.getOffers().createTag());
 -            zombieVillager.setVillagerXp(villager.getVillagerXp());
+-            if (!this.isSilent()) {
+-                world.levelEvent((Player)null, 1026, this.blockPosition(), 0);
 +            Villager entityvillager = (Villager) other;
 +            // CraftBukkit start
-+            ZombieVillager entityzombievillager = (ZombieVillager) entityvillager.convertTo(EntityType.ZOMBIE_VILLAGER, false, EntityTransformEvent.TransformReason.INFECTION, CreatureSpawnEvent.SpawnReason.INFECTION);
-+            if (entityzombievillager == null) {
-+                return;
-+            }
-+            // CraftBukkit end
++            Zombie.zombifyVillager(world, entityvillager, this.blockPosition(), this.isSilent(), false);
++        }
++    }
 +
-+            entityzombievillager.finalizeSpawn(world, world.getCurrentDifficultyAt(entityzombievillager.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false, true), (CompoundTag) null);
++    public static ZombieVillager zombifyVillager(ServerLevel worldserver, Villager entityvillager, net.minecraft.core.BlockPos blockPosition, boolean silent, boolean custom) {
++        ZombieVillager entityzombievillager = (ZombieVillager) entityvillager.convertTo(EntityType.ZOMBIE_VILLAGER, false, EntityTransformEvent.TransformReason.INFECTION, (custom) ? CreatureSpawnEvent.SpawnReason.CUSTOM : CreatureSpawnEvent.SpawnReason.INFECTION);
++        if (entityzombievillager != null) {
++            // CraftBukkit end
++            entityzombievillager.finalizeSpawn(worldserver, worldserver.getCurrentDifficultyAt(entityzombievillager.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false, true), (CompoundTag) null);
 +            entityzombievillager.setVillagerData(entityvillager.getVillagerData());
 +            entityzombievillager.setGossips((Tag) entityvillager.getGossips().store(NbtOps.INSTANCE).getValue());
 +            entityzombievillager.setTradeOffers(entityvillager.getOffers().createTag());
 +            entityzombievillager.setVillagerXp(entityvillager.getVillagerXp());
-             if (!this.isSilent()) {
--                world.levelEvent((Player)null, 1026, this.blockPosition(), 0);
-+                world.levelEvent((Player) null, 1026, this.blockPosition(), 0);
++            // CraftBukkit start
++            if (!silent) {
++                worldserver.levelEvent((Player) null, 1026, blockPosition, 0);
              }
++            // CraftBukkit end
          }
  
-@@ -430,32 +500,37 @@
++        return entityzombievillager; // CraftBukkit
+     }
+ 
+     @Override
+@@ -430,32 +505,37 @@
      @Nullable
      @Override
      public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType spawnReason, @Nullable SpawnGroupData entityData, @Nullable CompoundTag entityNbt) {
@@ -504,7 +514,7 @@
                      }
                  }
              }
-@@ -466,9 +541,10 @@
+@@ -466,9 +546,10 @@
          }
  
          if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
@@ -518,7 +528,7 @@
              if (j == 10 && i == 31 && this.random.nextFloat() < 0.25F) {
                  this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(this.random.nextFloat() < 0.1F ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
                  this.armorDropChances[EquipmentSlot.HEAD.getIndex()] = 0.0F;
-@@ -476,7 +552,7 @@
+@@ -476,7 +557,7 @@
          }
  
          this.handleAttributes(f);
@@ -527,7 +537,7 @@
      }
  
      public static boolean getSpawnAsBabyOdds(Random random) {
-@@ -485,10 +561,11 @@
+@@ -485,10 +566,11 @@
  
      protected void handleAttributes(float chanceMultiplier) {
          this.randomizeReinforcementsChance();
@@ -543,7 +553,7 @@
          }
  
          if (this.random.nextFloat() < chanceMultiplier * 0.05F) {
-@@ -500,7 +577,7 @@
+@@ -500,7 +582,7 @@
      }
  
      protected void randomizeReinforcementsChance() {
@@ -552,7 +562,7 @@
      }
  
      @Override
-@@ -512,13 +589,16 @@
+@@ -512,13 +594,16 @@
      protected void dropCustomDeathLoot(DamageSource source, int lootingMultiplier, boolean allowDrops) {
          super.dropCustomDeathLoot(source, lootingMultiplier, allowDrops);
          Entity entity = source.getEntity();
@@ -575,7 +585,7 @@
                  }
              }
          }
-@@ -529,19 +609,20 @@
+@@ -529,19 +614,20 @@
          return new ItemStack(Items.ZOMBIE_HEAD);
      }
  
@@ -601,7 +611,7 @@
          }
  
          @Override
-@@ -551,6 +632,7 @@
+@@ -551,6 +637,7 @@
      }
  
      public static class ZombieGroupData implements SpawnGroupData {

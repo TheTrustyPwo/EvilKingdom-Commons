@@ -41,7 +41,7 @@
  import net.minecraft.world.level.StructureFeatureManager;
  import net.minecraft.world.level.WorldGenLevel;
  import net.minecraft.world.level.biome.Biome;
-@@ -86,59 +88,123 @@
+@@ -86,106 +88,193 @@
  import org.slf4j.Logger;
  
  public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
@@ -96,19 +96,13 @@
 +        return this.structureOverrides.isPresent() ? ((HolderSet) this.structureOverrides.get()).stream() : this.structureSets.holders().map(Holder::hackyErase);
      }
  
-     private void generatePositions() {
-         Set<Holder<Biome>> set = this.runtimeBiomeSource.possibleBiomes();
-+
-         this.possibleStructureSets().forEach((holder) -> {
--            StructureSet structureSet = holder.value();
-+            StructureSet structureset = (StructureSet) holder.value();
-+            // Spigot start
++    // Spigot start
++    private Stream<StructureSet> possibleStructureSetsSpigot() {
++        return this.possibleStructureSets().map(Holder::value).map((structureset) -> {
 +            if (structureset.placement() instanceof RandomSpreadStructurePlacement randomConfig) {
 +                String name = this.structureSets.getKey(structureset).getPath();
 +                int seed = randomConfig.salt();
- 
--            for(StructureSet.StructureSelectionEntry structureSelectionEntry : structureSet.structures()) {
--                this.placementsForFeature.computeIfAbsent(structureSelectionEntry.structure().value(), (configuredStructureFeature) -> {
++
 +                switch (name) {
 +                    case "desert_pyramids":
 +                        seed = conf.desertSeed;
@@ -156,6 +150,21 @@
 +
 +                structureset = new StructureSet(structureset.structures(), new RandomSpreadStructurePlacement(randomConfig.spacing(), randomConfig.separation(), randomConfig.spreadType(), seed, randomConfig.locateOffset()));
 +            }
++            return structureset;
++        });
++    }
++    // Spigot end
++
+     private void generatePositions() {
+         Set<Holder<Biome>> set = this.runtimeBiomeSource.possibleBiomes();
+-        this.possibleStructureSets().forEach((holder) -> {
+-            StructureSet structureSet = holder.value();
+ 
+-            for(StructureSet.StructureSelectionEntry structureSelectionEntry : structureSet.structures()) {
+-                this.placementsForFeature.computeIfAbsent(structureSelectionEntry.structure().value(), (configuredStructureFeature) -> {
++        // Spigot start
++        this.possibleStructureSetsSpigot().forEach((holder) -> {
++            StructureSet structureset = (StructureSet) holder;
 +            // Spigot end
 +            Iterator iterator = structureset.structures().iterator();
 +
@@ -187,24 +196,31 @@
                  }
              }
  
-@@ -148,44 +214,59 @@
-     private CompletableFuture<List<ChunkPos>> generateRingPositions(Holder<StructureSet> strongholdSet, ConcentricRingsStructurePlacement placement) {
-         return placement.count() == 0 ? CompletableFuture.completedFuture(List.of()) : CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName("placement calculation", () -> {
+         });
+     }
+ 
+-    private CompletableFuture<List<ChunkPos>> generateRingPositions(Holder<StructureSet> strongholdSet, ConcentricRingsStructurePlacement placement) {
+-        return placement.count() == 0 ? CompletableFuture.completedFuture(List.of()) : CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName("placement calculation", () -> {
++    private CompletableFuture<List<ChunkPos>> generateRingPositions(StructureSet holder, ConcentricRingsStructurePlacement concentricringsstructureplacement) { // Spigot
++        return concentricringsstructureplacement.count() == 0 ? CompletableFuture.completedFuture(List.of()) : CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName("placement calculation", () -> {
              Stopwatch stopwatch = Stopwatch.createStarted(Util.TICKER);
 -            List<ChunkPos> list = new ArrayList<>();
 -            Set<Holder<Biome>> set = strongholdSet.value().structures().stream().flatMap((entry) -> {
 -                return entry.structure().value().biomes().stream();
 +            List<ChunkPos> list = new ArrayList();
-+            Set<Holder<Biome>> set = (Set) ((StructureSet) strongholdSet.value()).structures().stream().flatMap((structureset_a) -> {
++            Set<Holder<Biome>> set = (Set) ((StructureSet) holder).structures().stream().flatMap((structureset_a) -> { // Spigot
 +                return ((ConfiguredStructureFeature) structureset_a.structure().value()).biomes().stream();
              }).collect(Collectors.toSet());
-             int i = placement.distance();
-             int j = placement.count();
-             int k = placement.spread();
+-            int i = placement.distance();
+-            int j = placement.count();
+-            int k = placement.spread();
++            int i = concentricringsstructureplacement.distance();
++            int j = concentricringsstructureplacement.count();
++            int k = concentricringsstructureplacement.spread();
              Random random = new Random();
 +
 +            // Paper start
-+            if (strongholdSet.is(net.minecraft.world.level.levelgen.structure.BuiltinStructureSets.STRONGHOLDS) && this.conf.strongholdSeed != null) {
++            if (this.conf.strongholdSeed != null && this.structureSets.getResourceKey(holder).orElse(null) == net.minecraft.world.level.levelgen.structure.BuiltinStructureSets.STRONGHOLDS) {
 +                random.setSeed(this.conf.strongholdSeed);
 +            } else {
 +            // Paper end
@@ -264,11 +280,11 @@
 -            LOGGER.debug("Calculation for {} took {}s", strongholdSet, f);
 +            double d2 = (double) stopwatch.stop().elapsed(TimeUnit.MILLISECONDS) / 1000.0D;
 +
-+            ChunkGenerator.LOGGER.debug("Calculation for {} took {}s", strongholdSet, d2);
++            ChunkGenerator.LOGGER.debug("Calculation for {} took {}s", holder, d2);
              return list;
          }), Util.backgroundExecutor());
      }
-@@ -200,7 +281,10 @@
+@@ -200,7 +289,10 @@
  
      public CompletableFuture<ChunkAccess> createBiomes(Registry<Biome> biomeRegistry, Executor executor, Blender blender, StructureFeatureManager structureAccessor, ChunkAccess chunk) {
          return CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName("init_biomes", () -> {
@@ -280,7 +296,7 @@
              return chunk;
          }), Util.backgroundExecutor());
      }
-@@ -215,69 +299,110 @@
+@@ -215,69 +307,110 @@
      public abstract void applyCarvers(WorldGenRegion chunkRegion, long seed, BiomeManager biomeAccess, StructureFeatureManager structureAccessor, ChunkAccess chunk, GenerationStep.Carving generationStep);
  
      @Nullable
@@ -428,7 +444,7 @@
                              return pair;
                          }
                      }
-@@ -289,62 +414,73 @@
+@@ -289,62 +422,73 @@
      }
  
      @Nullable
@@ -540,7 +556,7 @@
                                  }
                              }
                          }
-@@ -356,123 +492,193 @@
+@@ -356,123 +500,193 @@
          return null;
      }
  
@@ -808,7 +824,7 @@
                          return true;
                      }
                  }
-@@ -483,12 +689,13 @@
+@@ -483,12 +697,13 @@
      }
  
      private static BoundingBox getWritableArea(ChunkAccess chunk) {
@@ -828,7 +844,7 @@
          return new BoundingBox(i, k, j, i + 15, l, j + 15);
      }
  
-@@ -508,86 +715,104 @@
+@@ -508,86 +723,106 @@
  
      public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Holder<Biome> biome, StructureFeatureManager accessor, MobCategory group, BlockPos pos) {
          Map<ConfiguredStructureFeature<?, ?>, LongSet> map = accessor.getAllStructuresAt(pos);
@@ -889,19 +905,22 @@
      public void createStructures(RegistryAccess registryManager, StructureFeatureManager world, ChunkAccess chunk, StructureManager structureManager, long worldSeed) {
 -        ChunkPos chunkPos = chunk.getPos();
 -        SectionPos sectionPos = SectionPos.bottomOf(chunk);
-+        ChunkPos chunkcoordintpair = chunk.getPos();
-+        SectionPos sectionposition = SectionPos.bottomOf(chunk);
-+
-         this.possibleStructureSets().forEach((holder) -> {
+-        this.possibleStructureSets().forEach((holder) -> {
 -            StructurePlacement structurePlacement = holder.value().placement();
 -            List<StructureSet.StructureSelectionEntry> list = holder.value().structures();
-+            StructurePlacement structureplacement = ((StructureSet) holder.value()).placement();
-+            List<StructureSet.StructureSelectionEntry> list = ((StructureSet) holder.value()).structures();
-+            Iterator iterator = list.iterator();
++        ChunkPos chunkcoordintpair = chunk.getPos();
++        SectionPos sectionposition = SectionPos.bottomOf(chunk);
  
 -            for(StructureSet.StructureSelectionEntry structureSelectionEntry : list) {
 -                StructureStart structureStart = world.getStartForFeature(sectionPos, structureSelectionEntry.structure().value(), chunk);
 -                if (structureStart != null && structureStart.isValid()) {
++        // Spigot start
++        this.possibleStructureSetsSpigot().forEach((holder) -> {
++            StructurePlacement structureplacement = ((StructureSet) holder).placement();
++            List<StructureSet.StructureSelectionEntry> list = ((StructureSet) holder).structures();
++            // Spigot end
++            Iterator iterator = list.iterator();
++
 +            while (iterator.hasNext()) {
 +                StructureSet.StructureSelectionEntry structureset_a = (StructureSet.StructureSelectionEntry) iterator.next();
 +                StructureStart structurestart = world.getStartForFeature(sectionposition, (ConfiguredStructureFeature) structureset_a.structure().value(), chunk);
@@ -982,7 +1001,7 @@
                      }
  
                  }
-@@ -595,25 +820,27 @@
+@@ -595,25 +830,27 @@
          });
      }
  
@@ -1021,7 +1040,7 @@
      }
  
      protected Holder<Biome> adjustBiome(Holder<Biome> biome) {
-@@ -621,40 +848,44 @@
+@@ -621,40 +858,44 @@
      }
  
      public void createReferences(WorldGenLevel world, StructureFeatureManager structureAccessor, ChunkAccess chunk) {
@@ -1091,7 +1110,7 @@
                      }
                  }
              }
-@@ -670,7 +901,7 @@
+@@ -670,7 +911,7 @@
  
      public abstract int getBaseHeight(int x, int z, Heightmap.Types heightmap, LevelHeightAccessor world);
  
@@ -1100,7 +1119,7 @@
  
      public int getFirstFreeHeight(int x, int z, Heightmap.Types heightmap, LevelHeightAccessor world) {
          return this.getBaseHeight(x, z, heightmap, world);
-@@ -691,13 +922,14 @@
+@@ -691,13 +932,14 @@
      @Nullable
      public List<ChunkPos> getRingPositionsFor(ConcentricRingsStructurePlacement structurePlacement) {
          this.ensureStructuresGenerated();

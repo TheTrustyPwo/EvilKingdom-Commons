@@ -235,7 +235,7 @@
      }
  
      @Override
-@@ -269,13 +319,17 @@
+@@ -269,13 +319,22 @@
      }
  
      @Override
@@ -247,6 +247,11 @@
      public static boolean checkSlimeSpawnRules(EntityType<Slime> type, LevelAccessor world, MobSpawnType spawnReason, BlockPos pos, Random random) {
          if (world.getDifficulty() != Difficulty.PEACEFUL) {
 -            if (world.getBiome(pos).is(Biomes.SWAMP) && pos.getY() > 50 && pos.getY() < 70 && random.nextFloat() < 0.5F && random.nextFloat() < world.getMoonBrightness() && world.getMaxLocalRawBrightness(pos) <= random.nextInt(8)) {
++            // Paper start - fix slime spawners; Fixes MC-50647
++            if (spawnReason == MobSpawnType.SPAWNER) {
++                return random.nextInt(10) == 0;
++            }
++            // Paper end
 +            // Paper start - Replace rules for Height in Swamp Biome
 +            final double maxHeightSwamp = world.getMinecraftWorld().paperConfig.slimeMaxSpawnHeightInSwamp;
 +            final double minHeightSwamp = world.getMinecraftWorld().paperConfig.slimeMinSpawnHeightInSwamp;
@@ -255,7 +260,7 @@
                  return checkMobSpawnRules(type, world, spawnReason, pos, random);
              }
  
-@@ -283,9 +337,13 @@
+@@ -283,9 +342,13 @@
                  return false;
              }
  
@@ -272,7 +277,7 @@
                  return checkMobSpawnRules(type, world, spawnReason, pos, random);
              }
          }
-@@ -295,7 +353,7 @@
+@@ -295,7 +358,7 @@
  
      @Override
      public float getSoundVolume() {
@@ -281,7 +286,7 @@
      }
  
      @Override
-@@ -309,8 +367,9 @@
+@@ -309,8 +372,9 @@
  
      @Override
      protected void jumpFromGround() {
@@ -293,7 +298,7 @@
          this.hasImpulse = true;
      }
  
-@@ -318,17 +377,20 @@
+@@ -318,17 +382,20 @@
      @Override
      public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType spawnReason, @Nullable SpawnGroupData entityData, @Nullable CompoundTag entityNbt) {
          int i = this.random.nextInt(3);
@@ -314,7 +319,7 @@
          return ((this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F) * f;
      }
  
-@@ -338,63 +400,68 @@
+@@ -338,63 +405,68 @@
  
      @Override
      public EntityDimensions getDimensions(Pose pose) {
@@ -421,7 +426,7 @@
          private final Slime slime;
  
          public SlimeFloatGoal(Slime slime) {
-@@ -405,7 +472,7 @@
+@@ -405,7 +477,7 @@
  
          @Override
          public boolean canUse() {
@@ -430,7 +435,7 @@
          }
  
          @Override
-@@ -419,86 +486,82 @@
+@@ -419,86 +491,82 @@
                  this.slime.getJumpControl().jump();
              }
  
@@ -566,7 +571,7 @@
          private final Slime slime;
          private float chosenDegrees;
          private int nextRandomizeTime;
-@@ -510,17 +573,53 @@
+@@ -510,17 +578,53 @@
  
          @Override
          public boolean canUse() {
@@ -589,8 +594,8 @@
  
 -            ((Slime.SlimeMoveControl)this.slime.getMoveControl()).setDirection(this.chosenDegrees, false);
 +            ((Slime.SlimeMoveControl) this.slime.getMoveControl()).setDirection(this.chosenDegrees, false);
-         }
-     }
++        }
++    }
 +
 +    private static class SlimeKeepOnJumpingGoal extends Goal {
 +
@@ -609,8 +614,8 @@
 +        @Override
 +        public void tick() {
 +            ((Slime.SlimeMoveControl) this.slime.getMoveControl()).setWantedMovement(1.0D);
-+        }
-+    }
+         }
+     }
 +
 +    // Paper start
 +    private boolean canWander = true;

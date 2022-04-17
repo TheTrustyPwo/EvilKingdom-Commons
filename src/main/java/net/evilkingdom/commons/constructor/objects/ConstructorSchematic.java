@@ -169,6 +169,7 @@ public class ConstructorSchematic {
             final BlockArrayClipboard clipboard = new BlockArrayClipboard(cuboidRegion);
             final ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(cuboidRegion.getWorld(), clipboard.getRegion(), clipboard, BukkitAdapter.asBlockVector(this.center));
             forwardExtentCopy.setCopyingEntities(true);
+            forwardExtentCopy.setCopyingBiomes(false);
             try {
                 Operations.complete(forwardExtentCopy);
             }  catch (final WorldEditException worldEditException) {
@@ -193,7 +194,6 @@ public class ConstructorSchematic {
                     chunkKeys.add(blockLocation.getChunk().getChunkKey());
                 }
             });
-            System.out.println("chunk keys - " + chunkKeys);
             return chunkKeys;
         }).thenApply(chunkKeys -> {
             final ArrayList<Clipboard> clipboards = new ArrayList<Clipboard>();
@@ -209,7 +209,7 @@ public class ConstructorSchematic {
                 this.clipboard.getEntities(region).forEach(entity -> clipboard.createEntity(entity.getLocation(), entity.getState()));
                 region.forEach(blockBlockVector3 -> {
                     try {
-                        clipboard.setBlock(blockBlockVector3, this.clipboard.getBlock(blockBlockVector3));
+                        clipboard.setBlock(blockBlockVector3, this.clipboard.getBlock(blockBlockVector3).toBaseBlock());
                     } catch (final WorldEditException ignored) {
                         //Does nothing! :>
                     }
