@@ -1,27 +1,7 @@
 package net.evilkingdom.commons.constructor.implementations;
 
 /*
- * This file is part of Commons (Server), licensed under the MIT License.
- *
- *  Copyright (c) kodirati (kodirati.com)
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ * Made with love by https://kodirati.com/.
  */
 
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
@@ -40,7 +20,6 @@ public class ConstructorTask {
 
     private final JavaPlugin plugin;
 
-    private boolean running;
     private ArrayList<Clipboard> clipboardsLeft;
 
     /**
@@ -54,7 +33,6 @@ public class ConstructorTask {
         this.plugin = plugin;
 
         this.clipboardsLeft = clipboards;
-        this.running = false;
     }
 
     /**
@@ -72,7 +50,8 @@ public class ConstructorTask {
      * @return If the ConstructorTask is running.
      */
     public boolean isRunning() {
-        return this.running;
+        final ConstructorImplementor constructorImplementor = ConstructorImplementor.get(this.plugin);
+        return constructorImplementor.getTasks().contains(this);
     }
 
     /**
@@ -81,16 +60,6 @@ public class ConstructorTask {
     public void start() {
         final ConstructorImplementor constructorImplementor = ConstructorImplementor.get(this.plugin);
         constructorImplementor.getTasks().add(this);
-        this.running = true;
-    }
-
-    /**
-     * Allows you to stop the task.
-     */
-    public void stop() {
-        final ConstructorImplementor constructorImplementor = ConstructorImplementor.get(this.plugin);
-        constructorImplementor.getTasks().remove(this);
-        this.running = false;
     }
 
 }

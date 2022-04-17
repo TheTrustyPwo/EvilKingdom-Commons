@@ -1,27 +1,7 @@
 package net.evilkingdom.commons.constructor.objects;
 
 /*
- * This file is part of Commons (Server), licensed under the MIT License.
- *
- *  Copyright (c) kodirati (kodirati.com)
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ * Made with love by https://kodirati.com/.
  */
 
 import com.sk89q.jnbt.NBTInputStream;
@@ -187,9 +167,9 @@ public class ConstructorSchematic {
             final CuboidRegion cuboidRegion = new CuboidRegion(BukkitAdapter.asBlockVector(region.getCornerOne()), BukkitAdapter.asBlockVector(region.getCornerTwo()));
             cuboidRegion.setWorld(BukkitAdapter.adapt(region.getCornerOne().getWorld()));
             final BlockArrayClipboard clipboard = new BlockArrayClipboard(cuboidRegion);
-            try (final EditSession editSession = WorldEdit.getInstance().newEditSession(cuboidRegion.getWorld())) {
-                final ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(cuboidRegion.getWorld(), clipboard.getRegion(), clipboard, BukkitAdapter.asBlockVector(this.center));
-                forwardExtentCopy.setCopyingEntities(true);
+            final ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(cuboidRegion.getWorld(), clipboard.getRegion(), clipboard, BukkitAdapter.asBlockVector(this.center));
+            forwardExtentCopy.setCopyingEntities(true);
+            try {
                 Operations.complete(forwardExtentCopy);
             }  catch (final WorldEditException worldEditException) {
                 return false;
@@ -206,28 +186,30 @@ public class ConstructorSchematic {
      */
     public CompletableFuture<Boolean> paste() {
         return CompletableFuture.supplyAsync(() -> {
-            final ArrayList<Location> chunkLocations = new ArrayList<Location>();
+            final ArrayList<Long> chunkKeys = new ArrayList<Long>();
             this.clipboard.getRegion().forEach(blockBlockVector3 -> {
                 final Location blockLocation = BukkitAdapter.adapt(BukkitAdapter.adapt(this.clipboard.getRegion().getWorld()), blockBlockVector3);
-                final Location chunkLocation = new Location(blockLocation.getWorld(), blockLocation.getChunk().getX(), 69, blockLocation.getChunk().getZ());
-                if (!chunkLocations.contains(chunkLocation)) {
-                    chunkLocations.add(chunkLocation);
+                if (!chunkKeys.contains(blockLocation.getChunk().getChunkKey())) {
+                    chunkKeys.add(blockLocation.getChunk().getChunkKey());
                 }
             });
-            return chunkLocations;
-        }).thenApply(chunkLocations -> {
+            System.out.println("chunk keys - " + chunkKeys);
+            return chunkKeys;
+        }).thenApply(chunkKeys -> {
             final ArrayList<Clipboard> clipboards = new ArrayList<Clipboard>();
-            chunkLocations.forEach(chunkLocation -> {
-                final Location cornerOne = new Location(chunkLocation.getWorld(), (chunkLocation.getBlockX() << 4), chunkLocation.getWorld().getMinHeight(), (chunkLocation.getBlockY() << 4));
-                final Location cornerTwo = new Location(chunkLocation.getWorld(), ((chunkLocation.getBlockX() << 4) + 15), chunkLocation.getWorld().getMinHeight(), (chunkLocation.getBlockY() << 4));
+            chunkKeys.forEach(chunkKey -> {
+                final Chunk chunk = BukkitAdapter.adapt(this.clipboard.getRegion().getWorld()).getChunkAt(chunkKey);
+                final Location chunkLocation = new Location(chunk.getWorld(), chunk.getX() << 4, 69, chunk.getZ() << 4).add(7, 0, 7);
+                final Location cornerOne = new Location(chunkLocation.getWorld(), chunkLocation.getX(), chunkLocation.getWorld().getMaxHeight(), chunkLocation.getZ()).add(8, 0, 9);
+                final Location cornerTwo = new Location(chunkLocation.getWorld(), chunkLocation.getX(), chunkLocation.getWorld().getMinHeight(), chunkLocation.getZ()).add(-7, 0, -8);
                 final CuboidRegion region = new CuboidRegion(BukkitAdapter.asBlockVector(cornerOne), BukkitAdapter.asBlockVector(cornerTwo));
                 region.setWorld(BukkitAdapter.adapt(cornerOne.getWorld()));
                 final BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-                clipboard.setOrigin(BukkitAdapter.asBlockVector(chunkLocation));
+                clipboard.setOrigin(BukkitAdapter.asBlockVector(cornerOne));
                 this.clipboard.getEntities(region).forEach(entity -> clipboard.createEntity(entity.getLocation(), entity.getState()));
                 region.forEach(blockBlockVector3 -> {
                     try {
-                        clipboard.setBlock(blockBlockVector3, this.clipboard.getFullBlock(blockBlockVector3));
+                        clipboard.setBlock(blockBlockVector3, this.clipboard.getBlock(blockBlockVector3));
                     } catch (final WorldEditException ignored) {
                         //Does nothing! :>
                     }

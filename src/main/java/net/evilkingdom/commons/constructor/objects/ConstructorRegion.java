@@ -1,27 +1,7 @@
 package net.evilkingdom.commons.constructor.objects;
 
 /*
- * This file is part of Commons (Server), licensed under the MIT License.
- *
- *  Copyright (c) kodirati (kodirati.com)
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ * Made with love by https://kodirati.com/.
  */
 
 import com.sk89q.worldedit.EditSession;
@@ -33,6 +13,7 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.function.pattern.RandomPattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
@@ -42,6 +23,7 @@ import net.evilkingdom.commons.utilities.number.NumberUtilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -49,10 +31,9 @@ import org.bukkit.craftbukkit.v1_18_R2.CraftChunk;
 import org.bukkit.craftbukkit.v1_18_R2.util.CraftMagicNumbers;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class ConstructorRegion {
 
@@ -128,27 +109,28 @@ public class ConstructorRegion {
      */
     public CompletableFuture<Boolean> fill(final Material material) {
         return CompletableFuture.supplyAsync(() -> {
-            final HashMap<Location, ArrayList<Location>> chunkBlockLocations = new HashMap<Location, ArrayList<Location>>();
+            final HashMap<Long, ArrayList<Location>> chunkBlockLocations = new HashMap<Long, ArrayList<Location>>();
             this.region.forEach(blockBlockVector3 -> {
                 final Location blockLocation = BukkitAdapter.adapt(BukkitAdapter.adapt(this.region.getWorld()), blockBlockVector3);
-                final Location chunkLocation = new Location(blockLocation.getWorld(), blockLocation.getChunk().getX(), 69, blockLocation.getChunk().getZ());
-                final ArrayList<Location> blockLocations = chunkBlockLocations.getOrDefault(chunkLocation, new ArrayList<Location>());
+                final ArrayList<Location> blockLocations = chunkBlockLocations.getOrDefault(blockLocation.getChunk().getChunkKey(), new ArrayList<Location>());
                 blockLocations.add(blockLocation);
-                chunkBlockLocations.put(chunkLocation, blockLocations);
+                chunkBlockLocations.put(blockLocation.getChunk().getChunkKey(), blockLocations);
             });
             return chunkBlockLocations;
         }).thenApply(chunkBlockLocations -> {
             final ArrayList<Clipboard> clipboards = new ArrayList<Clipboard>();
-            chunkBlockLocations.forEach((chunkLocation, blockLocations) -> {
-                final Location cornerOne = new Location(chunkLocation.getWorld(), (chunkLocation.getBlockX() << 4), chunkLocation.getWorld().getMinHeight(), (chunkLocation.getBlockY() << 4));
-                final Location cornerTwo = new Location(chunkLocation.getWorld(), ((chunkLocation.getBlockX() << 4) + 15), chunkLocation.getWorld().getMinHeight(), (chunkLocation.getBlockY() << 4));
+            chunkBlockLocations.forEach((chunkKey, blockLocations) -> {
+                final Chunk chunk = BukkitAdapter.adapt(this.region.getWorld()).getChunkAt(chunkKey);
+                final Location chunkLocation = new Location(chunk.getWorld(), chunk.getX() << 4, 69, chunk.getZ() << 4).add(7, 0, 7);
+                final Location cornerOne = new Location(chunkLocation.getWorld(), chunkLocation.getX(), chunkLocation.getWorld().getMaxHeight(), chunkLocation.getZ()).add(8, 0, 9);
+                final Location cornerTwo = new Location(chunkLocation.getWorld(), chunkLocation.getX(), chunkLocation.getWorld().getMinHeight(), chunkLocation.getZ()).add(-7, 0, -8);
                 final CuboidRegion region = new CuboidRegion(BukkitAdapter.asBlockVector(cornerOne), BukkitAdapter.asBlockVector(cornerTwo));
-                region.setWorld(BukkitAdapter.adapt(cornerOne.getWorld()));
+                region.setWorld(this.region.getWorld());
                 final BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-                clipboard.setOrigin(BukkitAdapter.asBlockVector(chunkLocation));
+                clipboard.setOrigin(BukkitAdapter.asBlockVector(cornerOne));
                 blockLocations.forEach(blockLocation -> {
                     try {
-                        clipboard.setBlock(BukkitAdapter.asBlockVector(blockLocation), BukkitAdapter.asBlockType(material).getDefaultState());
+                        clipboard.setBlock(BukkitAdapter.asBlockVector(blockLocation), BukkitAdapter.adapt(material.createBlockData()));
                     } catch (final WorldEditException ignored) {
                         //Does nothing! :>
                     }
@@ -173,33 +155,30 @@ public class ConstructorRegion {
      */
     public CompletableFuture<Boolean> fill(final HashMap<Material, Double> blockToPercentages) {
         return CompletableFuture.supplyAsync(() -> {
-            final HashMap<Location, ArrayList<Location>> chunkBlockLocations = new HashMap<Location, ArrayList<Location>>();
+            final HashMap<Long, ArrayList<Location>> chunkBlockLocations = new HashMap<Long, ArrayList<Location>>();
             this.region.forEach(blockBlockVector3 -> {
                 final Location blockLocation = BukkitAdapter.adapt(BukkitAdapter.adapt(this.region.getWorld()), blockBlockVector3);
-                final Location chunkLocation = new Location(blockLocation.getWorld(), blockLocation.getChunk().getX(), 69, blockLocation.getChunk().getZ());
-                final ArrayList<Location> blockLocations = chunkBlockLocations.getOrDefault(chunkLocation, new ArrayList<Location>());
+                final ArrayList<Location> blockLocations = chunkBlockLocations.getOrDefault(blockLocation.getChunk().getChunkKey(), new ArrayList<Location>());
                 blockLocations.add(blockLocation);
-                chunkBlockLocations.put(chunkLocation, blockLocations);
+                chunkBlockLocations.put(blockLocation.getChunk().getChunkKey(), blockLocations);
             });
             return chunkBlockLocations;
         }).thenApply(chunkBlockLocations -> {
             final ArrayList<Clipboard> clipboards = new ArrayList<Clipboard>();
-            chunkBlockLocations.forEach((chunkLocation, blockLocations) -> {
-                final Location cornerOne = new Location(chunkLocation.getWorld(), (chunkLocation.getBlockX() << 4), chunkLocation.getWorld().getMinHeight(), (chunkLocation.getBlockY() << 4));
-                final Location cornerTwo = new Location(chunkLocation.getWorld(), ((chunkLocation.getBlockX() << 4) + 15), chunkLocation.getWorld().getMinHeight(), (chunkLocation.getBlockY() << 4));
+            chunkBlockLocations.forEach((chunkKey, blockLocations) -> {
+                final Chunk chunk = BukkitAdapter.adapt(this.region.getWorld()).getChunkAt(chunkKey);
+                final Location chunkLocation = new Location(chunk.getWorld(), chunk.getX() << 4, 69, chunk.getZ() << 4).add(7, 0, 7);
+                final Location cornerOne = new Location(chunkLocation.getWorld(), chunkLocation.getX(), chunkLocation.getWorld().getMaxHeight(), chunkLocation.getZ()).add(8, 0, 9);
+                final Location cornerTwo = new Location(chunkLocation.getWorld(), chunkLocation.getX(), chunkLocation.getWorld().getMinHeight(), chunkLocation.getZ()).add(-7, 0, -8);
                 final CuboidRegion region = new CuboidRegion(BukkitAdapter.asBlockVector(cornerOne), BukkitAdapter.asBlockVector(cornerTwo));
                 region.setWorld(BukkitAdapter.adapt(cornerOne.getWorld()));
                 final BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-                clipboard.setOrigin(BukkitAdapter.asBlockVector(chunkLocation));
-                Optional<Material> optionalMaterial = Optional.empty();
-                while (optionalMaterial.isEmpty()) {
-                    optionalMaterial = blockToPercentages.keySet().stream().filter(block -> NumberUtilities.chanceOf(blockToPercentages.get(block))).findFirst();
-                }
-                final Material material = optionalMaterial.get();
+                clipboard.setOrigin(BukkitAdapter.asBlockVector(cornerOne));
                 blockLocations.forEach(blockLocation -> {
+                    final Material material = (Material) NumberUtilities.chanceOf(new HashMap<Object, Double>(blockToPercentages));
                     try {
-                        clipboard.setBlock(BukkitAdapter.asBlockVector(blockLocation), BukkitAdapter.asBlockType(material).getDefaultState());
-                    } catch (final WorldEditException ignored) {
+                        clipboard.setBlock(BukkitAdapter.asBlockVector(blockLocation), BukkitAdapter.adapt(material.createBlockData()));
+                    } catch (final WorldEditException worldEditException) {
                         //Does nothing! :>
                     }
                 });
@@ -234,18 +213,14 @@ public class ConstructorRegion {
     }
 
     /**
-     * Allows you to retrieve the region's count.
+     * Allows you to retrieve the region's block count.
      * Uses WorldEdit's API.
      *
      *
-     * @return The region's block count if the task is successful- returns -1 if it fails.
+     * @return The region's block count.
      */
     public int getBlockCount() {
-        int blockCount;
-        try (final EditSession editSession = WorldEdit.getInstance().newEditSession(this.region.getWorld())) {
-            blockCount = editSession.getBlockDistribution(this.region, false).size();
-        }
-        return blockCount;
+        return (int) this.region.getVolume();
     }
 
     /**
