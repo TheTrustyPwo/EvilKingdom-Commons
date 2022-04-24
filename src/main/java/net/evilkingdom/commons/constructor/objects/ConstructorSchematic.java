@@ -143,15 +143,16 @@ public class ConstructorSchematic {
     public boolean load(final File file) {
         Clipboard clipboard;
         final ClipboardFormat clipboardFormat = ClipboardFormats.findByFile(file);
+        System.out.println("wooo");
         try (ClipboardReader reader = clipboardFormat.getReader(new FileInputStream(file))) {
             clipboard = reader.read();
         } catch (final IOException ioException) {
-            System.out.println("exception");
+            System.out.println("error");
             return false;
         }
         clipboard.getRegion().setWorld(BukkitAdapter.adapt(this.center.getWorld()));
         this.clipboard = clipboard;
-        System.out.println("loaded");
+        System.out.println("loaded af");
         return true;
     }
 
@@ -187,13 +188,10 @@ public class ConstructorSchematic {
      */
     public boolean paste() {
         try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).build()) {
-            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
-            System.out.println("pasting");
+            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession.getBypassAll()).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
         } catch (final WorldEditException worldEditException) {
-            System.out.println("paste failed");
             return false;
         }
-        System.out.println("paste good");
         return true;
     }
 
