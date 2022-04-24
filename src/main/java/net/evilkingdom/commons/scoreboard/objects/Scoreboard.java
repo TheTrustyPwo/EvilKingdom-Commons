@@ -174,20 +174,24 @@ public class Scoreboard {
         final ArrayList<Packet<?>> packets = new ArrayList<Packet<?>>();
         final ArrayList<String> clonedLines = this.lines;
         Collections.reverse(clonedLines);
-        final ArrayList<String> clonedCurrentLines = this.currentLines;
-        Collections.reverse(clonedCurrentLines);
-        for (int i = (clonedLines.size() + 1); i < clonedCurrentLines.size(); i++) {
-            final String currentLine = clonedCurrentLines.get(i);
-            System.out.println("removed - " + currentLine + " (#" + i + ")");
+        for (int i = (clonedLines.size() + 1); i < this.currentLines.size(); i++) {
+            final String currentLine = this.currentLines.get(i);
+            final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.REMOVE, this.objective.get().getName(), currentLine, i);
+            packets.add(clientboundSetScorePacket);
+        }
+        for (int i = (this.lines.size() + 1); i < this.currentLines.size(); i++) {
+            final String currentLine = this.currentLines.get(i);
             final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.REMOVE, this.objective.get().getName(), currentLine, i);
             packets.add(clientboundSetScorePacket);
         }
         for (int i = 0; i < clonedLines.size(); i++) {
-            final String currentLine = clonedCurrentLines.get(i);
+            final String currentLine = this.currentLines.get(i);
             final String line = clonedLines.get(i);
-            if (!currentLine.equals(line)) {
-                final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.objective.get().getName(), line, i);
-                packets.add(clientboundSetScorePacket);
+            if (!line.equals(currentLine)) {
+                final ClientboundSetScorePacket oldClientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.REMOVE, this.objective.get().getName(), currentLine, i);
+                packets.add(oldClientboundSetScorePacket);
+                final ClientboundSetScorePacket newClientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.objective.get().getName(), line, i);
+                packets.add(newClientboundSetScorePacket);
             }
         }
         this.currentLines = this.lines;
