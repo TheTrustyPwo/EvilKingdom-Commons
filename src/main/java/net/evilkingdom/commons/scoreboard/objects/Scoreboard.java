@@ -37,8 +37,7 @@ public class Scoreboard {
     private Player player;
     private ArrayList<String> lines, currentLines;
     private String title;
-    private Optional<String> objectiveName;
-    private Optional<net.minecraft.world.scores.Scoreboard> scoreboard;
+    private Optional<Objective> objective;
     private Optional<Runnable> runnable;
 
     /**
@@ -50,11 +49,10 @@ public class Scoreboard {
     public Scoreboard(final JavaPlugin plugin, final Player player) {
         this.plugin = plugin;
         this.player = player;
-        this.objectiveName = Optional.empty();
+        this.objective = Optional.empty();
         this.runnable = Optional.empty();
         this.lines = new ArrayList<String>();
         this.currentLines = new ArrayList<String>();
-        this.scoreboard = Optional.empty();
     }
 
     /**
@@ -137,7 +135,7 @@ public class Scoreboard {
      * Allows you to show the scoreboard to the player.
      */
     public void show() {
-        if (this.scoreboard.isPresent()) {
+        if (this.objective.isPresent()) {
             return;
         }
         final org.bukkit.scoreboard.Scoreboard scoreboard;
@@ -160,8 +158,7 @@ public class Scoreboard {
             packets.add(clientboundSetScorePacket);
         }
         this.currentLines = this.lines;
-        this.scoreboard = Optional.of(objective.getScoreboard());
-        this.objectiveName = Optional.of(objective.getName());
+        this.objective = Optional.of(objective);
         packets.forEach(packet -> ((CraftPlayer) this.player).getHandle().connection.send(packet));
         final ScoreboardImplementor scoreboardImplementor = ScoreboardImplementor.get(this.plugin);
         scoreboardImplementor.getScoreboards().add(this);
@@ -171,20 +168,20 @@ public class Scoreboard {
      * Allows you to update the scoreboard for the player.
      */
     public void update() {
-        if (this.scoreboard.isEmpty()) {
+        if (this.objective.isEmpty()) {
             return;
         }
         final ArrayList<Packet<?>> packets = new ArrayList<Packet<?>>();
         for (int i = this.lines.size(); i < this.currentLines.size(); i++) {
             final String currentLine = this.currentLines.get(i);
-            final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.REMOVE, this.objectiveName.get(), currentLine, i);
+            final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.REMOVE, this.objective.get().getName(), currentLine, i);
             packets.add(clientboundSetScorePacket);
         }
         final ArrayList<String> clonedLines = this.lines;
         Collections.reverse(clonedLines);
         for (int i = 0; i < (clonedLines.size() - 1); i++) {
             final String line = clonedLines.get(i);
-            final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.objectiveName.get(), line, i);
+            final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.objective.get().getName(), line, i);
             packets.add(clientboundSetScorePacket);
         }
         this.currentLines = clonedLines;
@@ -195,14 +192,12 @@ public class Scoreboard {
      * Allows you to hide the scoreboard from the player.
      */
     public void hide() {
-        if (this.scoreboard.isEmpty()) {
+        if (this.objective.isEmpty()) {
             return;
         }
-        final Objective objective = this.scoreboard.get().getObjective(this.objectiveName.get());
-        final ClientboundSetObjectivePacket clientboundSetObjectivePacket = new ClientboundSetObjectivePacket(objective, ClientboundSetObjectivePacket.METHOD_REMOVE);
+        final ClientboundSetObjectivePacket clientboundSetObjectivePacket = new ClientboundSetObjectivePacket(objective.get(), ClientboundSetObjectivePacket.METHOD_REMOVE);
         ((CraftPlayer) this.player).getHandle().connection.send(clientboundSetObjectivePacket);
-        this.objectiveName = Optional.empty();
-        this.scoreboard = Optional.empty();
+        this.objective = Optional.empty();
         this.currentLines.clear();
         final ScoreboardImplementor scoreboardImplementor = ScoreboardImplementor.get(this.plugin);
         scoreboardImplementor.getScoreboards().remove(this);
