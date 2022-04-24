@@ -190,7 +190,7 @@ public class Datapoint {
         return CompletableFuture.supplyAsync(() -> {
             switch (this.datasite.getType()) {
                 case MONGO_DATABASE -> {
-                    final Optional<Document> optionalDocument = Optional.ofNullable(this.datasite.getMongoClient().getDatabase(this.datasite.getPlugin().getName()).getCollection(this.name).find(Filters.eq("_id", "self")).first());
+                    final Optional<Document> optionalDocument = Optional.ofNullable(this.datasite.getMongoClient().getDatabase(this.datasite.getPlugin().getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
                     if (optionalDocument.isPresent()) {
                         return true;
                     }
