@@ -72,19 +72,7 @@ public class Datapoint {
                     final Optional<Document> optionalDocument = Optional.ofNullable(this.datasite.getMongoClient().getDatabase(this.datasite.getPlugin().getName()).getCollection(this.name).find(Filters.eq("_id", "self")).first());
                     if (optionalDocument.isPresent()) {
                         final Document document = optionalDocument.get();
-                        final DatapointModel datapointModel = new DatapointModel(document.getString("_id"));
-                        document.forEach((key, object) -> {
-                            if (object.getClass() == BasicDBObject.class) {
-                                final BasicDBObject basicDBObject = (BasicDBObject) object;
-                                final DatapointObject datapointObject = new DatapointObject();
-                                basicDBObject.forEach((innerKey, innerObject) -> {
-                                    datapointObject.getInnerObjects().put(innerKey, new DatapointObject(innerObject));
-                                });
-                                datapointModel.getObjects().put(key, datapointObject);
-                            } else {
-                                datapointModel.getObjects().put(key, new DatapointObject(object));
-                            }
-                        });
+                        return Optional.of(new DatapointModel(document.getString("_id")).fromMongo(document));
                     } else {
                         return Optional.empty();
                     }
@@ -103,21 +91,7 @@ public class Datapoint {
                             return Optional.empty();
                         }
                         final JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
-                        final DatapointModel datapointModel = new DatapointModel(file.getName().replace(".json", ""));
-                        jsonObject.entrySet().forEach(jsonKey -> {
-                            final String key = jsonKey.getKey();
-                            final Object object = jsonKey.getValue();
-                            if (object.getClass() == JsonObject.class) {
-                                final JsonObject innerJsonObject = (JsonObject) object;
-                                final DatapointObject datapointObject = new DatapointObject();
-                                innerJsonObject.entrySet().forEach(innerJsonKey -> {
-                                    datapointObject.getInnerObjects().put(innerJsonKey.getKey(), new DatapointObject(innerJsonKey.getValue()));
-                                });
-                                datapointModel.getObjects().put(key, datapointObject);
-                            } else {
-                                datapointModel.getObjects().put(key, new DatapointObject(object));
-                            }
-                        });
+                        return Optional.of(new DatapointModel(file.getName().replace(".json", "")).fromJson(jsonObject));
                     }
                 }
             }
