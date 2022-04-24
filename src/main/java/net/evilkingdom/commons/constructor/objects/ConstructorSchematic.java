@@ -122,17 +122,15 @@ public class ConstructorSchematic {
      * Uses FastAsyncWorldEdit's API.
      *
      * @param file ~ The file of the schematic will save to.
-     * @return If the load was successful when the task is complete.
+     * @return If the save was successful.
      */
-    public CompletableFuture<Boolean> save(final File file) {
-        return CompletableFuture.supplyAsync(() -> {
-            try (final ClipboardWriter writer = BuiltInClipboardFormat.FAST.getWriter(new FileOutputStream(file))) {
-                writer.write(this.clipboard);
-            } catch (final IOException ioException) {
-                return false;
-            }
-            return true;
-        });
+    public boolean save(final File file) {
+        try (final ClipboardWriter writer = BuiltInClipboardFormat.FAST.getWriter(new FileOutputStream(file))) {
+            writer.write(this.clipboard);
+        } catch (final IOException ioException) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -186,8 +184,8 @@ public class ConstructorSchematic {
      * @return True when the task is complete or false if something goes wrong.
      */
     public boolean paste() {
-        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).fastMode(true).build()) {
-            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
+        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).build()) {
+            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession.getBypassAll()).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
         } catch (final WorldEditException worldEditException) {
             return false;
         }
