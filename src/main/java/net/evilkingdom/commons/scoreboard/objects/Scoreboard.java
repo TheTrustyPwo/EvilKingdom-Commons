@@ -184,7 +184,7 @@ public class Scoreboard {
             final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.objective.get().getName(), line, i);
             packets.add(clientboundSetScorePacket);
         }
-        this.currentLines = clonedLines;
+        this.currentLines = this.lines;
         packets.forEach(packet -> ((CraftPlayer) this.player).getHandle().connection.send(packet));
     }
 
