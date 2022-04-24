@@ -176,13 +176,19 @@ public class Scoreboard {
         Collections.reverse(clonedLines);
         final ArrayList<String> clonedCurrentLines = this.currentLines;
         Collections.reverse(clonedCurrentLines);
+        for (int i = (clonedLines.size() + 1); i < clonedCurrentLines.size(); i++) {
+            final String currentLine = clonedCurrentLines.get(i);
+            System.out.println("removed - " + currentLine + " (#" + i + ")");
+            final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.REMOVE, this.objective.get().getName(), currentLine, i);
+            packets.add(clientboundSetScorePacket);
+        }
         for (int i = 0; i < clonedLines.size(); i++) {
             final String currentLine = clonedCurrentLines.get(i);
-            final ClientboundSetScorePacket oldClientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.REMOVE, this.objective.get().getName(), currentLine, i);
-            packets.add(oldClientboundSetScorePacket);
             final String line = clonedLines.get(i);
-            final ClientboundSetScorePacket newClientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.objective.get().getName(), line, i);
-            packets.add(newClientboundSetScorePacket);
+            if (!currentLine.equals(line)) {
+                final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.objective.get().getName(), line, i);
+                packets.add(clientboundSetScorePacket);
+            }
         }
         this.currentLines = this.lines;
         packets.forEach(packet -> ((CraftPlayer) this.player).getHandle().connection.send(packet));
