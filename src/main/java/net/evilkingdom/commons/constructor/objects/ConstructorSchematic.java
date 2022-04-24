@@ -185,7 +185,7 @@ public class ConstructorSchematic {
      */
     public boolean paste() {
         try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).build()) {
-            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession.getBypassAll()).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
+            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
         } catch (final WorldEditException worldEditException) {
             return false;
         }
