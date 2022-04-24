@@ -8904,8 +8904,6 @@ c	net/minecraft/world/level/Explosion$BlockInteraction	net/minecraft/world/level
 	f	Lnet/minecraft/world/level/Explosion$BlockInteraction;	DESTROY	c
 	f	Lnet/minecraft/world/level/Explosion$BlockInteraction;	NONE	a
 c	net/minecraft/world/level/GameRules	net/minecraft/world/level/GameRules
-	m	(Lnet/minecraft/world/level/GameRules$Key;Lnet/minecraft/world/level/GameRules;Lnet/minecraft/server/MinecraftServer;)V	assignCap	a
-	m	(Lnet/minecraft/world/level/GameRules;Lnet/minecraft/server/MinecraftServer;)V	assignFrom	a
 	m	(Lnet/minecraft/world/level/GameRules$GameRuleTypeVisitor;Lnet/minecraft/world/level/GameRules$Key;Lnet/minecraft/world/level/GameRules$Type;)V	callVisitorCap	a
 	m	()Lnet/minecraft/world/level/GameRules;	copy	b
 	m	()Lnet/minecraft/nbt/CompoundTag;	createTag	a
@@ -8973,9 +8971,7 @@ c	net/minecraft/world/level/GameRules$Value	net/minecraft/world/level/GameRules$
 	m	(Ljava/lang/String;)V	deserialize	a
 	m	()I	getCommandResult	c
 	m	()Lnet/minecraft/world/level/GameRules$Value;	getSelf	g
-	m	(Lnet/minecraft/server/MinecraftServer;)V	onChanged	a
 	m	()Ljava/lang/String;	serialize	b
-	m	(Lnet/minecraft/world/level/GameRules$Value;Lnet/minecraft/server/MinecraftServer;)V	setFrom	a
 	f	Lnet/minecraft/world/level/GameRules$Type;	type	a
 c	net/minecraft/world/level/GameRules$Category	net/minecraft/world/level/GameRules$GameRuleCategory
 	m	()Ljava/lang/String;	getDescriptionId	a
@@ -8996,8 +8992,6 @@ c	net/minecraft/world/level/GameRules$BooleanValue	net/minecraft/world/level/Gam
 	m	()I	getCommandResult	c
 	m	()Lnet/minecraft/world/level/GameRules$BooleanValue;	getSelf	d
 	m	()Ljava/lang/String;	serialize	b
-	m	(ZLnet/minecraft/server/MinecraftServer;)V	set	a
-	m	(Lnet/minecraft/world/level/GameRules$BooleanValue;Lnet/minecraft/server/MinecraftServer;)V	setFrom	a
 	f	Z	value	b
 c	net/minecraft/world/level/GameRules$IntegerValue	net/minecraft/world/level/GameRules$GameRuleInt
 	m	()Lnet/minecraft/world/level/GameRules$IntegerValue;	copy	e
@@ -9009,8 +9003,6 @@ c	net/minecraft/world/level/GameRules$IntegerValue	net/minecraft/world/level/Gam
 	m	()Lnet/minecraft/world/level/GameRules$IntegerValue;	getSelf	d
 	m	(Ljava/lang/String;)I	safeParse	c
 	m	()Ljava/lang/String;	serialize	b
-	m	(ILnet/minecraft/server/MinecraftServer;)V	set	a
-	m	(Lnet/minecraft/world/level/GameRules$IntegerValue;Lnet/minecraft/server/MinecraftServer;)V	setFrom	a
 	m	(Ljava/lang/String;)Z	tryDeserialize	b
 	f	I	value	b
 c	net/minecraft/world/level/GameRules$VisitorCaller	net/minecraft/world/level/GameRules$h

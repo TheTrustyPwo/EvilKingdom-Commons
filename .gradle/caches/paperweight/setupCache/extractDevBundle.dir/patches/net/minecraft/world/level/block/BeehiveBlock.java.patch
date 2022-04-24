@@ -55,7 +55,7 @@
              }
  
 -            CriteriaTriggers.BEE_NEST_DESTROYED.trigger((ServerPlayer)player, state, stack, beehiveBlockEntity.getOccupantCount());
-+            CriteriaTriggers.BEE_NEST_DESTROYED.trigger((ServerPlayer) player, state, stack, tileentitybeehive.getOccupantCount());
++            // CriteriaTriggers.BEE_NEST_DESTROYED.trigger((ServerPlayer) player, state, stack, tileentitybeehive.getOccupantCount()); // Paper - moved until after items are dropped
          }
  
      }

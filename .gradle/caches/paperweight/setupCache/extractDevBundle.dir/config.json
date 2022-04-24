@@ -178,7 +178,10 @@
       "-jvn=0",
       "-isl=0",
       "-iib=1",
+      "-bsm=1",
+      "-dcl=1",
       "-ovr=0",
+      "-pll=999999",
       "-log=TRACE",
       "-cfg",
       "{libraries}",
@@ -189,7 +192,7 @@
   "remapper": {
     "url": "https://papermc.io/repo/repository/maven-public/",
     "coordinates": [
-      "net.fabricmc:tiny-remapper:0.8.1:fat"
+      "net.fabricmc:tiny-remapper:0.8.2:fat"
     ]
   },
   "patchDir": "patches"

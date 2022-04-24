@@ -263,7 +263,7 @@
              })) {
                  this.setCatType(10);
                  this.setPersistenceRequired();
-@@ -403,69 +404,69 @@
+@@ -403,69 +404,76 @@
  
      @Override
      public InteractionResult mobInteract(Player player, InteractionHand hand) {
@@ -311,6 +311,13 @@
 +                    DyeColor enumcolor = ((DyeItem) item).getDyeColor();
 +
 +                    if (enumcolor != this.getCollarColor()) {
++                        // Paper start
++                        final io.papermc.paper.event.entity.EntityDyeEvent event = new io.papermc.paper.event.entity.EntityDyeEvent(this.getBukkitEntity(), org.bukkit.DyeColor.getByWoolData((byte) enumcolor.getId()), ((net.minecraft.server.level.ServerPlayer) player).getBukkitEntity());
++                        if (!event.callEvent()) {
++                            return InteractionResult.FAIL;
++                        }
++                        enumcolor = DyeColor.byId(event.getColor().getWoolData());
++                        // Paper end
 +                        this.setCollarColor(enumcolor);
                          if (!player.getAbilities().instabuild) {
 -                            itemStack.shrink(1);
@@ -359,7 +366,7 @@
      }
  
      @Override
-@@ -496,26 +497,41 @@
+@@ -496,26 +504,41 @@
          return this.getPose() == Pose.CROUCHING || super.isSteppingCarefully();
      }
  
@@ -409,7 +416,7 @@
          private final Cat cat;
          @Nullable
          private Player ownerPlayer;
-@@ -534,24 +550,26 @@
+@@ -534,24 +557,26 @@
              } else if (this.cat.isOrderedToSit()) {
                  return false;
              } else {
@@ -447,7 +454,7 @@
                          });
                          return !this.spaceIsOccupied();
                      }
-@@ -562,13 +580,22 @@
+@@ -562,13 +587,22 @@
          }
  
          private boolean spaceIsOccupied() {
@@ -476,7 +483,7 @@
          }
  
          @Override
-@@ -580,7 +607,7 @@
+@@ -580,7 +614,7 @@
          public void start() {
              if (this.goalPos != null) {
                  this.cat.setInSittingPose(false);
@@ -485,7 +492,7 @@
              }
  
          }
-@@ -589,7 +616,8 @@
+@@ -589,7 +623,8 @@
          public void stop() {
              this.cat.setLying(false);
              float f = this.cat.level.getTimeOfDay(1.0F);
@@ -495,7 +502,7 @@
                  this.giveMorningGift();
              }
  
-@@ -600,15 +628,28 @@
+@@ -600,15 +635,28 @@
  
          private void giveMorningGift() {
              Random random = this.cat.getRandom();
@@ -532,7 +539,7 @@
              }
  
          }
-@@ -617,8 +658,8 @@
+@@ -617,8 +665,8 @@
          public void tick() {
              if (this.ownerPlayer != null && this.goalPos != null) {
                  this.cat.setInSittingPose(false);
@@ -543,7 +550,7 @@
                      ++this.onBedTicks;
                      if (this.onBedTicks > this.adjustedTickDelay(16)) {
                          this.cat.setLying(true);
-@@ -635,35 +676,26 @@
+@@ -635,35 +683,26 @@
          }
      }
  

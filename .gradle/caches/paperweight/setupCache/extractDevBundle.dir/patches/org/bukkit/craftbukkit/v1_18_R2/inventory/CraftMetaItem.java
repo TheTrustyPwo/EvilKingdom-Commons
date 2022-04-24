@@ -1093,7 +1093,10 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
 
     @Override
     public BlockData getBlockData(Material material) {
-        return CraftBlockData.fromData(BlockItem.getBlockState(CraftMagicNumbers.getBlock(material).defaultBlockState(), blockData));
+        // Paper start - fix NPE if this.blockData is null
+        final net.minecraft.world.level.block.state.BlockState defaultBlockState = CraftMagicNumbers.getBlock(material).defaultBlockState();
+        return CraftBlockData.fromData(this.blockData == null ? defaultBlockState : BlockItem.getBlockState(defaultBlockState, blockData));
+        // Paper end
     }
 
     @Override

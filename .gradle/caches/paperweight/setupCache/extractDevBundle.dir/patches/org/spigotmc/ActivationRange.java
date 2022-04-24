@@ -270,6 +270,12 @@ public class ActivationRange
         {
             return 100; // Paper
         }
+        // Paper start
+        if ( !entity.isOnGround() || entity.getDeltaMovement().horizontalDistanceSqr() > 9.999999747378752E-6D )
+        {
+            return 100;
+        }
+        // Paper end
         if ( !( entity instanceof AbstractArrow ) )
         {
             if ( (!entity.isOnGround() && !(entity instanceof FlyingMob)) ) // Paper - remove passengers logic

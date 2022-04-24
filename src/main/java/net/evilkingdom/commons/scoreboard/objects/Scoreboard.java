@@ -8,16 +8,25 @@ import com.mojang.authlib.GameProfile;
 import net.evilkingdom.commons.scoreboard.ScoreboardImplementor;
 import net.evilkingdom.commons.utilities.string.StringUtilities;
 import net.kyori.adventure.text.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
+import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
+import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
+import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.scores.Objective;
+import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
 import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
+import org.checkerframework.checker.units.qual.C;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 
 public class Scoreboard {
@@ -25,11 +34,11 @@ public class Scoreboard {
     private final JavaPlugin plugin;
 
     private Player player;
-    private ArrayList<String> lines;
+    private ArrayList<String> lines, currentLines;
     private String title;
-    private Optional<Objective> objective;
+    private Optional<String> objectiveName;
+    private Optional<net.minecraft.world.scores.Scoreboard> scoreboard;
     private Optional<Runnable> runnable;
-    private HashMap<Integer, ServerPlayer> lineFakePlayers;
 
     /**
      * Allows you to create a scoreboard for a plugin.
@@ -40,8 +49,11 @@ public class Scoreboard {
     public Scoreboard(final JavaPlugin plugin, final Player player) {
         this.plugin = plugin;
         this.player = player;
+        this.objectiveName = Optional.empty();
+        this.runnable = Optional.empty();
         this.lines = new ArrayList<String>();
-        this.lineFakePlayers = new HashMap<Integer, ServerPlayer>();
+        this.currentLines = new ArrayList<String>();
+        this.scoreboard = Optional.empty();
     }
 
     /**
@@ -124,29 +136,26 @@ public class Scoreboard {
      * Allows you to show the scoreboard to the player.
      */
     public void show() {
-        if (this.objective.isPresent()) {
+        if (this.objectiveName.isPresent()) {
             return;
         }
-        final org.bukkit.scoreboard.Scoreboard scoreboard;
-        if (this.player.getScoreboard() == Bukkit.getScoreboardManager().getMainScoreboard()) {
-            scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        } else {
-            scoreboard = this.player.getScoreboard();
+        final ArrayList<Packet<?>> packets = new ArrayList<Packet<?>>();
+        final net.minecraft.world.scores.Objective objective = new net.minecraft.world.scores.Objective(new net.minecraft.world.scores.Scoreboard(), "csbo" + UUID.randomUUID().toString().replace("-", "").substring(0, 10), ObjectiveCriteria.DUMMY, net.minecraft.network.chat.Component.nullToEmpty(StringUtilities.colorize(this.title)), ObjectiveCriteria.RenderType.INTEGER);
+        final ClientboundSetObjectivePacket clientboundSetObjectivePacket = new ClientboundSetObjectivePacket(objective, ClientboundSetObjectivePacket.METHOD_ADD);
+        final ClientboundSetDisplayObjectivePacket clientboundSetDisplayObjectivePacket = new ClientboundSetDisplayObjectivePacket(1, objective);
+        packets.add(clientboundSetObjectivePacket);
+        packets.add(clientboundSetDisplayObjectivePacket);
+        final ArrayList<String> clonedLines = this.lines;
+        Collections.reverse(clonedLines);
+        for (int i = 0; i < (clonedLines.size() - 1); i++) {
+            final String line = clonedLines.get(i);
+            final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, objective.getName(), line, i);
+            packets.add(clientboundSetScorePacket);
         }
-        final Objective objective = scoreboard.registerNewObjective("csbo" + UUID.randomUUID().toString().replace("-", "").substring(0, 10), "dummy", Component.text(StringUtilities.colorize(this.title)));
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        this.objective = Optional.of(objective);
-        for (int i = this.lines.size(); i > 0; i--) {
-            final String line = this.lines.stream().sorted(Comparator.reverseOrder()).toList().get(i);
-            final GameProfile fakePlayerProfile = new GameProfile(UUID.randomUUID(), "csbfp-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10));
-            final ServerPlayer fakePlayer = new ServerPlayer(((CraftServer) Bukkit.getServer()).getHandle().getServer(), ((CraftWorld) Bukkit.getServer().getWorlds().get(0)).getHandle(), fakePlayerProfile);
-            fakePlayer.listName = net.minecraft.network.chat.Component.nullToEmpty(line);
-            objective.getScore(fakePlayer.getName().getString()).setScore(i);
-            this.lineFakePlayers.put(i, fakePlayer);
-        }
-        if (this.player.getScoreboard() == Bukkit.getScoreboardManager().getMainScoreboard()) {
-            this.player.setScoreboard(scoreboard);
-        }
+        this.currentLines = this.lines;
+        this.scoreboard = Optional.of(objective.getScoreboard());
+        this.objectiveName = Optional.of(objective.getName());
+        packets.forEach(packet -> ((CraftPlayer) this.player).getHandle().connection.send(packet));
         final ScoreboardImplementor scoreboardImplementor = ScoreboardImplementor.get(this.plugin);
         scoreboardImplementor.getScoreboards().add(this);
     }
@@ -155,39 +164,39 @@ public class Scoreboard {
      * Allows you to update the scoreboard for the player.
      */
     public void update() {
-        if (this.objective.isEmpty()) {
+        if (this.objectiveName.isEmpty()) {
             return;
         }
-        final Objective objective = this.objective.get();
-        for (int i = this.lineFakePlayers.keySet().size(); i > this.lines.size(); i--) {
-            final ServerPlayer fakePlayer = this.lineFakePlayers.get(i);
-            objective.getScore(fakePlayer.getName().getString()).resetScore();
-            this.lineFakePlayers.remove(i);
+        final ArrayList<Packet<?>> packets = new ArrayList<Packet<?>>();
+        for (int i = this.lines.size(); i < this.currentLines.size(); i++) {
+            final String currentLine = this.currentLines.get(i);
+            final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.REMOVE, this.objectiveName.get(), currentLine, i);
+            packets.add(clientboundSetScorePacket);
         }
-        for (int i = this.lines.size(); i > 0; i--) {
-            final String line = this.lines.stream().sorted(Comparator.reverseOrder()).toList().get(i);
-            ServerPlayer fakePlayer;
-            if (this.lineFakePlayers.containsKey(i)) {
-                fakePlayer = this.lineFakePlayers.get(i);
-            } else {
-                final GameProfile fakePlayerProfile = new GameProfile(UUID.randomUUID(), "csbfp-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10));
-                fakePlayer = new ServerPlayer(((CraftServer) Bukkit.getServer()).getHandle().getServer(), ((CraftWorld) Bukkit.getServer().getWorlds().get(0)).getHandle(), fakePlayerProfile);
-                objective.getScore(fakePlayer.getName().getString()).setScore(i);
-            }
-            fakePlayer.listName = net.minecraft.network.chat.Component.nullToEmpty(line);
+        final ArrayList<String> clonedLines = this.lines;
+        Collections.reverse(clonedLines);
+        for (int i = 0; i < (clonedLines.size() - 1); i++) {
+            final String line = clonedLines.get(i);
+            final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.objectiveName.get(), line, i);
+            packets.add(clientboundSetScorePacket);
         }
+        this.currentLines = clonedLines;
+        packets.forEach(packet -> ((CraftPlayer) this.player).getHandle().connection.send(packet));
     }
 
     /**
      * Allows you to hide the scoreboard from the player.
      */
     public void hide() {
-        if (this.objective.isEmpty()) {
+        if (this.objectiveName.isEmpty()) {
             return;
         }
-        this.objective.get().unregister();
-        this.objective = Optional.empty();
-        this.lineFakePlayers.clear();
+        final Objective objective = this.scoreboard.get().getObjective(this.objectiveName.get());
+        final ClientboundSetObjectivePacket clientboundSetObjectivePacket = new ClientboundSetObjectivePacket(objective, ClientboundSetObjectivePacket.METHOD_REMOVE);
+        ((CraftPlayer) this.player).getHandle().connection.send(clientboundSetObjectivePacket);
+        this.objectiveName = Optional.empty();
+        this.scoreboard = Optional.empty();
+        this.currentLines.clear();
         final ScoreboardImplementor scoreboardImplementor = ScoreboardImplementor.get(this.plugin);
         scoreboardImplementor.getScoreboards().remove(this);
     }

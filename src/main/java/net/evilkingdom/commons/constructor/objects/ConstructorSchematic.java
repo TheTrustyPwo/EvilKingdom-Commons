@@ -4,7 +4,6 @@ package net.evilkingdom.commons.constructor.objects;
  * Made with love by https://kodirati.com/.
  */
 
-import com.sk89q.jnbt.NBTInputStream;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
@@ -17,9 +16,12 @@ import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.internal.block.BlockStateIdAccess;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.transform.AffineTransform;
+import com.sk89q.worldedit.math.transform.Transforms;
 import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.regions.RegionOperationException;
 import com.sk89q.worldedit.session.ClipboardHolder;
-import net.evilkingdom.commons.constructor.implementations.ConstructorTask;
 import net.evilkingdom.commons.utilities.number.NumberUtilities;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
@@ -46,6 +48,7 @@ import org.bukkit.craftbukkit.v1_18_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Zombie;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.BlockVector;
 
 import javax.sound.sampled.Clip;
 import javax.swing.text.html.HTML;
@@ -116,15 +119,15 @@ public class ConstructorSchematic {
 
     /**
      * Allows you to save the schematic to a file.
-     * Uses WorldEdit's API.
+     * Uses FastAsyncWorldEdit's API.
      *
      * @param file ~ The file of the schematic will save to.
      * @return If the load was successful when the task is complete.
      */
     public CompletableFuture<Boolean> save(final File file) {
         return CompletableFuture.supplyAsync(() -> {
-            try (final ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(file))) {
-                writer.write(clipboard);
+            try (final ClipboardWriter writer = BuiltInClipboardFormat.FAST.getWriter(new FileOutputStream(file))) {
+                writer.write(this.clipboard);
             } catch (final IOException ioException) {
                 return false;
             }
@@ -134,21 +137,20 @@ public class ConstructorSchematic {
 
     /**
      * Allows you to load the schematic from a file.
-     * Uses WorldEdit's API.
+     * Uses FastAsyncWorldEdit's API.
      *
      * @param file ~ The file to load from.
      * @return If the load was successful when the task is complete.
      */
     public CompletableFuture<Boolean> load(final File file) {
         return CompletableFuture.supplyAsync(() -> {
-            Clipboard clipboard = null;
+            Clipboard clipboard;
             final ClipboardFormat clipboardFormat = ClipboardFormats.findByFile(file);
             try (ClipboardReader reader = clipboardFormat.getReader(new FileInputStream(file))) {
                 clipboard = reader.read();
             } catch (final IOException ioException) {
                 return false;
             }
-            clipboard.setOrigin(BukkitAdapter.asBlockVector(this.center));
             clipboard.getRegion().setWorld(BukkitAdapter.adapt(this.center.getWorld()));
             this.clipboard = clipboard;
             return true;
@@ -157,7 +159,7 @@ public class ConstructorSchematic {
 
     /**
      * Allows you to load the schematic from a region.
-     * Uses WorldEdit's API.
+     * Uses FastAsyncWorldEdit's API.
      *
      * @param region ~ The region to load from.
      * @return If the load was successful when the task is complete.
@@ -165,9 +167,9 @@ public class ConstructorSchematic {
     public CompletableFuture<Boolean> load(final ConstructorRegion region) {
         return CompletableFuture.supplyAsync(() -> {
             final CuboidRegion cuboidRegion = new CuboidRegion(BukkitAdapter.asBlockVector(region.getCornerOne()), BukkitAdapter.asBlockVector(region.getCornerTwo()));
-            cuboidRegion.setWorld(BukkitAdapter.adapt(region.getCornerOne().getWorld()));
+            cuboidRegion.setWorld(BukkitAdapter.adapt(this.center.getWorld()));
             final BlockArrayClipboard clipboard = new BlockArrayClipboard(cuboidRegion);
-            final ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(cuboidRegion.getWorld(), clipboard.getRegion(), clipboard, BukkitAdapter.asBlockVector(this.center));
+            final ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(cuboidRegion.getWorld(), cuboidRegion, clipboard, BukkitAdapter.asBlockVector(this.center));
             forwardExtentCopy.setCopyingEntities(true);
             forwardExtentCopy.setCopyingBiomes(false);
             try {
@@ -175,54 +177,26 @@ public class ConstructorSchematic {
             }  catch (final WorldEditException worldEditException) {
                 return false;
             }
+            clipboard.setOrigin(BukkitAdapter.asBlockVector(this.center));
+            this.clipboard = clipboard;
             return true;
         });
     }
 
     /**
      * Allows you to paste the schematic.
-     * Load balanced and chunk based using WorldEdit's API.
+     * Uses FastAsyncWorldEdit's API.
      *
-     * @return True when the task is complete- or if the schematic is empty, it will return false (as it has nothing to paste).
+     * @return True when the task is complete or false if something goes wrong.
      */
-    public CompletableFuture<Boolean> paste() {
-        return CompletableFuture.supplyAsync(() -> {
-            final ArrayList<Long> chunkKeys = new ArrayList<Long>();
-            this.clipboard.getRegion().forEach(blockBlockVector3 -> {
-                final Location blockLocation = BukkitAdapter.adapt(BukkitAdapter.adapt(this.clipboard.getRegion().getWorld()), blockBlockVector3);
-                if (!chunkKeys.contains(blockLocation.getChunk().getChunkKey())) {
-                    chunkKeys.add(blockLocation.getChunk().getChunkKey());
-                }
-            });
-            return chunkKeys;
-        }).thenApply(chunkKeys -> {
-            final ArrayList<Clipboard> clipboards = new ArrayList<Clipboard>();
-            chunkKeys.forEach(chunkKey -> {
-                final Chunk chunk = BukkitAdapter.adapt(this.clipboard.getRegion().getWorld()).getChunkAt(chunkKey);
-                final Location chunkLocation = new Location(chunk.getWorld(), chunk.getX() << 4, 69, chunk.getZ() << 4).add(7, 0, 7);
-                final Location cornerOne = new Location(chunkLocation.getWorld(), chunkLocation.getX(), chunkLocation.getWorld().getMaxHeight(), chunkLocation.getZ()).add(8, 0, 9);
-                final Location cornerTwo = new Location(chunkLocation.getWorld(), chunkLocation.getX(), chunkLocation.getWorld().getMinHeight(), chunkLocation.getZ()).add(-7, 0, -8);
-                final CuboidRegion region = new CuboidRegion(BukkitAdapter.asBlockVector(cornerOne), BukkitAdapter.asBlockVector(cornerTwo));
-                region.setWorld(BukkitAdapter.adapt(cornerOne.getWorld()));
-                final BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-                clipboard.setOrigin(BukkitAdapter.asBlockVector(cornerOne));
-                this.clipboard.getEntities(region).forEach(entity -> clipboard.createEntity(entity.getLocation(), entity.getState()));
-                region.forEach(blockBlockVector3 -> {
-                    try {
-                        clipboard.setBlock(blockBlockVector3, this.clipboard.getBlock(blockBlockVector3).toBaseBlock());
-                    } catch (final WorldEditException ignored) {
-                        //Does nothing! :>
-                    }
-                });
-                clipboards.add(clipboard);
-            });
-            return clipboards;
-        }).thenApplyAsync(clipboards -> {
-            final ConstructorTask constructorTask = new ConstructorTask(this.plugin, clipboards);
-            constructorTask.start();
-            while (constructorTask.isRunning());
-            return true;
-        });
+    public boolean paste() {
+        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).fastMode(true).build()) {
+            editSession.disableHistory();
+            Operations.complete(new ClipboardHolder(clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
+        } catch (final WorldEditException worldEditException) {
+            return false;
+        }
+        return true;
     }
 
 }

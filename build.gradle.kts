@@ -11,15 +11,17 @@ java {
 repositories {
     mavenCentral()
     maven {
-        url = uri("https://maven.enginehub.org/repo/")
+        url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
     }
 }
 
 dependencies {
     paperDevBundle("1.18.2-R0.1-SNAPSHOT")
+    implementation("fr.mrmicky:fastboard:1.2.1")
     implementation("org.mongodb:mongo-java-driver:3.12.10")
-    compileOnly("com.sk89q.worldedit:worldedit-core:7.2.10")
-    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.10") {
+    compileOnly("me.lucko:spark-api:0.1-SNAPSHOT")
+    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.1.1")
+    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.1.1") {
         isTransitive = false
     }
 }

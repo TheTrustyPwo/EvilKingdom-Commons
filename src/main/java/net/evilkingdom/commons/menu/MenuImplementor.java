@@ -25,19 +25,20 @@ public class MenuImplementor {
 
     private final JavaPlugin plugin;
 
-    private ArrayList<Menu> menus;
+    private final HashSet<Menu> menus;
 
-    private static final Set<MenuImplementor> cache = new HashSet<MenuImplementor>();
+    private static final HashSet<MenuImplementor> cache = new HashSet<MenuImplementor>();
 
     /**
      * Allows you to create a MenuImplementor.
+     * This should not be used inside your plugin whatsoever!
      *
      * @param plugin ~ The plugin to create the MenuImplementor for.
      */
     public MenuImplementor(final JavaPlugin plugin) {
         this.plugin = plugin;
 
-        this.menus = new ArrayList<Menu>();
+        this.menus = new HashSet<Menu>();
         new MenuRunnable(this.plugin);
         new MenuListener(this.plugin);
 
@@ -45,18 +46,18 @@ public class MenuImplementor {
     }
 
     /**
-     * Allows you to retrieve the MenuImplementor's menus.
+     * Allows you to retrieve the implementor's menus.
      *
-     * @return The MenuImplementor's menus.
+     * @return The implementor's menus.
      */
-    public ArrayList<Menu> getMenus() {
+    public HashSet<Menu> getMenus() {
         return this.menus;
     }
 
     /**
-     * Allows you to retrieve the MenuImplementor's plugin.
+     * Allows you to retrieve the implementor's plugin.
      *
-     * @return The MenuImplementor's plugin.
+     * @return The implementor's plugin.
      */
     public JavaPlugin getPlugin() {
         return this.plugin;

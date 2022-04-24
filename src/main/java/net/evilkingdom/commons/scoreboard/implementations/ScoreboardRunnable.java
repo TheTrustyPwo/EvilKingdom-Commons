@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class ScoreboardRunnable implements Runnable {
 
     private final JavaPlugin plugin;
+
     /**
      * Allows you to create a ScoreboardRunnable for a plugin.
      * This should not be used inside your plugin whatsoever!
@@ -28,7 +29,7 @@ public class ScoreboardRunnable implements Runnable {
     public ScoreboardRunnable(final JavaPlugin plugin) {
         this.plugin = plugin;
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, this, 0L, 2L);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, this, 0L, 5L);
     }
 
     /**
@@ -38,10 +39,7 @@ public class ScoreboardRunnable implements Runnable {
     public void run() {
         final ScoreboardImplementor scoreboardImplementor = ScoreboardImplementor.get(this.plugin);
         scoreboardImplementor.getScoreboards().forEach(scoreboard -> {
-            Bukkit.getScheduler().runTask(this.plugin, () -> {
-                scoreboard.getRunnable().ifPresent(runnable -> runnable.run());
-                scoreboard.update();
-            });
+            scoreboard.getRunnable().ifPresent(runnable -> Bukkit.getScheduler().runTask(this.plugin, runnable));
         });
     }
 

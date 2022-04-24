@@ -1256,6 +1256,7 @@ public final class CraftServer implements Server {
         internal.setSpawnSettings(true, true);
         // Paper - move up
 
+        internal.keepSpawnInMemory = creator.keepSpawnLoaded().toBooleanOrElse(internal.getWorld().getKeepSpawnInMemory()); // Paper
         this.getServer().prepareLevels(internal.getChunkSource().chunkMap.progressListener, internal);
         internal.entityManager.tick(); // SPIGOT-6526: Load pending entities so they are available to the API
 
@@ -2825,6 +2826,14 @@ public final class CraftServer implements Server {
 
     @Override
     public com.destroystokyo.paper.profile.PlayerProfile createProfile(@Nullable UUID uuid, @Nullable String name) {
+        Player player = uuid != null ? Bukkit.getPlayer(uuid) : (name != null ? Bukkit.getPlayerExact(name) : null);
+        if (player != null) return new com.destroystokyo.paper.profile.CraftPlayerProfile((CraftPlayer) player);
+
+        return new com.destroystokyo.paper.profile.CraftPlayerProfile(uuid, name);
+    }
+
+    @Override
+    public com.destroystokyo.paper.profile.PlayerProfile createProfileExact(@Nullable UUID uuid, @Nullable String name) {
         Player player = uuid != null ? Bukkit.getPlayer(uuid) : (name != null ? Bukkit.getPlayerExact(name) : null);
         if (player == null) return new com.destroystokyo.paper.profile.CraftPlayerProfile(uuid, name);
 

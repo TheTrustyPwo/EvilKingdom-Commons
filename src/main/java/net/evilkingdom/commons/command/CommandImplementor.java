@@ -19,19 +19,20 @@ public class CommandImplementor {
 
     private final JavaPlugin plugin;
 
-    private ArrayList<Command> commands;
+    private HashSet<Command> commands;
 
-    private static final Set<CommandImplementor> cache = new HashSet<CommandImplementor>();
+    private static final HashSet<CommandImplementor> cache = new HashSet<CommandImplementor>();
 
     /**
      * Allows you to create a CommandImplementor.
+     * This should not be used inside your plugin whatsoever!
      *
      * @param plugin ~ The plugin to create the CommandImplementor for.
      */
     public CommandImplementor(final JavaPlugin plugin) {
         this.plugin = plugin;
 
-        this.commands = new ArrayList<Command>();
+        this.commands = new HashSet<Command>();
 
         cache.add(this);
     }
@@ -49,19 +50,19 @@ public class CommandImplementor {
     }
 
     /**
-     * Allows you to retrieve the CommandImplementor's commands.
+     * Allows you to retrieve the implementor's commands.
      * This should not be used for registering commands, rather just for listing them.
      *
      * @return The CommandImplementor's commands.
      */
-    public ArrayList<Command> getCommands() {
+    public HashSet<Command> getCommands() {
         return this.commands;
     }
 
     /**
-     * Allows you to retrieve the CommandImplementor's plugin.
+     * Allows you to retrieve the implementor's plugin.
      *
-     * @return The CommandImplementor's plugin.
+     * @return The implementor's plugin.
      */
     public JavaPlugin getPlugin() {
         return this.plugin;

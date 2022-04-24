@@ -22,7 +22,7 @@ public abstract class CommandHandler {
      * The tab completion of the command.
      * Just uses the bukkit arguments since bukkit handles the magic and the converter filters the options returned.
      */
-    public ArrayList<String> onTabCompletion(final CommandSender sender, final String[] arguments) {
+    public ArrayList<String> onTabCompletion(final CommandSender commandSender, final String[] arguments) {
         return new ArrayList<String>();
     }
 

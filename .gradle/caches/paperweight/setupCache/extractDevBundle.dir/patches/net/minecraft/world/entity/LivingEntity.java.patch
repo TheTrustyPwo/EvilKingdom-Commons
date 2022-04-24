@@ -2117,17 +2117,17 @@
 -        this.entityData.set(DATA_ARROW_COUNT_ID, stuckArrowCount);
 +        // CraftBukkit start
 +        this.setArrowCount(stuckArrowCount, false);
-     }
- 
++    }
++
 +    public final void setArrowCount(int i, boolean flag) {
 +        ArrowBodyCountChangeEvent event = CraftEventFactory.callArrowBodyCountChangeEvent(this, this.getArrowCount(), i, flag);
 +        if (event.isCancelled()) {
 +            return;
 +        }
 +        this.entityData.set(LivingEntity.DATA_ARROW_COUNT_ID, event.getNewAmount());
-+    }
+     }
 +    // CraftBukkit end
-+
+ 
      public final int getStingerCount() {
 -        return this.entityData.get(DATA_STINGER_COUNT_ID);
 +        return (Integer) this.entityData.get(LivingEntity.DATA_STINGER_COUNT_ID);
@@ -3155,7 +3155,7 @@
                  }
              }
          }
-@@ -2361,37 +3058,116 @@
+@@ -2361,37 +3058,124 @@
      }
  
      private void handleHandSwap(Map<EquipmentSlot, ItemStack> equipmentChanges) {
@@ -3208,8 +3208,8 @@
          });
 -        ((ServerLevel)this.level).getChunkSource().broadcast(this, new ClientboundSetEquipmentPacket(this.getId(), list));
 +        ((ServerLevel) this.level).getChunkSource().broadcast(this, new ClientboundSetEquipmentPacket(this.getId(), list));
-+    }
-+
+     }
+ 
 +    // Paper start - hide unnecessary item meta
 +    public ItemStack stripMeta(final ItemStack itemStack, final boolean copyItemStack) {
 +        if (itemStack.isEmpty() || (!itemStack.hasTag() && itemStack.getCount() < 2)) {
@@ -3249,10 +3249,18 @@
 +                    tag.put("Enchantments", enchantments);
 +                }
 +                tag.remove("AttributeModifiers");
++
++                // Books
++                tag.remove("author");
++                tag.remove("filtered_title");
++                tag.remove("pages");
++                tag.remove("filtered_pages");
++                tag.remove("title");
++                tag.remove("generation");
 +            }
 +        }
 +        return copy;
-     }
++    }
 +    // Paper end
 +
 +    // Paper start - prevent oversized data
@@ -3282,14 +3290,14 @@
 +        return copy;
 +    }
 +    // Paper end
- 
++
      private ItemStack getLastArmorItem(EquipmentSlot slot) {
 -        return this.lastArmorItemStacks.get(slot.getIndex());
 +        return (ItemStack) this.lastArmorItemStacks.get(slot.getIndex());
      }
  
      private void setLastArmorItem(EquipmentSlot slot, ItemStack armor) {
-@@ -2399,7 +3175,7 @@
+@@ -2399,7 +3183,7 @@
      }
  
      private ItemStack getLastHandItem(EquipmentSlot slot) {
@@ -3298,7 +3306,7 @@
      }
  
      private void setLastHandItem(EquipmentSlot slot, ItemStack stack) {
-@@ -2407,24 +3183,26 @@
+@@ -2407,24 +3191,26 @@
      }
  
      protected float tickHeadTurn(float bodyRotation, float headRotation) {
@@ -3337,7 +3345,7 @@
              headRotation *= -1.0F;
          }
  
-@@ -2442,41 +3220,43 @@
+@@ -2442,41 +3228,43 @@
          }
  
          if (this.lerpSteps > 0) {
@@ -3400,7 +3408,7 @@
          this.level.getProfiler().push("ai");
          if (this.isImmobile()) {
              this.jumping = false;
-@@ -2491,26 +3271,26 @@
+@@ -2491,26 +3279,26 @@
          this.level.getProfiler().pop();
          this.level.getProfiler().push("jump");
          if (this.jumping && this.isAffectedByFluids()) {
@@ -3442,7 +3450,7 @@
              }
          } else {
              this.noJumpDelay = 0;
-@@ -2521,36 +3301,55 @@
+@@ -2521,36 +3309,55 @@
          this.xxa *= 0.98F;
          this.zza *= 0.98F;
          this.updateFallFlying();
@@ -3508,7 +3516,7 @@
          if (!this.level.isClientSide && this.isSensitiveToWater() && this.isInWaterRainOrBubble()) {
              this.hurt(DamageSource.DROWN, 1.0F);
          }
-@@ -2562,47 +3361,60 @@
+@@ -2562,47 +3369,60 @@
      }
  
      private void updateFallFlying() {
@@ -3586,7 +3594,7 @@
                          ++j;
                      }
                  }
-@@ -2612,8 +3424,12 @@
+@@ -2612,8 +3432,12 @@
                  }
              }
  
@@ -3601,7 +3609,7 @@
                  this.doPush(entity);
              }
          }
-@@ -2621,13 +3437,15 @@
+@@ -2621,13 +3445,15 @@
      }
  
      protected void checkAutoSpinAttack(AABB a, AABB b) {
@@ -3622,7 +3630,7 @@
                      this.autoSpinAttackTicks = 0;
                      this.setDeltaMovement(this.getDeltaMovement().scale(-0.2D));
                      break;
-@@ -2647,18 +3465,24 @@
+@@ -2647,18 +3473,24 @@
          entity.push(this);
      }
  
@@ -3652,7 +3660,7 @@
              this.dismountVehicle(entity);
          }
  
-@@ -2677,14 +3501,14 @@
+@@ -2677,14 +3509,14 @@
          this.lerpX = x;
          this.lerpY = y;
          this.lerpZ = z;
@@ -3670,7 +3678,7 @@
          this.lerpHeadSteps = interpolationSteps;
      }
  
-@@ -2693,16 +3517,17 @@
+@@ -2693,16 +3525,17 @@
      }
  
      public void onItemPickup(ItemEntity item) {
@@ -3692,7 +3700,7 @@
          }
  
      }
-@@ -2711,13 +3536,11 @@
+@@ -2711,13 +3544,11 @@
          if (entity.level != this.level) {
              return false;
          } else {
@@ -3711,7 +3719,7 @@
          }
      }
  
-@@ -2727,12 +3550,13 @@
+@@ -2727,12 +3558,13 @@
      }
  
      public float getAttackAnim(float tickDelta) {
@@ -3729,7 +3737,7 @@
      }
  
      public boolean isEffectiveAi() {
-@@ -2741,14 +3565,28 @@
+@@ -2741,13 +3573,27 @@
  
      @Override
      public boolean isPickable() {
@@ -3748,19 +3756,18 @@
 +    public boolean isCollidable(boolean ignoreClimbing) {
 +        return this.isAlive() && !this.isSpectator() && (ignoreClimbing || !this.onClimbable()) && this.collides; // CraftBukkit
 +        // Paper end
-     }
- 
++    }
++
 +    // CraftBukkit start - collidable API
 +    @Override
 +    public boolean canCollideWithBukkit(Entity entity) {
 +        return this.isPushable() && this.collides != this.collidableExemptions.contains(entity.getUUID());
-+    }
+     }
 +    // CraftBukkit end
-+
+ 
      @Override
      public float getYHeadRot() {
-         return this.yHeadRot;
-@@ -2766,7 +3604,7 @@
+@@ -2766,7 +3612,7 @@
  
      @Override
      protected Vec3 getRelativePortalPosition(Direction.Axis portalAxis, BlockUtil.FoundRectangle portalRect) {
@@ -3769,7 +3776,7 @@
      }
  
      public static Vec3 resetForwardDirectionOfRelativePortalPosition(Vec3 pos) {
-@@ -2778,18 +3616,16 @@
+@@ -2778,18 +3624,16 @@
      }
  
      public void setAbsorptionAmount(float amount) {
@@ -3791,7 +3798,7 @@
  
      protected void updateEffectVisibility() {
          this.effectsDirty = true;
-@@ -2798,13 +3634,18 @@
+@@ -2798,13 +3642,18 @@
      public abstract HumanoidArm getMainArm();
  
      public boolean isUsingItem() {
@@ -3812,7 +3819,7 @@
      private void updatingUsingItem() {
          if (this.isUsingItem()) {
              if (ItemStack.isSameIgnoreDurability(this.getItemInHand(this.getUsedItemHand()), this.useItem)) {
-@@ -2822,8 +3663,12 @@
+@@ -2822,8 +3671,12 @@
          if (this.shouldTriggerItemUseEffects()) {
              this.triggerItemUseEffects(stack, 5);
          }
@@ -3827,7 +3834,7 @@
              this.completeUsingItem();
          }
  
-@@ -2831,10 +3676,11 @@
+@@ -2831,10 +3684,11 @@
  
      private boolean shouldTriggerItemUseEffects() {
          int i = this.getUseItemRemainingTicks();
@@ -3843,7 +3850,7 @@
      }
  
      private void updateSwimAmount() {
-@@ -2848,21 +3694,32 @@
+@@ -2848,21 +3702,32 @@
      }
  
      protected void setLivingEntityFlag(int mask, boolean value) {
@@ -3884,7 +3891,7 @@
              if (!this.level.isClientSide) {
                  this.setLivingEntityFlag(1, true);
                  this.setLivingEntityFlag(2, hand == InteractionHand.OFF_HAND);
-@@ -2874,11 +3731,11 @@
+@@ -2874,11 +3739,11 @@
      @Override
      public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
          super.onSyncedDataUpdated(data);
@@ -3898,7 +3905,7 @@
              if (this.isUsingItem() && this.useItem.isEmpty()) {
                  this.useItem = this.getItemInHand(this.getUsedItemHand());
                  if (!this.useItem.isEmpty()) {
-@@ -2886,7 +3743,10 @@
+@@ -2886,7 +3751,10 @@
                  }
              } else if (!this.isUsingItem() && !this.useItem.isEmpty()) {
                  this.useItem = ItemStack.EMPTY;
@@ -3910,7 +3917,7 @@
              }
          }
  
-@@ -2908,41 +3768,78 @@
+@@ -2908,41 +3776,78 @@
  
              if (stack.getUseAnimation() == UseAnim.EAT) {
                  this.spawnItemParticles(stack, particleCount);
@@ -4005,7 +4012,7 @@
                  }
  
              }
-@@ -2978,22 +3875,83 @@
+@@ -2978,22 +3883,83 @@
          }
  
          this.useItem = ItemStack.EMPTY;
@@ -4095,7 +4102,7 @@
      public boolean isSuppressingSlidingDownLadder() {
          return this.isShiftKeyDown();
      }
-@@ -3012,48 +3970,81 @@
+@@ -3012,48 +3978,81 @@
      }
  
      public boolean randomTeleport(double x, double y, double z, boolean particleEffects) {
@@ -4204,7 +4211,7 @@
          }
      }
  
-@@ -3065,8 +4056,7 @@
+@@ -3065,8 +4064,7 @@
          return true;
      }
  
@@ -4214,7 +4221,7 @@
  
      public boolean canTakeItem(ItemStack stack) {
          return false;
-@@ -3079,7 +4069,7 @@
+@@ -3079,7 +4077,7 @@
  
      @Override
      public EntityDimensions getDimensions(Pose pose) {
@@ -4223,7 +4230,7 @@
      }
  
      public ImmutableList<Pose> getDismountPoses() {
-@@ -3087,20 +4077,21 @@
+@@ -3087,20 +4085,21 @@
      }
  
      public AABB getLocalBoundsForPose(Pose pose) {
@@ -4250,7 +4257,7 @@
      }
  
      public boolean isSleeping() {
-@@ -3112,9 +4103,10 @@
+@@ -3112,9 +4111,10 @@
              this.stopRiding();
          }
  
@@ -4264,7 +4271,7 @@
          }
  
          this.setPose(Pose.SLEEPING);
-@@ -3125,42 +4117,51 @@
+@@ -3125,42 +4125,51 @@
      }
  
      private void setPosToBed(BlockPos pos) {
@@ -4333,7 +4340,7 @@
      }
  
      @Override
-@@ -3184,9 +4185,9 @@
+@@ -3184,9 +4193,9 @@
      public ItemStack eat(Level world, ItemStack stack) {
          if (stack.isEdible()) {
              world.gameEvent(this, GameEvent.EAT, this.eyeBlockPosition());
@@ -4345,7 +4352,7 @@
                  stack.shrink(1);
              }
  
-@@ -3198,10 +4199,16 @@
+@@ -3198,10 +4207,16 @@
  
      private void addEatEffect(ItemStack stack, Level world, LivingEntity targetEntity) {
          Item item = stack.getItem();
@@ -4365,7 +4372,7 @@
                  }
              }
          }
-@@ -3209,26 +4216,26 @@
+@@ -3209,26 +4224,26 @@
      }
  
      private static byte entityEventForEquipmentBreak(EquipmentSlot slot) {
@@ -4408,7 +4415,7 @@
      }
  
      public void broadcastBreakEvent(InteractionHand hand) {
-@@ -3239,6 +4246,7 @@
+@@ -3239,6 +4254,7 @@
      public AABB getBoundingBoxForCulling() {
          if (this.getItemBySlot(EquipmentSlot.HEAD).is(Items.DRAGON_HEAD)) {
              float f = 0.5F;
@@ -4416,7 +4423,7 @@
              return this.getBoundingBox().inflate(0.5D, 0.5D, 0.5D);
          } else {
              return super.getBoundingBoxForCulling();
-@@ -3247,46 +4255,26 @@
+@@ -3247,46 +4263,26 @@
  
      public static EquipmentSlot getEquipmentSlotForItem(ItemStack stack) {
          Item item = stack.getItem();
@@ -4471,7 +4478,7 @@
      }
  
      @Override
-@@ -3294,8 +4282,9 @@
+@@ -3294,8 +4290,9 @@
          if (this.isSpectator()) {
              return false;
          } else {
@@ -4483,7 +4490,7 @@
          }
      }
  
-@@ -3305,22 +4294,43 @@
+@@ -3305,22 +4302,43 @@
      }
  
      public void recreateFromPacket(ClientboundAddMobPacket packet) {

@@ -48,10 +48,10 @@ public class MenuListener implements Listener {
             return;
         }
         final Menu menu = optionalMenu.get();
-        if (!menu.getSlots().containsKey(inventoryClickEvent.getSlot())) {
+        if (!menu.getItems().containsKey(inventoryClickEvent.getSlot())) {
             return;
         }
-        final MenuItem menuItem = menu.getSlots().get(inventoryClickEvent.getSlot());
+        final MenuItem menuItem = menu.getItems().get(inventoryClickEvent.getSlot());
         menuItem.getClickAction().accept(inventoryClickEvent);
     }
 

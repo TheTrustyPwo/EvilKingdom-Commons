@@ -63,6 +63,11 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
         team.setPlayerSuffix(io.papermc.paper.adventure.PaperAdventure.asVanilla(suffix));
     }
     @Override
+    public boolean hasColor() {
+        CraftScoreboard scoreboard = checkState();
+        return this.team.getColor().getColor() != null;
+    }
+    @Override
     public net.kyori.adventure.text.format.TextColor color() throws IllegalStateException {
         CraftScoreboard scoreboard = checkState();
         if (team.getColor().getColor() == null) throw new IllegalStateException("Team colors must have hex values");
@@ -72,8 +77,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
     }
     @Override
     public void color(net.kyori.adventure.text.format.NamedTextColor color) {
-        if (color == null) color = net.kyori.adventure.text.format.NamedTextColor.WHITE;
         CraftScoreboard scoreboard = checkState();
+        if (color == null) {
+            this.team.setColor(net.minecraft.ChatFormatting.RESET);
+        }
         team.setColor(io.papermc.paper.adventure.PaperAdventure.asVanilla(color));
     }
     // Paper end

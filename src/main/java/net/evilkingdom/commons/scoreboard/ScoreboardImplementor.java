@@ -17,37 +17,38 @@ public class ScoreboardImplementor {
 
     private final JavaPlugin plugin;
 
-    private ArrayList<Scoreboard> scoreboards;
+    private final HashSet<Scoreboard> scoreboards;
 
-    private static final Set<ScoreboardImplementor> cache = new HashSet<ScoreboardImplementor>();
+    private static final HashSet<ScoreboardImplementor> cache = new HashSet<ScoreboardImplementor>();
 
     /**
      * Allows you to create a ScoreboardImplementor.
+     * This should not be used inside your plugin whatsoever!
      *
      * @param plugin ~ The plugin to create the ScoreboardImplementor for.
      */
     public ScoreboardImplementor(final JavaPlugin plugin) {
         this.plugin = plugin;
 
-        this.scoreboards = new ArrayList<Scoreboard>();
         new ScoreboardRunnable(this.plugin);
+        this.scoreboards = new HashSet<Scoreboard>();
 
         cache.add(this);
     }
 
     /**
-     * Allows you to retrieve the ScoreboardImplementor's scoreboards.
+     * Allows you to retrieve the implementor's scoreboards.
      *
-     * @return The ScoreboardImplementor's scoreboards.
+     * @return The implementor's scoreboards.
      */
-    public ArrayList<Scoreboard> getScoreboards() {
+    public HashSet<Scoreboard> getScoreboards() {
         return this.scoreboards;
     }
 
     /**
-     * Allows you to retrieve the ScoreboardImplementor's plugin.
+     * Allows you to retrieve the implementor's plugin.
      *
-     * @return The ScoreboardImplementor's plugin.
+     * @return The implementor's plugin.
      */
     public JavaPlugin getPlugin() {
         return this.plugin;

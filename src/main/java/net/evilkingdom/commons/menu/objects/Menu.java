@@ -28,7 +28,7 @@ public class Menu {
     private Optional<Integer> rows;
     private Optional<Inventory> inventory;
     private Optional<Runnable> runnable;
-    private HashMap<Integer, MenuItem> slots;
+    private HashMap<Integer, MenuItem> items;
 
     /**
      * Allows you to create a menu for a plugin.
@@ -46,7 +46,9 @@ public class Menu {
         this.title = title;
         this.rows = Optional.of(rows);
         this.type = InventoryType.CHEST;
-        this.slots = new HashMap<Integer, MenuItem>();
+        this.runnable = Optional.empty();
+        this.inventory = Optional.empty();
+        this.items = new HashMap<Integer, MenuItem>();
     }
 
     /**
@@ -64,16 +66,18 @@ public class Menu {
         this.player = player;
         this.title = title;
         this.type = type;
-        this.slots = new HashMap<Integer, MenuItem>();
+        this.runnable = Optional.empty();
+        this.inventory = Optional.empty();
+        this.items = new HashMap<Integer, MenuItem>();
     }
 
     /**
-     * Allows you to retrieve the menu's slots.
+     * Allows you to retrieve the menu's items.
      *
-     * @return The menu's slots.
+     * @return The menu's items.
      */
-    public HashMap<Integer, MenuItem> getSlots() {
-        return this.slots;
+    public HashMap<Integer, MenuItem> getItems() {
+        return this.items;
     }
 
     /**
@@ -164,8 +168,8 @@ public class Menu {
         }
         Inventory inventory = this.inventory.get();
         for (int i = 0; i < inventory.getSize(); i++) {
-            if (this.slots.get(i) != null) {
-                inventory.setItem(i, this.slots.get(i).getItemStack());
+            if (this.items.get(i) != null) {
+                inventory.setItem(i, this.items.get(i).getItemStack());
             }
             inventory.setItem(i, new ItemStack(Material.AIR));
         }
@@ -183,8 +187,8 @@ public class Menu {
         }
         Inventory inventory = this.inventory.get();
         for (int i = 0; i < inventory.getSize(); i++) {
-            if (this.slots.get(i) != null) {
-                inventory.setItem(i, this.slots.get(i).getItemStack());
+            if (this.items.get(i) != null) {
+                inventory.setItem(i, this.items.get(i).getItemStack());
             }
             inventory.setItem(i, new ItemStack(Material.AIR));
         }

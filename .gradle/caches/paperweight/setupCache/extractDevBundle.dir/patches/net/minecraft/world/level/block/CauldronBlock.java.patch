@@ -13,7 +13,7 @@
      private static final float RAIN_FILL_CHANCE = 0.05F;
      private static final float POWDER_SNOW_FILL_CHANCE = 0.1F;
  
-@@ -25,24 +29,18 @@
+@@ -25,24 +29,26 @@
      }
  
      protected static boolean shouldHandlePrecipitation(Level world, Biome.Precipitation precipitation) {
@@ -32,28 +32,46 @@
 -        if (shouldHandlePrecipitation(world, precipitation)) {
 +        if (CauldronBlock.shouldHandlePrecipitation(world, precipitation)) {
              if (precipitation == Biome.Precipitation.RAIN) {
-                 world.setBlockAndUpdate(pos, Blocks.WATER_CAULDRON.defaultBlockState());
+-                world.setBlockAndUpdate(pos, Blocks.WATER_CAULDRON.defaultBlockState());
 -                world.gameEvent((Entity)null, GameEvent.FLUID_PLACE, pos);
++                // Paper start - call event for initial fill
++                if (!LayeredCauldronBlock.changeLevel(state, world, pos, Blocks.WATER_CAULDRON.defaultBlockState(), null, CauldronLevelChangeEvent.ChangeReason.NATURAL_FILL)) {
++                    return;
++                }
++                // Paper end
 +                world.gameEvent((Entity) null, GameEvent.FLUID_PLACE, pos);
              } else if (precipitation == Biome.Precipitation.SNOW) {
-                 world.setBlockAndUpdate(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState());
+-                world.setBlockAndUpdate(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState());
 -                world.gameEvent((Entity)null, GameEvent.FLUID_PLACE, pos);
++                // Paper start - call event for initial fill
++                if (!LayeredCauldronBlock.changeLevel(state, world, pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState(), null, CauldronLevelChangeEvent.ChangeReason.NATURAL_FILL)) {
++                    return;
++                }
++                // Paper end
 +                world.gameEvent((Entity) null, GameEvent.FLUID_PLACE, pos);
              }
  
          }
-@@ -56,13 +54,13 @@
+@@ -56,13 +62,21 @@
      @Override
      protected void receiveStalactiteDrip(BlockState state, Level world, BlockPos pos, Fluid fluid) {
          if (fluid == Fluids.WATER) {
 -            world.setBlockAndUpdate(pos, Blocks.WATER_CAULDRON.defaultBlockState());
-+            LayeredCauldronBlock.changeLevel(state, world, pos, Blocks.WATER_CAULDRON.defaultBlockState(), null, CauldronLevelChangeEvent.ChangeReason.NATURAL_FILL); // CraftBukkit
++            // Paper start - don't send level event or game event if cancelled
++            if (!LayeredCauldronBlock.changeLevel(state, world, pos, Blocks.WATER_CAULDRON.defaultBlockState(), null, CauldronLevelChangeEvent.ChangeReason.NATURAL_FILL)) { // CraftBukkit
++                return;
++            }
++            // Paper end
              world.levelEvent(1047, pos, 0);
 -            world.gameEvent((Entity)null, GameEvent.FLUID_PLACE, pos);
 +            world.gameEvent((Entity) null, GameEvent.FLUID_PLACE, pos);
          } else if (fluid == Fluids.LAVA) {
 -            world.setBlockAndUpdate(pos, Blocks.LAVA_CAULDRON.defaultBlockState());
-+            LayeredCauldronBlock.changeLevel(state, world, pos, Blocks.LAVA_CAULDRON.defaultBlockState(), null, CauldronLevelChangeEvent.ChangeReason.NATURAL_FILL); // CraftBukkit
++            // Paper start - don't send level event or game event if cancelled
++            if (!LayeredCauldronBlock.changeLevel(state, world, pos, Blocks.LAVA_CAULDRON.defaultBlockState(), null, CauldronLevelChangeEvent.ChangeReason.NATURAL_FILL)) { // CraftBukkit
++                return;
++            }
++            // Paper end
              world.levelEvent(1046, pos, 0);
 -            world.gameEvent((Entity)null, GameEvent.FLUID_PLACE, pos);
 +            world.gameEvent((Entity) null, GameEvent.FLUID_PLACE, pos);

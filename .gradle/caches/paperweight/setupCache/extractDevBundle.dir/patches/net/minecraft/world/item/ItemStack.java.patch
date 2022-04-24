@@ -492,7 +492,7 @@
          } else {
              return false;
          }
-@@ -278,45 +535,76 @@
+@@ -278,45 +535,77 @@
          return this.getItem().getMaxDamage();
      }
  
@@ -519,10 +519,11 @@
                  }
  
 -                amount -= j;
++                int originalDamage = amount; // Paper
 +                amount -= k;
 +                // CraftBukkit start
 +                if (player instanceof ServerPlayer serverPlayer) { // Paper
-+                    PlayerItemDamageEvent event = new PlayerItemDamageEvent(serverPlayer.getBukkitEntity(), CraftItemStack.asCraftMirror(this), amount); // Paper
++                    PlayerItemDamageEvent event = new PlayerItemDamageEvent(serverPlayer.getBukkitEntity(), CraftItemStack.asCraftMirror(this), amount, originalDamage); // Paper
 +                    event.getPlayer().getServer().getPluginManager().callEvent(event);
 +
 +                    if (amount != event.getDamage() || event.isCancelled()) {
@@ -585,7 +586,7 @@
                      }
  
                      this.setDamageValue(0);
-@@ -338,100 +626,74 @@
+@@ -338,100 +627,74 @@
          return this.item.getBarColor(this);
      }
  
@@ -708,7 +709,7 @@
      }
  
      public boolean sameItem(ItemStack stack) {
-@@ -439,22 +701,17 @@
+@@ -439,22 +702,17 @@
      }
  
      public boolean sameItemStackIgnoreDurability(ItemStack stack) {
@@ -733,7 +734,7 @@
      public String toString() {
          return this.count + " " + this.getItem();
      }
-@@ -470,7 +727,7 @@
+@@ -470,7 +728,7 @@
  
      }
  
@@ -742,7 +743,7 @@
          player.awardStat(Stats.ITEM_CRAFTED.get(this.getItem()), amount);
          this.getItem().onCraftedBy(this, world, player);
      }
-@@ -500,6 +757,17 @@
+@@ -500,6 +758,17 @@
          return this.tag;
      }
  
@@ -760,7 +761,7 @@
      public CompoundTag getOrCreateTag() {
          if (this.tag == null) {
              this.setTag(new CompoundTag());
-@@ -512,9 +780,10 @@
+@@ -512,9 +781,10 @@
          if (this.tag != null && this.tag.contains(key, 10)) {
              return this.tag.getCompound(key);
          } else {
@@ -774,7 +775,7 @@
          }
      }
  
-@@ -537,8 +806,28 @@
+@@ -537,8 +807,28 @@
          return this.tag != null ? this.tag.getList("Enchantments", 10) : new ListTag();
      }
  
@@ -803,7 +804,7 @@
          if (this.getItem().canBeDepleted()) {
              this.setDamageValue(this.getDamageValue());
          }
-@@ -550,17 +839,19 @@
+@@ -550,17 +840,19 @@
      }
  
      public Component getHoverName() {
@@ -831,7 +832,7 @@
              }
          }
  
-@@ -568,21 +859,23 @@
+@@ -568,21 +860,23 @@
      }
  
      public ItemStack setHoverName(@Nullable Component name) {
@@ -862,7 +863,7 @@
                  this.removeTagKey("display");
              }
          }
-@@ -594,104 +887,124 @@
+@@ -594,104 +888,124 @@
      }
  
      public boolean hasCustomHoverName() {
@@ -1036,7 +1037,7 @@
                          }
                      }
                  }
-@@ -699,30 +1012,32 @@
+@@ -699,30 +1013,32 @@
          }
  
          if (this.hasTag()) {
@@ -1080,7 +1081,7 @@
                      }
                  }
              }
-@@ -730,12 +1045,12 @@
+@@ -730,12 +1046,12 @@
  
          if (context.isAdvanced()) {
              if (this.isDamaged()) {
@@ -1095,7 +1096,7 @@
              }
          }
  
-@@ -751,15 +1066,17 @@
+@@ -751,15 +1067,17 @@
      }
  
      public void hideTooltipPart(ItemStack.TooltipPart tooltipSection) {
@@ -1119,7 +1120,7 @@
              });
          }
  
-@@ -767,29 +1084,32 @@
+@@ -767,29 +1085,32 @@
  
      private static Collection<Component> expandBlockState(String tag) {
          try {
@@ -1166,7 +1167,7 @@
      }
  
      public boolean hasFoil() {
-@@ -801,11 +1121,7 @@
+@@ -801,11 +1122,7 @@
      }
  
      public boolean isEnchantable() {
@@ -1179,7 +1180,7 @@
      }
  
      public void enchant(Enchantment enchantment, int level) {
-@@ -814,16 +1130,14 @@
+@@ -814,16 +1131,14 @@
              this.tag.put("Enchantments", new ListTag());
          }
  
@@ -1201,7 +1202,7 @@
      }
  
      public void addTagElement(String key, Tag element) {
-@@ -840,7 +1154,7 @@
+@@ -840,7 +1155,7 @@
  
      @Nullable
      public ItemFrame getFrame() {
@@ -1210,7 +1211,7 @@
      }
  
      @Nullable
-@@ -853,32 +1167,42 @@
+@@ -853,32 +1168,42 @@
      }
  
      public void setRepairCost(int repairCost) {
@@ -1265,7 +1266,7 @@
      }
  
      public void addAttributeModifier(Attribute attribute, AttributeModifier modifier, @Nullable EquipmentSlot slot) {
-@@ -887,30 +1211,41 @@
+@@ -887,30 +1212,41 @@
              this.tag.put("AttributeModifiers", new ListTag());
          }
  
@@ -1318,7 +1319,7 @@
      }
  
      public boolean hasAdventureModePlaceTagForBlock(Registry<Block> blockRegistry, BlockInWorld pos) {
-@@ -980,16 +1315,13 @@
+@@ -980,16 +1316,13 @@
      }
  
      public static enum TooltipPart {

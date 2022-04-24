@@ -91,7 +91,7 @@
 +    }
 +
 +    // CraftBukkit start
-+    public static boolean changeLevel(BlockState iblockdata, Level world, BlockPos blockposition, BlockState newBlock, Entity entity, CauldronLevelChangeEvent.ChangeReason reason) {
++    public static boolean changeLevel(BlockState iblockdata, Level world, BlockPos blockposition, BlockState newBlock, @javax.annotation.Nullable Entity entity, CauldronLevelChangeEvent.ChangeReason reason) { // Paper - entity is nullable
 +        CraftBlockState newState = CraftBlockStates.getBlockState(world, blockposition);
 +        newState.setData(newBlock);
 +

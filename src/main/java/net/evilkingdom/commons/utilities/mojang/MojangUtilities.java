@@ -27,17 +27,14 @@ public class MojangUtilities {
      * @return The player's UUID.
      */
     public static CompletableFuture<Optional<UUID>> getUUID(final String name) {
-        return CompletableFuture.supplyAsync(() -> {
-            final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-            final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://api.mojang.com/users/profiles/minecraft/" + name)).GET().build();
-            httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
-                if (httpResponse.body().isEmpty()) {
-                    return Optional.empty();
-                }
-                final JsonObject jsonObject = JsonParser.parseString(httpResponse.body()).getAsJsonObject();
-                return UUID.fromString(jsonObject.get("id").getAsString().replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
-            });
-            return Optional.empty();
+        final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://api.mojang.com/users/profiles/minecraft/" + name)).GET().build();
+        return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
+            if (httpResponse.body().isEmpty()) {
+                return Optional.empty();
+            }
+            final JsonObject jsonObject = JsonParser.parseString(httpResponse.body()).getAsJsonObject();
+            return Optional.of(UUID.fromString(jsonObject.get("id").getAsString().replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5")));
         });
     }
 
