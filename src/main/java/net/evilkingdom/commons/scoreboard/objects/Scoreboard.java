@@ -152,7 +152,7 @@ public class Scoreboard {
         packets.add(clientboundSetDisplayObjectivePacket);
         final ArrayList<String> clonedLines = this.lines;
         Collections.reverse(clonedLines);
-        for (int i = 0; i < (clonedLines.size() - 1); i++) {
+        for (int i = 0; i < clonedLines.size(); i++) {
             final String line = clonedLines.get(i);
             final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, objective.getName(), line, i);
             packets.add(clientboundSetScorePacket);
@@ -179,7 +179,7 @@ public class Scoreboard {
         }
         final ArrayList<String> clonedLines = this.lines;
         Collections.reverse(clonedLines);
-        for (int i = 0; i < (clonedLines.size() - 1); i++) {
+        for (int i = 0; i < clonedLines.size(); i++) {
             final String line = clonedLines.get(i);
             final ClientboundSetScorePacket clientboundSetScorePacket = new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.objective.get().getName(), line, i);
             packets.add(clientboundSetScorePacket);
