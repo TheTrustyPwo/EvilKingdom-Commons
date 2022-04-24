@@ -20,6 +20,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
 import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R2.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -136,11 +137,17 @@ public class Scoreboard {
      * Allows you to show the scoreboard to the player.
      */
     public void show() {
-        if (this.objectiveName.isPresent()) {
+        if (this.scoreboard.isPresent()) {
             return;
         }
+        final org.bukkit.scoreboard.Scoreboard scoreboard;
+        if (player.getScoreboard() == Bukkit.getScoreboardManager().getMainScoreboard()) {
+            scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        } else {
+            scoreboard = player.getScoreboard();
+        }
         final ArrayList<Packet<?>> packets = new ArrayList<Packet<?>>();
-        final net.minecraft.world.scores.Objective objective = new net.minecraft.world.scores.Objective(new net.minecraft.world.scores.Scoreboard(), "csbo" + UUID.randomUUID().toString().replace("-", "").substring(0, 10), ObjectiveCriteria.DUMMY, net.minecraft.network.chat.Component.nullToEmpty(StringUtilities.colorize(this.title)), ObjectiveCriteria.RenderType.INTEGER);
+        final net.minecraft.world.scores.Objective objective = new net.minecraft.world.scores.Objective(((CraftScoreboard) scoreboard).getHandle(), "csbo" + UUID.randomUUID().toString().replace("-", "").substring(0, 10), ObjectiveCriteria.DUMMY, net.minecraft.network.chat.Component.nullToEmpty(StringUtilities.colorize(this.title)), ObjectiveCriteria.RenderType.INTEGER);
         final ClientboundSetObjectivePacket clientboundSetObjectivePacket = new ClientboundSetObjectivePacket(objective, ClientboundSetObjectivePacket.METHOD_ADD);
         final ClientboundSetDisplayObjectivePacket clientboundSetDisplayObjectivePacket = new ClientboundSetDisplayObjectivePacket(1, objective);
         packets.add(clientboundSetObjectivePacket);
@@ -164,7 +171,7 @@ public class Scoreboard {
      * Allows you to update the scoreboard for the player.
      */
     public void update() {
-        if (this.objectiveName.isEmpty()) {
+        if (this.scoreboard.isEmpty()) {
             return;
         }
         final ArrayList<Packet<?>> packets = new ArrayList<Packet<?>>();
@@ -188,7 +195,7 @@ public class Scoreboard {
      * Allows you to hide the scoreboard from the player.
      */
     public void hide() {
-        if (this.objectiveName.isEmpty()) {
+        if (this.scoreboard.isEmpty()) {
             return;
         }
         final Objective objective = this.scoreboard.get().getObjective(this.objectiveName.get());
