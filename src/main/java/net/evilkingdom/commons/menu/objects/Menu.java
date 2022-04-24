@@ -168,10 +168,11 @@ public class Menu {
         }
         final Inventory inventory = this.inventory.get();
         for (int i = 0; i < inventory.getSize(); i++) {
-            if (this.items.get(i) != null) {
+            if (this.items.containsKey(i)) {
                 inventory.setItem(i, this.items.get(i).getItemStack());
+            } else {
+                inventory.setItem(i, new ItemStack(Material.AIR));
             }
-            inventory.setItem(i, new ItemStack(Material.AIR));
         }
         this.player.openInventory(inventory);
         final MenuImplementor menuImplementor = MenuImplementor.get(this.plugin);
@@ -187,10 +188,11 @@ public class Menu {
         }
         Inventory inventory = this.inventory.get();
         for (int i = 0; i < inventory.getSize(); i++) {
-            if (this.items.get(i) != null) {
+            if (this.items.containsKey(i)) {
                 inventory.setItem(i, this.items.get(i).getItemStack());
+            } else {
+                inventory.setItem(i, new ItemStack(Material.AIR));
             }
-            inventory.setItem(i, new ItemStack(Material.AIR));
         }
     }
 
