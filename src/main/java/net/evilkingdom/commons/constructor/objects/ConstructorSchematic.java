@@ -140,21 +140,19 @@ public class ConstructorSchematic {
      * Uses FastAsyncWorldEdit's API.
      *
      * @param file ~ The file to load from.
-     * @return If the load was successful when the task is complete.
+     * @return If the load was successful.
      */
-    public CompletableFuture<Boolean> load(final File file) {
-        return CompletableFuture.supplyAsync(() -> {
-            Clipboard clipboard;
-            final ClipboardFormat clipboardFormat = ClipboardFormats.findByFile(file);
-            try (ClipboardReader reader = clipboardFormat.getReader(new FileInputStream(file))) {
-                clipboard = reader.read();
-            } catch (final IOException ioException) {
-                return false;
-            }
-            clipboard.getRegion().setWorld(BukkitAdapter.adapt(this.center.getWorld()));
-            this.clipboard = clipboard;
-            return true;
-        });
+    public boolean load(final File file) {
+        Clipboard clipboard;
+        final ClipboardFormat clipboardFormat = ClipboardFormats.findByFile(file);
+        try (ClipboardReader reader = clipboardFormat.getReader(new FileInputStream(file))) {
+            clipboard = reader.read();
+        } catch (final IOException ioException) {
+            return false;
+        }
+        clipboard.getRegion().setWorld(BukkitAdapter.adapt(this.center.getWorld()));
+        this.clipboard = clipboard;
+        return true;
     }
 
     /**
@@ -162,25 +160,23 @@ public class ConstructorSchematic {
      * Uses FastAsyncWorldEdit's API.
      *
      * @param region ~ The region to load from.
-     * @return If the load was successful when the task is complete.
+     * @return If the load was successful.
      */
-    public CompletableFuture<Boolean> load(final ConstructorRegion region) {
-        return CompletableFuture.supplyAsync(() -> {
-            final CuboidRegion cuboidRegion = new CuboidRegion(BukkitAdapter.asBlockVector(region.getCornerOne()), BukkitAdapter.asBlockVector(region.getCornerTwo()));
-            cuboidRegion.setWorld(BukkitAdapter.adapt(this.center.getWorld()));
-            final BlockArrayClipboard clipboard = new BlockArrayClipboard(cuboidRegion);
-            final ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(cuboidRegion.getWorld(), cuboidRegion, clipboard, BukkitAdapter.asBlockVector(this.center));
-            forwardExtentCopy.setCopyingEntities(true);
-            forwardExtentCopy.setCopyingBiomes(false);
-            try {
-                Operations.complete(forwardExtentCopy);
-            }  catch (final WorldEditException worldEditException) {
-                return false;
-            }
-            clipboard.setOrigin(BukkitAdapter.asBlockVector(this.center));
-            this.clipboard = clipboard;
-            return true;
-        });
+    public boolean load(final ConstructorRegion region) {
+        final CuboidRegion cuboidRegion = new CuboidRegion(BukkitAdapter.asBlockVector(region.getCornerOne()), BukkitAdapter.asBlockVector(region.getCornerTwo()));
+        cuboidRegion.setWorld(BukkitAdapter.adapt(this.center.getWorld()));
+        final BlockArrayClipboard clipboard = new BlockArrayClipboard(cuboidRegion);
+        final ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(cuboidRegion.getWorld(), cuboidRegion, clipboard, BukkitAdapter.asBlockVector(this.center));
+        forwardExtentCopy.setCopyingEntities(true);
+        forwardExtentCopy.setCopyingBiomes(false);
+        try {
+            Operations.complete(forwardExtentCopy);
+        }  catch (final WorldEditException worldEditException) {
+            return false;
+        }
+        clipboard.setOrigin(BukkitAdapter.asBlockVector(this.center));
+        this.clipboard = clipboard;
+        return true;
     }
 
     /**
@@ -191,8 +187,7 @@ public class ConstructorSchematic {
      */
     public boolean paste() {
         try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).fastMode(true).build()) {
-            editSession.disableHistory();
-            Operations.complete(new ClipboardHolder(clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
+            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
         } catch (final WorldEditException worldEditException) {
             return false;
         }
