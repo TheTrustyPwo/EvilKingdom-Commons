@@ -94,10 +94,11 @@ public class ConstructorRegion {
         try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).fastMode(true).build()) {
             editSession.disableHistory();
             editSession.setBlocks(this.region, blockState);
+            editSession.flushQueue();
+            return true;
         } catch (final WorldEditException worldEditException) {
             return false;
         }
-        return true;
     }
 
     /**
@@ -113,10 +114,11 @@ public class ConstructorRegion {
         try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).fastMode(true).build()) {
             editSession.disableHistory();
             editSession.setBlocks(this.region, pattern);
+            editSession.flushQueue();
+            return true;
         } catch (final WorldEditException worldEditException) {
             return false;
         }
-        return true;
     }
 
     /**

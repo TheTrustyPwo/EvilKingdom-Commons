@@ -97,18 +97,6 @@ public class ConstructorSchematic {
     }
 
     /**
-     * Allows you to retrieve the schematic's region.
-     *
-     * @return The schematic's region.
-     */
-    public ConstructorRegion getRegion() {
-        if (this.clipboard == null) {
-            return null;
-        }
-        return new ConstructorRegion(this.plugin, BukkitAdapter.adapt(BukkitAdapter.adapt(this.clipboard.getRegion().getWorld()), this.clipboard.getRegion().getMinimumPoint()), BukkitAdapter.adapt(BukkitAdapter.adapt(this.clipboard.getRegion().getWorld()), this.clipboard.getRegion().getMaximumPoint()));
-    }
-
-    /**
      * Allows you to retrieve the schematic's plugin.
      *
      * @return The schematic's plugin.
@@ -134,26 +122,22 @@ public class ConstructorSchematic {
     }
 
     /**
-     * Allows you to load the schematic from a file.
+     * Allows you to load the schematic from a file (must be a .schem file).
      * Uses FastAsyncWorldEdit's API.
      *
      * @param file ~ The file to load from.
      * @return If the load was successful.
      */
     public boolean load(final File file) {
-        Clipboard clipboard;
-        final ClipboardFormat clipboardFormat = ClipboardFormats.findByFile(file);
-        System.out.println("wooo");
-        try (ClipboardReader reader = clipboardFormat.getReader(new FileInputStream(file))) {
-            clipboard = reader.read();
-        } catch (final IOException ioException) {
-            System.out.println("error");
+        try (final ClipboardReader reader = BuiltInClipboardFormat.FAST.getReader(new FileInputStream(file))) {
+            final Clipboard clipboard = reader.read();
+            clipboard.getRegion().setWorld(BukkitAdapter.adapt(this.center.getWorld()));
+            this.clipboard = clipboard;
+            return true;
+        } catch (final Exception exception) {
+            exception.printStackTrace();
             return false;
         }
-        clipboard.getRegion().setWorld(BukkitAdapter.adapt(this.center.getWorld()));
-        this.clipboard = clipboard;
-        System.out.println("loaded af");
-        return true;
     }
 
     /**
@@ -172,12 +156,12 @@ public class ConstructorSchematic {
         forwardExtentCopy.setCopyingBiomes(false);
         try {
             Operations.complete(forwardExtentCopy);
+            clipboard.setOrigin(BukkitAdapter.asBlockVector(this.center));
+            this.clipboard = clipboard;
+            return true;
         }  catch (final WorldEditException worldEditException) {
             return false;
         }
-        clipboard.setOrigin(BukkitAdapter.asBlockVector(this.center));
-        this.clipboard = clipboard;
-        return true;
     }
 
     /**
@@ -187,12 +171,14 @@ public class ConstructorSchematic {
      * @return True when the task is complete or false if something goes wrong.
      */
     public boolean paste() {
-        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).build()) {
-            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession.getBypassAll()).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
+        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).fastMode(true).build()) {
+            editSession.disableHistory();
+            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
+            editSession.flushQueue();
+            return true;
         } catch (final WorldEditException worldEditException) {
             return false;
         }
-        return true;
     }
 
 }
