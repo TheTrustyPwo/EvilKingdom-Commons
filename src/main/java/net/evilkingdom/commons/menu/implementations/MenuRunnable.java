@@ -35,9 +35,7 @@ public class MenuRunnable implements Runnable {
     @Override
     public void run() {
         final MenuImplementor menuImplementor = MenuImplementor.get(this.plugin);
-        menuImplementor.getMenus().forEach(menu -> {
-            menu.getRunnable().ifPresent(runnable ->  Bukkit.getScheduler().runTask(this.plugin, runnable));
-        });
+        menuImplementor.getMenus().forEach(menu -> menu.getRunnable().ifPresent(runnable ->  Bukkit.getScheduler().runTask(this.plugin, runnable)));
     }
 
 }

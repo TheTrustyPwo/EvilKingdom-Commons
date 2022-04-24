@@ -38,9 +38,7 @@ public class ScoreboardRunnable implements Runnable {
     @Override
     public void run() {
         final ScoreboardImplementor scoreboardImplementor = ScoreboardImplementor.get(this.plugin);
-        scoreboardImplementor.getScoreboards().forEach(scoreboard -> {
-            scoreboard.getRunnable().ifPresent(runnable -> Bukkit.getScheduler().runTask(this.plugin, runnable));
-        });
+        scoreboardImplementor.getScoreboards().forEach(scoreboard -> scoreboard.getRunnable().ifPresent(runnable -> Bukkit.getScheduler().runTask(this.plugin, runnable)));
     }
 
 }

@@ -166,7 +166,7 @@ public class Menu {
         } else {
             this.inventory = Optional.of(Bukkit.getServer().createInventory(null, this.type, Component.text(title)));
         }
-        Inventory inventory = this.inventory.get();
+        final Inventory inventory = this.inventory.get();
         for (int i = 0; i < inventory.getSize(); i++) {
             if (this.items.get(i) != null) {
                 inventory.setItem(i, this.items.get(i).getItemStack());
