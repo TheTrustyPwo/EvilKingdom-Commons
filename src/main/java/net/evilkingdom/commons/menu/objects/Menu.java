@@ -162,7 +162,7 @@ public class Menu {
             return;
         }
         if (this.type == InventoryType.CHEST) {
-            this.inventory = Optional.of(Bukkit.getServer().createInventory(null, this.rows.get(), Component.text(title)));
+            this.inventory = Optional.of(Bukkit.getServer().createInventory(null, (this.rows.get() * 9), Component.text(title)));
         } else {
             this.inventory = Optional.of(Bukkit.getServer().createInventory(null, this.type, Component.text(title)));
         }
