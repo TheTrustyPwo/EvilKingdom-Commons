@@ -158,7 +158,7 @@ public class ConstructorSchematic {
         cuboidRegion.setWorld(BukkitAdapter.adapt(this.center.getWorld()));
         final BlockArrayClipboard clipboard = new BlockArrayClipboard(cuboidRegion);
         final ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(cuboidRegion.getWorld(), cuboidRegion, clipboard, BukkitAdapter.asBlockVector(this.center));
-        forwardExtentCopy.setCopyingEntities(trsue);
+        forwardExtentCopy.setCopyingEntities(true);
         forwardExtentCopy.setCopyingBiomes(false);
         try {
             Operations.complete(forwardExtentCopy);
