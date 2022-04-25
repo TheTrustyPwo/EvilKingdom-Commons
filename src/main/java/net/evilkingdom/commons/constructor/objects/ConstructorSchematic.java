@@ -113,6 +113,9 @@ public class ConstructorSchematic {
      * @return If the save was successful.
      */
     public boolean save(final File file) {
+        if (file.exists()) {
+            file.delete();
+        }
         try (final ClipboardWriter writer = BuiltInClipboardFormat.FAST.getWriter(new FileOutputStream(file))) {
             writer.write(this.clipboard);
         } catch (final IOException ioException) {
@@ -122,22 +125,25 @@ public class ConstructorSchematic {
     }
 
     /**
-     * Allows you to load the schematic from a file (must be a .schem file).
+     * Allows you to load the schematic from a file.
      * Uses FastAsyncWorldEdit's API.
      *
      * @param file ~ The file to load from.
      * @return If the load was successful.
      */
     public boolean load(final File file) {
-        try (final ClipboardReader reader = BuiltInClipboardFormat.FAST.getReader(new FileInputStream(file))) {
+        final ClipboardFormat clipboardFormat = ClipboardFormats.findByFile(file);
+        if (clipboardFormat == null) {
+            return false;
+        }
+        try (final ClipboardReader reader = clipboardFormat.getReader(new FileInputStream(file))) {
             final Clipboard clipboard = reader.read();
             clipboard.getRegion().setWorld(BukkitAdapter.adapt(this.center.getWorld()));
             this.clipboard = clipboard;
-            return true;
-        } catch (final Exception exception) {
-            exception.printStackTrace();
+        } catch (final IOException ioException) {
             return false;
         }
+        return true;
     }
 
     /**
@@ -158,10 +164,10 @@ public class ConstructorSchematic {
             Operations.complete(forwardExtentCopy);
             clipboard.setOrigin(BukkitAdapter.asBlockVector(this.center));
             this.clipboard = clipboard;
-            return true;
         }  catch (final WorldEditException worldEditException) {
             return false;
         }
+        return true;
     }
 
     /**
@@ -175,10 +181,10 @@ public class ConstructorSchematic {
             editSession.disableHistory();
             Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
             editSession.flushQueue();
-            return true;
         } catch (final WorldEditException worldEditException) {
             return false;
         }
+        return true;
     }
 
 }

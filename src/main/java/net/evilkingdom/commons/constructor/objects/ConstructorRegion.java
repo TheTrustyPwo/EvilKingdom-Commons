@@ -95,10 +95,10 @@ public class ConstructorRegion {
             editSession.disableHistory();
             editSession.setBlocks(this.region, blockState);
             editSession.flushQueue();
-            return true;
         } catch (final WorldEditException worldEditException) {
             return false;
         }
+        return true;
     }
 
     /**
@@ -115,10 +115,10 @@ public class ConstructorRegion {
             editSession.disableHistory();
             editSession.setBlocks(this.region, pattern);
             editSession.flushQueue();
-            return true;
         } catch (final WorldEditException worldEditException) {
             return false;
         }
+        return true;
     }
 
     /**
