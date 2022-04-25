@@ -91,7 +91,7 @@ public class ConstructorRegion {
      */
     public boolean fill(final Material material) {
         final BlockState blockState = BukkitAdapter.adapt(material.createBlockData());
-        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).fastMode(true).build()) {
+        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).build()) {
             editSession.disableHistory();
             editSession.setBlocks(this.region, blockState);
             editSession.flushQueue();
@@ -111,7 +111,7 @@ public class ConstructorRegion {
     public boolean fill(final HashMap<Material, Double> blockToPercentages) {
         final RandomPattern pattern = new RandomPattern();
         blockToPercentages.forEach(((material, percentage) -> pattern.add(BukkitAdapter.adapt(material.createBlockData()), percentage)));
-        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).fastMode(true).build()) {
+        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).build()) {
             editSession.disableHistory();
             editSession.setBlocks(this.region, pattern);
             editSession.flushQueue();
