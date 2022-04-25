@@ -76,7 +76,7 @@ public class DatapointObject {
         } else {
             final BasicDBObject basicDBObject = new BasicDBObject();
             this.innerObjects.forEach((key, object) -> {
-                if (object.getObject() != null) {
+                if (object.innerObjects.isEmpty()) {
                     basicDBObject.put(key, object.getObject());
                 } else {
                     final BasicDBObject innerBasicDBObject = new BasicDBObject();
@@ -101,7 +101,7 @@ public class DatapointObject {
         } else {
             final JsonObject jsonObject = new JsonObject();
             this.innerObjects.forEach((key, object) -> {
-                if (object.getObject() != null) {
+                if (object.getInnerObjects().isEmpty()) {
                     jsonObject.add(key, JsonParser.parseString(new Gson().toJson(object.getObject())));
                 } else {
                     final JsonObject innerJsonObject = new JsonObject();
