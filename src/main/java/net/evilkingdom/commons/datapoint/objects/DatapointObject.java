@@ -62,7 +62,7 @@ public class DatapointObject {
      * @return The datapoint object as Mongo.
      */
     public Object asMongo() {
-        if (this.object != null) {
+        if (this.innerObjects.isEmpty()) {
             if (this.object.getClass() != DatapointObject.class) {
                 return this.object;
             } else {
@@ -76,7 +76,7 @@ public class DatapointObject {
         } else {
             final BasicDBObject basicDBObject = new BasicDBObject();
             this.innerObjects.forEach((key, object) -> {
-                if (object.innerObjects.isEmpty()) {
+                if (object.getInnerObjects().isEmpty()) {
                     basicDBObject.put(key, object.getObject());
                 } else {
                     final BasicDBObject innerBasicDBObject = new BasicDBObject();
@@ -96,7 +96,7 @@ public class DatapointObject {
      * @return The datapoint object as JSON.
      */
     public Object asJson() {
-        if (this.object != null) {
+        if (this.innerObjects.isEmpty()) {
             return JsonParser.parseString(new Gson().toJson(this.object));
         } else {
             final JsonObject jsonObject = new JsonObject();
