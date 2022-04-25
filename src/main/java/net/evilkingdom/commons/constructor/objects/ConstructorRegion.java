@@ -16,6 +16,7 @@ import org.bukkit.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class ConstructorRegion {
 
@@ -89,16 +90,18 @@ public class ConstructorRegion {
      * @param material ~ The material to set.
      * @return True when the task is complete or false if something goes wrong.
      */
-    public boolean fill(final Material material) {
-        final BlockState blockState = BukkitAdapter.adapt(material.createBlockData());
-        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).build()) {
-            editSession.disableHistory();
-            editSession.setBlocks(this.region, blockState);
-            editSession.flushQueue();
-        } catch (final WorldEditException worldEditException) {
-            return false;
-        }
-        return true;
+    public CompletableFuture<Boolean> fill(final Material material) {
+        return CompletableFuture.supplyAsync(() -> {
+            final BlockState blockState = BukkitAdapter.adapt(material.createBlockData());
+            try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).build()) {
+                editSession.disableHistory();
+                editSession.setBlocks(this.region, blockState);
+                editSession.flushQueue();
+            } catch (final WorldEditException worldEditException) {
+                return false;
+            }
+            return true;
+        });
     }
 
     /**
@@ -108,17 +111,19 @@ public class ConstructorRegion {
      * @param blockToPercentages ~ The HashMap of blocks to their percentages to set.
      * @return True when the task is complete or false if something goes wrong.
      */
-    public boolean fill(final HashMap<Material, Double> blockToPercentages) {
-        final RandomPattern pattern = new RandomPattern();
-        blockToPercentages.forEach(((material, percentage) -> pattern.add(BukkitAdapter.adapt(material.createBlockData()), percentage)));
-        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).build()) {
-            editSession.disableHistory();
-            editSession.setBlocks(this.region, pattern);
-            editSession.flushQueue();
-        } catch (final WorldEditException worldEditException) {
-            return false;
-        }
-        return true;
+    public CompletableFuture<Boolean> fill(final HashMap<Material, Double> blockToPercentages) {
+        return CompletableFuture.supplyAsync(() -> {
+            final RandomPattern pattern = new RandomPattern();
+            blockToPercentages.forEach(((material, percentage) -> pattern.add(BukkitAdapter.adapt(material.createBlockData()), percentage)));
+            try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).build()) {
+                editSession.disableHistory();
+                editSession.setBlocks(this.region, pattern);
+                editSession.flushQueue();
+            } catch (final WorldEditException worldEditException) {
+                return false;
+            }
+            return true;
+        });
     }
 
     /**
