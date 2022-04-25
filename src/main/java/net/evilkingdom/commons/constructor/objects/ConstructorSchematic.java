@@ -54,7 +54,6 @@ import javax.sound.sampled.Clip;
 import javax.swing.text.html.HTML;
 import java.awt.*;
 import java.io.*;
-import java.lang.annotation.IncompleteAnnotationException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -177,17 +176,15 @@ public class ConstructorSchematic {
      *
      * @return True when the task is complete or false if something goes wrong.
      */
-    public CompletableFuture<Boolean> paste() {
-        return CompletableFuture.supplyAsync(() -> {
-            try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).build()) {
-                editSession.disableHistory();
-                Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
-                editSession.flushQueue();
-            } catch (final WorldEditException worldEditException) {
-                return false;
-            }
-            return true;
-        });
+    public boolean paste() {
+        try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).build()) {
+            editSession.disableHistory();
+            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
+            editSession.flushQueue();
+        } catch (final WorldEditException worldEditException) {
+            return false;
+        }
+        return true;
     }
 
 }
