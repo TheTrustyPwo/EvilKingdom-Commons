@@ -62,7 +62,7 @@ public class DatapointObject {
      * @return The datapoint object as Mongo.
      */
     public Object asMongo() {
-        if (this.object != null) {
+        if (this.innerObjects.isEmpty()) {
             if (this.object.getClass() != DatapointObject.class) {
                 return this.object;
             } else {
@@ -96,12 +96,12 @@ public class DatapointObject {
      * @return The datapoint object as JSON.
      */
     public Object asJson() {
-        if (this.object != null) {
+        if (this.innerObjects.isEmpty()) {
             return JsonParser.parseString(new Gson().toJson(this.object));
         } else {
             final JsonObject jsonObject = new JsonObject();
             this.innerObjects.forEach((key, object) -> {
-                if (object.getInnerObjects().isEmpty()) {
+                if (object.innerObjects.isEmpty()) {
                     jsonObject.add(key, JsonParser.parseString(new Gson().toJson(object.getObject())));
                 } else {
                     final JsonObject innerJsonObject = new JsonObject();
