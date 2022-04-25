@@ -92,7 +92,7 @@ public class ConstructorRegion {
     public boolean fill(final Material material) {
         final BlockState blockState = BukkitAdapter.adapt(material.createBlockData());
         try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).build()) {
-            editSession.getBypassAll().setBlocks(this.region, blockState);
+            editSession.setBlocks(this.region, blockState);
         } catch (final WorldEditException worldEditException) {
             return false;
         }
@@ -110,7 +110,7 @@ public class ConstructorRegion {
         final RandomPattern pattern = new RandomPattern();
         blockToPercentages.forEach(((material, percentage) -> pattern.add(BukkitAdapter.adapt(material.createBlockData()), percentage)));
         try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).build()) {
-            editSession.getBypassAll().setBlocks(this.region, pattern);
+            editSession.setBlocks(this.region, pattern);
         } catch (final WorldEditException worldEditException) {
             return false;
         }
