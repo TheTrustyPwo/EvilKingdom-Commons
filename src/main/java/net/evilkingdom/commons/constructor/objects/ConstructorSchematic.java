@@ -158,7 +158,7 @@ public class ConstructorSchematic {
         cuboidRegion.setWorld(BukkitAdapter.adapt(this.center.getWorld()));
         final BlockArrayClipboard clipboard = new BlockArrayClipboard(cuboidRegion);
         final ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(cuboidRegion.getWorld(), cuboidRegion, clipboard, BukkitAdapter.asBlockVector(this.center));
-        forwardExtentCopy.setCopyingEntities(true);
+        forwardExtentCopy.setCopyingEntities(trsue);
         forwardExtentCopy.setCopyingBiomes(false);
         try {
             Operations.complete(forwardExtentCopy);
@@ -178,9 +178,7 @@ public class ConstructorSchematic {
      */
     public boolean paste() {
         try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.clipboard.getRegion().getWorld()).build()) {
-            editSession.disableHistory();
-            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
-            editSession.flushQueue();
+            Operations.complete(new ClipboardHolder(this.clipboard).createPaste(editSession.getBypassAll()).to(BukkitAdapter.asBlockVector(this.center)).copyBiomes(false).ignoreAirBlocks(true).copyEntities(true).build());
         } catch (final WorldEditException worldEditException) {
             return false;
         }
