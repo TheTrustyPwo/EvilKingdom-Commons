@@ -37,7 +37,6 @@ public class CooldownRunnable implements Runnable {
         for (final Iterator<Cooldown> cooldownIterator = cooldownImplementor.getCooldowns().iterator(); cooldownIterator.hasNext();) {
             final Cooldown cooldown = cooldownIterator.next();
             if (cooldown.getTimeLeft() <= 0) {
-                cooldown.getFinishRunnable().ifPresent(finishRunnable ->  Bukkit.getScheduler().runTask(this.plugin, finishRunnable));
                 cooldownIterator.remove();
             }
             cooldown.setTimeLeft(cooldown.getTimeLeft() - 1L);

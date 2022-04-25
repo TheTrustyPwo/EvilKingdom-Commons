@@ -21,7 +21,6 @@ public class Cooldown {
 
     private final JavaPlugin plugin;
 
-    private Optional<Runnable> finishRunnable;
     private final String identifier;
     private long timeLeft;
 
@@ -35,7 +34,6 @@ public class Cooldown {
     public Cooldown(final JavaPlugin plugin, final String identifier, final long duration) {
         this.plugin = plugin;
 
-        this.finishRunnable = Optional.empty();
         this.identifier = identifier;
         this.timeLeft = duration;
     }
@@ -56,24 +54,6 @@ public class Cooldown {
     public void stop() {
         final CooldownImplementor cooldownImplementor = CooldownImplementor.get(this.plugin);
         cooldownImplementor.getCooldowns().remove(this);
-    }
-
-    /**
-     * Allows you to set the cooldowns's finish runnable.
-     *
-     * @param finishRunnable ~ The finish runnable that will be set.
-     */
-    public void setFinishRunnable(final Optional<Runnable> finishRunnable) {
-        this.finishRunnable = finishRunnable;
-    }
-
-    /**
-     * Allows you to retrieve the cooldowns's runnable.
-     *
-     * @return The cooldowns's runnable.
-     */
-    public Optional<Runnable> getFinishRunnable() {
-        return this.finishRunnable;
     }
 
     /**

@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     paperDevBundle("1.18.2-R0.1-SNAPSHOT")
-    implementation("fr.mrmicky:fastboard:1.2.1")
+    compileOnly("net.luckperms:api:5.4")
     implementation("org.mongodb:mongo-java-driver:3.12.10")
     compileOnly("me.lucko:spark-api:0.1-SNAPSHOT")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.1.1")
