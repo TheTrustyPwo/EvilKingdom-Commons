@@ -53,7 +53,7 @@ public class CommandImplementor {
      * Allows you to retrieve the implementor's commands.
      * This should not be used for registering commands, rather just for listing them.
      *
-     * @return The CommandImplementor's commands.
+     * @return The implementor's commands.
      */
     public HashSet<Command> getCommands() {
         return this.commands;

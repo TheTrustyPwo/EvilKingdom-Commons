@@ -63,11 +63,10 @@ public class MenuListener implements Listener {
         final Player player = (Player) inventoryCloseEvent.getPlayer();
         final MenuImplementor menuImplementor = MenuImplementor.get(this.plugin);
         final Optional<Menu> optionalMenu = menuImplementor.getMenus().stream().filter(menu -> menu.getPlayer() == player).findFirst();
-        if (optionalMenu.isEmpty()) {
-            return;
+        if (optionalMenu.isPresent()) {
+            final Menu menu = optionalMenu.get();
+            menu.close();
         }
-        final Menu menu = optionalMenu.get();
-        menu.close();
     }
 
 }

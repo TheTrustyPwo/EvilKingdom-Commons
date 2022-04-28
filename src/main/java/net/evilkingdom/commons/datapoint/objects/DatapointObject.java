@@ -67,11 +67,7 @@ public class DatapointObject {
                 return this.object;
             } else {
                 final DatapointObject datapointObject = (DatapointObject) this.object;
-                final BasicDBObject basicDBObject = new BasicDBObject();
-                datapointObject.getInnerObjects().forEach((innerKey, innerObject) -> {
-                    basicDBObject.put(innerKey, innerObject.asMongo());
-                });
-                return basicDBObject;
+                return datapointObject.asMongo();
             }
         } else {
             final BasicDBObject basicDBObject = new BasicDBObject();

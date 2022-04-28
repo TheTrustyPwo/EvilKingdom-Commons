@@ -21,7 +21,7 @@ public class Menu {
 
     private final JavaPlugin plugin;
 
-    private String data;
+    private String identifier;
     private final Player player;
     private final String title;
     private final InventoryType type;
@@ -81,22 +81,22 @@ public class Menu {
     }
 
     /**
-     * Allows you to set the menu's data.
+     * Allows you to set the menu's identifier.
      * This may serve useful for paginated interfaces, etc.
      *
-     * @param data ~ The data that will be set.
+     * @param identifier ~ The identifier that will be set.
      */
-    public void setData(final String data) {
-        this.data = data;
+    public void setIdentifier(final String identifier) {
+        this.identifier = identifier;
     }
 
     /**
-     * Allows you to retrieve the menu's data.
+     * Allows you to retrieve the menu's identifier.
      *
-     * @return The menu's data.
+     * @return The menu's identifier.
      */
-    public String getData() {
-        return this.data;
+    public String getIdentifier() {
+        return this.identifier;
     }
 
     /**

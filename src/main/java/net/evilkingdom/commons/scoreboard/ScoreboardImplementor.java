@@ -4,6 +4,7 @@ package net.evilkingdom.commons.scoreboard;
  * Made with love by https://kodirati.com/.
  */
 
+import net.evilkingdom.commons.scoreboard.implementations.ScoreboardListener;
 import net.evilkingdom.commons.scoreboard.implementations.ScoreboardRunnable;
 import net.evilkingdom.commons.scoreboard.objects.Scoreboard;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,6 +31,7 @@ public class ScoreboardImplementor {
     public ScoreboardImplementor(final JavaPlugin plugin) {
         this.plugin = plugin;
 
+        new ScoreboardListener(this.plugin);
         new ScoreboardRunnable(this.plugin);
         this.scoreboards = new HashSet<Scoreboard>();
 
