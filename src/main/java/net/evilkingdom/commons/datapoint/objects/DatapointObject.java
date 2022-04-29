@@ -93,7 +93,12 @@ public class DatapointObject {
      */
     public Object asJson() {
         if (this.innerObjects.isEmpty()) {
-            return JsonParser.parseString(new Gson().toJson(this.object));
+            if (this.object.getClass() != DatapointObject.class) {
+                return JsonParser.parseString(new Gson().toJson(this.object)).getAsJsonObject();
+            } else {
+                final DatapointObject datapointObject = (DatapointObject) this.object;
+                return datapointObject.asMongo();
+            }
         } else {
             final JsonObject jsonObject = new JsonObject();
             this.innerObjects.forEach((key, object) -> {
