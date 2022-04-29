@@ -959,7 +959,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         SignBlockEntity sign = new SignBlockEntity(new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), Blocks.OAK_SIGN.defaultBlockState());
         sign.setColor(net.minecraft.world.item.DyeColor.byId(dyeColor.getWoolData()));
         sign.setHasGlowingText(hasGlowingText);
-        System.arraycopy(components, 0, sign.messages, 0, sign.messages.length);
+        for (int i = 0; i < components.length; i++) {
+            sign.setMessage(i, components[i]);
+        }
 
         getHandle().connection.send(sign.getUpdatePacket());
     }
