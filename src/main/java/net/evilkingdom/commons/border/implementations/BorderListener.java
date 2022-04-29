@@ -49,7 +49,7 @@ public class BorderListener implements Listener {
         final Optional<Border> optionalBorder = BorderImplementor.get(this.plugin).getBorders().stream().filter(implementedBorder -> implementedBorder.getPlayer() == player).findFirst();
         if (optionalBorder.isPresent()) {
             final Border border = optionalBorder.get();
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> border.update(), 20L);
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> border.hide(), 20L);
         }
     }
 
@@ -62,7 +62,7 @@ public class BorderListener implements Listener {
         final Optional<Border> optionalBorder = BorderImplementor.get(this.plugin).getBorders().stream().filter(implementedBorder -> implementedBorder.getPlayer() == player).findFirst();
         if (optionalBorder.isPresent()) {
             final Border border = optionalBorder.get();
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> border.update(), 20L);
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> border.hide(), 20L);
         }
     }
 
