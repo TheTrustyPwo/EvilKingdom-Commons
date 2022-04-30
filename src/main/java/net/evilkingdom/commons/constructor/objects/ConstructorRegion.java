@@ -112,7 +112,7 @@ public class ConstructorRegion {
     public CompletableFuture<Boolean> fill(final HashMap<Material, Double> blockToPercentages) {
         return CompletableFuture.supplyAsync(() -> {
             final RandomPattern pattern = new RandomPattern();
-            blockToPercentages.forEach(((material, percentage) -> pattern.add(BukkitAdapter.adapt(material.createBlockData()), percentage)));
+            blockToPercentages.forEach(((material, percentage) -> pattern.add(BukkitAdapter.adapt(material.createBlockData()), (percentage / 100))));
             try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).fastMode(true).build()) {
                 editSession.setBlocks(this.region, pattern);
             } catch (final WorldEditException worldEditException) {
