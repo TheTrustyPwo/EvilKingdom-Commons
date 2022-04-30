@@ -4,6 +4,7 @@ package net.evilkingdom.commons.cooldown;
  * Made with love by https://kodirati.com/.
  */
 
+import net.evilkingdom.commons.cooldown.implementations.CooldownRunnable;
 import net.evilkingdom.commons.cooldown.objects.Cooldown;
 import net.evilkingdom.commons.datapoint.objects.Datasite;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,6 +29,7 @@ public class CooldownImplementor {
     public CooldownImplementor(final JavaPlugin plugin) {
         this.plugin = plugin;
 
+        new CooldownRunnable(this.plugin);
         this.cooldowns = new HashSet<Cooldown>();
 
         cache.add(this);
