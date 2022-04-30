@@ -131,7 +131,7 @@ public class DatapointObject {
      * @return The datapoint object from the Mongo object.
      */
     public static DatapointObject fromMongo(final Object object) {
-        if (object.getClass() != BasicDBObject.class) {
+        if (((BasicDBObject) object).isEmpty()) {
             return new DatapointObject(object);
         } else {
             final DatapointObject datapointObject = new DatapointObject();
