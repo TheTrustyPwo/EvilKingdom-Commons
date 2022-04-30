@@ -46,7 +46,12 @@ public class DatapointModel {
      */
     public Document asMongo() {
         final Document document = new Document();
-        this.objects.forEach((key, object) -> document.put(key, object.asMongo()));
+        this.objects.forEach((key, object) -> {
+            final Object innerObject = object.asMongo();
+            if (!innerObject.equals("N/A")) {
+                document.put(key, innerObject);
+            }
+        });
         return document;
     }
 
@@ -57,7 +62,12 @@ public class DatapointModel {
      */
     public JsonObject asJson() {
         final JsonObject jsonObject = new JsonObject();
-        this.objects.forEach((key, object) -> jsonObject.add(key, JsonParser.parseString(new Gson().toJson(object.asJson()))));
+        this.objects.forEach((key, object) -> {
+            final Object innerObject = object.asJson();
+            if (!innerObject.equals("N/A")) {
+                jsonObject.add(key, JsonParser.parseString(new Gson().toJson(innerObject)));
+            }
+        });
         return jsonObject;
     }
 
