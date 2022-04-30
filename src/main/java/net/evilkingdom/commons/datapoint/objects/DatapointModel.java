@@ -46,12 +46,7 @@ public class DatapointModel {
      */
     public Document asMongo() {
         final Document document = new Document();
-        this.objects.forEach((key, object) -> {
-            final Object innerObject = object.asMongo();
-            if (!innerObject.equals("N/A")) {
-                document.put(key, innerObject);
-            }
-        });
+        this.objects.forEach((key, object) -> document.put(key, object.asMongo()));
         return document;
     }
 
@@ -62,13 +57,7 @@ public class DatapointModel {
      */
     public JsonObject asJson() {
         final JsonObject jsonObject = new JsonObject();
-        this.objects.forEach((key, object) -> {
-            final Object innerObject = object.asJson();
-            if (!innerObject.equals("N/A")) {
-                final JsonElement jsonElement = JsonParser.parseString(new Gson().toJson(innerObject));
-                jsonObject.add(key, jsonElement);
-            }
-        });
+        this.objects.forEach((key, object) -> jsonObject.add(key, JsonParser.parseString(new Gson().toJson(object.asJson()))));
         return jsonObject;
     }
 
@@ -80,7 +69,12 @@ public class DatapointModel {
      */
     public static DatapointModel fromMongo(final Document document) {
         final DatapointModel datapointModel = new DatapointModel(document.getString("_id"));
-        document.forEach((key, value) -> datapointModel.getObjects().put(key, DatapointObject.fromMongo(value)));
+        document.forEach((key, value) -> {
+            final DatapointObject datapointObject = DatapointObject.fromMongo(value);
+            if (!datapointObject.getObject().equals("N/A")) {
+                datapointModel.getObjects().put(key, datapointObject);
+            }
+        });
         return datapointModel;
     }
 
@@ -92,7 +86,12 @@ public class DatapointModel {
      */
     public static DatapointModel fromJson(final JsonObject jsonObject) {
         final DatapointModel datapointModel = new DatapointModel(jsonObject.get("_id").getAsString());
-        jsonObject.entrySet().forEach(key -> datapointModel.getObjects().put(key.getKey(), DatapointObject.fromJson(key.getValue())));
+        jsonObject.entrySet().forEach(key -> {
+            final DatapointObject datapointObject = DatapointObject.fromJson(key.getValue());
+            if (!datapointObject.getObject().equals("N/A")) {
+                datapointModel.getObjects().put(key.getKey(), datapointObject);
+            }
+        });
         return datapointModel;
     }
 
