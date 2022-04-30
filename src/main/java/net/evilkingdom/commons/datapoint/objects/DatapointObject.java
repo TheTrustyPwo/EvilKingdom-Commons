@@ -131,12 +131,12 @@ public class DatapointObject {
      * @return The datapoint object from the Mongo object.
      */
     public static DatapointObject fromMongo(final Object object) {
-        if (((BasicDBObject) object).isEmpty()) {
+        if (object.getClass() != Document.class) {
             return new DatapointObject(object);
         } else {
             final DatapointObject datapointObject = new DatapointObject();
-            final BasicDBObject basicDBObject = (BasicDBObject) object;
-            basicDBObject.forEach((innerKey, innerObject) -> datapointObject.getInnerObjects().put(innerKey, fromMongo(innerObject)));
+            final Document document = (Document) object;
+            document.forEach((innerKey, innerObject) -> datapointObject.getInnerObjects().put(innerKey, fromMongo(innerObject)));
             return datapointObject;
         }
     }
