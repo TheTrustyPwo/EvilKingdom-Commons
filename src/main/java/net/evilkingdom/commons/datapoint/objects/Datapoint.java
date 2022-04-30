@@ -72,7 +72,7 @@ public class Datapoint {
                     final Optional<Document> optionalDocument = Optional.ofNullable(this.datasite.getMongoClient().getDatabase(this.datasite.getPlugin().getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
                     if (optionalDocument.isPresent()) {
                         final Document document = optionalDocument.get();
-                        return Optional.of(new DatapointModel(identifier).fromMongo(document));
+                        return Optional.of(DatapointModel.fromMongo(document));
                     } else {
                         return Optional.empty();
                     }
@@ -91,7 +91,7 @@ public class Datapoint {
                             return Optional.empty();
                         }
                         final JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
-                        return Optional.of(new DatapointModel(identifier).fromJson(jsonObject));
+                        return Optional.of(DatapointModel.fromJson(jsonObject));
                     }
                 }
             }
