@@ -63,11 +63,15 @@ public class DatapointObject {
      */
     public Object asMongo() {
         if (this.innerObjects.isEmpty()) {
-            if (this.object.getClass() != DatapointObject.class) {
-                return this.object;
+            if (this.object == null) {
+                return "N/A";
             } else {
-                final DatapointObject datapointObject = (DatapointObject) this.object;
-                return datapointObject.asMongo();
+                if (this.object.getClass() != DatapointObject.class) {
+                    return this.object;
+                } else {
+                    final DatapointObject datapointObject = (DatapointObject) this.object;
+                    return datapointObject.asMongo();
+                }
             }
         } else {
             final BasicDBObject basicDBObject = new BasicDBObject();
@@ -93,11 +97,15 @@ public class DatapointObject {
      */
     public Object asJson() {
         if (this.innerObjects.isEmpty()) {
-            if (this.object.getClass() != DatapointObject.class) {
-                return this.object;
+            if (this.object == null) {
+                return "N/A";
             } else {
-                final DatapointObject datapointObject = (DatapointObject) this.object;
-                return datapointObject.asJson();
+                if (this.object.getClass() != DatapointObject.class) {
+                    return this.object;
+                } else {
+                    final DatapointObject datapointObject = (DatapointObject) this.object;
+                    return datapointObject.asJson();
+                }
             }
         } else {
             final JsonObject jsonObject = new JsonObject();

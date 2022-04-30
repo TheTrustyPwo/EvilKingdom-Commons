@@ -5,6 +5,7 @@ package net.evilkingdom.commons.datapoint.objects;
  */
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
@@ -13,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class DatapointModel {
 
@@ -44,7 +46,12 @@ public class DatapointModel {
      */
     public Document asMongo() {
         final Document document = new Document();
-        this.objects.forEach((key, object) -> document.put(key, object.asMongo()));
+        this.objects.forEach((key, object) -> {
+            final Object innerObject = object.asMongo();
+            if (!innerObject.equals("N/A")) {
+                document.put(key, innerObject);
+            }
+        });
         return document;
     }
 
@@ -55,7 +62,13 @@ public class DatapointModel {
      */
     public JsonObject asJson() {
         final JsonObject jsonObject = new JsonObject();
-        this.objects.forEach((key, object) -> jsonObject.add(key, JsonParser.parseString(new Gson().toJson(object.asJson()))));
+        this.objects.forEach((key, object) -> {
+            final Object innerObject = object.asJson();
+            if (!innerObject.equals("N/A")) {
+                final JsonElement jsonElement = JsonParser.parseString(new Gson().toJson(innerObject));
+                jsonObject.add(key, jsonElement);
+            }
+        });
         return jsonObject;
     }
 
