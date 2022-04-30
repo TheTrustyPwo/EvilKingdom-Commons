@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Datasite {
 
@@ -74,6 +76,7 @@ public class Datasite {
         switch (this.type) {
             case MONGO_DATABASE -> {
                 this.mongoClient = MongoClients.create(parameters[0]);
+                Logger.getLogger("org.mongodb.driver").setLevel(Level.SEVERE);
                 final MongoDatabase mongoDatabase = this.mongoClient.getDatabase(this.plugin.getName());
                 if (!this.mongoClient.listDatabaseNames().into(new ArrayList<String>()).contains(mongoDatabase.getName())) {
                     this.datapoints.forEach(datapoint -> {
