@@ -15,6 +15,7 @@ import org.bukkit.craftbukkit.v1_18_R2.util.CraftNamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.ZombieVillager;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 
 // Paper start
 import com.destroystokyo.paper.entity.villager.Reputation;
@@ -141,7 +142,7 @@ public class CraftVillager extends CraftAbstractVillager implements Villager {
 
     @Override
     public ZombieVillager zombify() {
-        net.minecraft.world.entity.monster.ZombieVillager entityzombievillager = Zombie.zombifyVillager(this.getHandle().level.getMinecraftWorld(), this.getHandle(), this.getHandle().blockPosition(), isSilent(), true);
+        net.minecraft.world.entity.monster.ZombieVillager entityzombievillager = Zombie.zombifyVillager(this.getHandle().level.getMinecraftWorld(), this.getHandle(), this.getHandle().blockPosition(), isSilent(), CreatureSpawnEvent.SpawnReason.CUSTOM);
         return (entityzombievillager != null) ? (ZombieVillager) entityzombievillager.getBukkitEntity() : null;
     }
 

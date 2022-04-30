@@ -1,5 +1,8 @@
 package org.bukkit.craftbukkit.v1_18_R2.entity;
 
+import com.google.common.base.Preconditions;
+import net.minecraft.core.BlockPos;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Vex;
@@ -66,5 +69,39 @@ public class CraftVex extends CraftMonster implements Vex {
     @Override
     public void setCharging(boolean charging) {
         this.getHandle().setIsCharging(charging);
+    }
+
+    @Override
+    public Location getBound() {
+        BlockPos blockPosition = this.getHandle().getBoundOrigin();
+        return (blockPosition == null) ? null : new Location(getWorld(), blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
+    }
+
+    @Override
+    public void setBound(Location location) {
+        if (location == null) {
+            this.getHandle().setBoundOrigin(null);
+        } else {
+            Preconditions.checkArgument(getWorld().equals(location.getWorld()), "The bound world cannot be different to the entity's world.");
+            this.getHandle().setBoundOrigin(new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+        }
+    }
+
+    @Override
+    public int getLifeTicks() {
+        return this.getHandle().limitedLifeTicks;
+    }
+
+    @Override
+    public void setLifeTicks(int lifeTicks) {
+        this.getHandle().setLimitedLife(lifeTicks);
+        if (lifeTicks < 0) {
+            this.getHandle().hasLimitedLife = false;
+        }
+    }
+
+    @Override
+    public boolean hasLimitedLife() {
+        return this.getHandle().hasLimitedLife;
     }
 }

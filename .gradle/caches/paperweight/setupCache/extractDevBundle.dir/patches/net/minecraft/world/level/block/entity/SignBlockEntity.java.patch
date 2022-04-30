@@ -8,7 +8,7 @@
  import net.minecraft.network.chat.Style;
  import net.minecraft.network.chat.TextComponent;
  import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-@@ -23,39 +24,54 @@
+@@ -23,39 +24,55 @@
  import net.minecraft.world.phys.Vec2;
  import net.minecraft.world.phys.Vec3;
  
@@ -72,10 +72,11 @@
 +        }
 +        // CraftBukkit end
 +
++        nbt.putBoolean("Paper.cleanedFiltered", true); // Paper
          nbt.putString("Color", this.color.getName());
          nbt.putBoolean("GlowingText", this.hasGlowingText);
      }
-@@ -66,15 +82,33 @@
+@@ -66,15 +83,34 @@
          super.load(nbt);
          this.color = DyeColor.byName(nbt.getString("Color"), DyeColor.BLACK);
  
@@ -92,6 +93,7 @@
 +        boolean oldSign = Boolean.getBoolean("convertLegacySigns") && !nbt.getBoolean("Bukkit.isConverted");
 +        // CraftBukkit end
 +
++        boolean cleanedFiltered = nbt.getBoolean("Paper.cleanedFiltered"); // Paper
 +        for (int i = 0; i < 4; ++i) {
 +            String s = nbt.getString(SignBlockEntity.RAW_TEXT_FIELD_NAMES[i]);
 +            // CraftBukkit start
@@ -109,7 +111,7 @@
 +            this.messages[i] = ichatbasecomponent;
 +            String s1 = SignBlockEntity.FILTERED_TEXT_FIELD_NAMES[i];
 +
-+            if (nbt.contains(s1, 8)) {
++            if (cleanedFiltered && nbt.contains(s1, 8)) { // Paper
 +                this.filteredMessages[i] = this.loadLine(nbt.getString(s1));
              } else {
 -                this.filteredMessages[i] = component;
@@ -117,7 +119,7 @@
              }
          }
  
-@@ -83,24 +117,32 @@
+@@ -83,24 +119,32 @@
      }
  
      private Component loadLine(String json) {
@@ -158,7 +160,7 @@
          }
  
          return TextComponent.EMPTY;
-@@ -125,8 +167,8 @@
+@@ -125,8 +169,8 @@
              this.renderMessagedFiltered = filterText;
              this.renderMessages = new FormattedCharSequence[4];
  
@@ -169,7 +171,7 @@
              }
          }
  
-@@ -174,21 +216,76 @@
+@@ -174,21 +218,76 @@
      }
  
      public boolean executeClickCommands(ServerPlayer player) {
@@ -254,7 +256,7 @@
      }
  
      public DyeColor getColor() {
-@@ -221,6 +318,6 @@
+@@ -221,6 +320,6 @@
  
      private void markUpdated() {
          this.setChanged();

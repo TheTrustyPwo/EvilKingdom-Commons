@@ -3,6 +3,7 @@
 
 package com.mojang.brigadier;
 
+// CHECKSTYLE:OFF
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.CommandContextBuilder;
@@ -95,7 +96,7 @@ public class CommandDispatcher<S> {
      */
     public LiteralCommandNode<S> register(final LiteralArgumentBuilder<S> command) {
         final LiteralCommandNode<S> build = command.build();
-        root.addChild(build);
+        this.root.addChild(build);
         return build;
     }
 
@@ -139,7 +140,7 @@ public class CommandDispatcher<S> {
      * @see #execute(StringReader, Object)
      */
     public int execute(final String input, final S source) throws CommandSyntaxException {
-        return execute(new StringReader(input), source);
+        return this.execute(new StringReader(input), source);
     }
 
     /**
@@ -173,8 +174,8 @@ public class CommandDispatcher<S> {
      * @see #execute(String, Object)
      */
     public int execute(final StringReader input, final S source) throws CommandSyntaxException {
-        final ParseResults<S> parse = parse(input, source);
-        return execute(parse);
+        final ParseResults<S> parse = this.parse(input, source);
+        return this.execute(parse);
     }
 
     /**
@@ -250,7 +251,7 @@ public class CommandDispatcher<S> {
                                     }
                                 }
                             } catch (final CommandSyntaxException ex) {
-                                consumer.onCommandComplete(context, false, 0);
+                                this.consumer.onCommandComplete(context, false, 0);
                                 if (!forked) {
                                     throw ex;
                                 }
@@ -262,10 +263,10 @@ public class CommandDispatcher<S> {
                     try {
                         final int value = context.getCommand().run(context);
                         result += value;
-                        consumer.onCommandComplete(context, true, value);
+                        this.consumer.onCommandComplete(context, true, value);
                         successfulForks++;
                     } catch (final CommandSyntaxException ex) {
-                        consumer.onCommandComplete(context, false, 0);
+                        this.consumer.onCommandComplete(context, false, 0);
                         if (!forked) {
                             throw ex;
                         }
@@ -278,7 +279,7 @@ public class CommandDispatcher<S> {
         }
 
         if (!foundCommand) {
-            consumer.onCommandComplete(original, false, 0);
+            this.consumer.onCommandComplete(original, false, 0);
             throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(parse.getReader());
         }
 
@@ -313,7 +314,7 @@ public class CommandDispatcher<S> {
      * @see #execute(String, Object)
      */
     public ParseResults<S> parse(final String command, final S source) {
-        return parse(new StringReader(command), source);
+        return this.parse(new StringReader(command), source);
     }
 
     /**
@@ -344,8 +345,8 @@ public class CommandDispatcher<S> {
      * @see #execute(String, Object)
      */
     public ParseResults<S> parse(final StringReader command, final S source) {
-        final CommandContextBuilder<S> context = new CommandContextBuilder<>(this, source, root, command.getCursor());
-        return parseNodes(root, command, context);
+        final CommandContextBuilder<S> context = new CommandContextBuilder<>(this, source, this.root, command.getCursor());
+        return this.parseNodes(this.root, command, context);
     }
 
     private ParseResults<S> parseNodes(final CommandNode<S> node, final StringReader originalReader, final CommandContextBuilder<S> contextSoFar) {
@@ -367,7 +368,7 @@ public class CommandDispatcher<S> {
                     throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().createWithContext(reader, ex.getMessage());
                 }
                 if (reader.canRead()) {
-                    if (reader.peek() != ARGUMENT_SEPARATOR_CHAR) {
+                    if (reader.peek() != CommandDispatcher.ARGUMENT_SEPARATOR_CHAR) {
                         throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherExpectedArgumentSeparator().createWithContext(reader);
                     }
                 }
@@ -385,11 +386,11 @@ public class CommandDispatcher<S> {
                 reader.skip();
                 if (child.getRedirect() != null) {
                     final CommandContextBuilder<S> childContext = new CommandContextBuilder<>(this, source, child.getRedirect(), reader.getCursor());
-                    final ParseResults<S> parse = parseNodes(child.getRedirect(), reader, childContext);
+                    final ParseResults<S> parse = this.parseNodes(child.getRedirect(), reader, childContext);
                     context.withChild(parse.getContext());
                     return new ParseResults<>(context, parse.getReader(), parse.getExceptions());
                 } else {
-                    final ParseResults<S> parse = parseNodes(child, reader, context);
+                    final ParseResults<S> parse = this.parseNodes(child, reader, context);
                     if (potentials == null) {
                         potentials = new ArrayList<>(1);
                     }
@@ -450,7 +451,7 @@ public class CommandDispatcher<S> {
      */
     public String[] getAllUsage(final CommandNode<S> node, final S source, final boolean restricted) {
         final ArrayList<String> result = new ArrayList<>();
-        getAllUsage(node, source, result, "", restricted);
+        this.getAllUsage(node, source, result, "", restricted);
         return result.toArray(new String[result.size()]);
     }
 
@@ -464,11 +465,11 @@ public class CommandDispatcher<S> {
         }
 
         if (node.getRedirect() != null) {
-            final String redirect = node.getRedirect() == root ? "..." : "-> " + node.getRedirect().getUsageText();
-            result.add(prefix.isEmpty() ? node.getUsageText() + ARGUMENT_SEPARATOR + redirect : prefix + ARGUMENT_SEPARATOR + redirect);
+            final String redirect = node.getRedirect() == this.root ? "..." : "-> " + node.getRedirect().getUsageText();
+            result.add(prefix.isEmpty() ? node.getUsageText() + CommandDispatcher.ARGUMENT_SEPARATOR + redirect : prefix + CommandDispatcher.ARGUMENT_SEPARATOR + redirect);
         } else if (!node.getChildren().isEmpty()) {
             for (final CommandNode<S> child : node.getChildren()) {
-                getAllUsage(child, source, result, prefix.isEmpty() ? child.getUsageText() : prefix + ARGUMENT_SEPARATOR + child.getUsageText(), restricted);
+                this.getAllUsage(child, source, result, prefix.isEmpty() ? child.getUsageText() : prefix + CommandDispatcher.ARGUMENT_SEPARATOR + child.getUsageText(), restricted);
             }
         }
     }
@@ -499,7 +500,7 @@ public class CommandDispatcher<S> {
 
         final boolean optional = node.getCommand() != null;
         for (final CommandNode<S> child : node.getChildren()) {
-            final String usage = getSmartUsage(child, source, optional, false);
+            final String usage = this.getSmartUsage(child, source, optional, false);
             if (usage != null) {
                 result.put(child, usage);
             }
@@ -512,33 +513,33 @@ public class CommandDispatcher<S> {
             return null;
         }
 
-        final String self = optional ? USAGE_OPTIONAL_OPEN + node.getUsageText() + USAGE_OPTIONAL_CLOSE : node.getUsageText();
+        final String self = optional ? CommandDispatcher.USAGE_OPTIONAL_OPEN + node.getUsageText() + CommandDispatcher.USAGE_OPTIONAL_CLOSE : node.getUsageText();
         final boolean childOptional = node.getCommand() != null;
-        final String open = childOptional ? USAGE_OPTIONAL_OPEN : USAGE_REQUIRED_OPEN;
-        final String close = childOptional ? USAGE_OPTIONAL_CLOSE : USAGE_REQUIRED_CLOSE;
+        final String open = childOptional ? CommandDispatcher.USAGE_OPTIONAL_OPEN : CommandDispatcher.USAGE_REQUIRED_OPEN;
+        final String close = childOptional ? CommandDispatcher.USAGE_OPTIONAL_CLOSE : CommandDispatcher.USAGE_REQUIRED_CLOSE;
 
         if (!deep) {
             if (node.getRedirect() != null) {
-                final String redirect = node.getRedirect() == root ? "..." : "-> " + node.getRedirect().getUsageText();
-                return self + ARGUMENT_SEPARATOR + redirect;
+                final String redirect = node.getRedirect() == this.root ? "..." : "-> " + node.getRedirect().getUsageText();
+                return self + CommandDispatcher.ARGUMENT_SEPARATOR + redirect;
             } else {
                 final Collection<CommandNode<S>> children = node.getChildren().stream().filter(c -> c.canUse(source)).collect(Collectors.toList());
                 if (children.size() == 1) {
-                    final String usage = getSmartUsage(children.iterator().next(), source, childOptional, childOptional);
+                    final String usage = this.getSmartUsage(children.iterator().next(), source, childOptional, childOptional);
                     if (usage != null) {
-                        return self + ARGUMENT_SEPARATOR + usage;
+                        return self + CommandDispatcher.ARGUMENT_SEPARATOR + usage;
                     }
                 } else if (children.size() > 1) {
                     final Set<String> childUsage = new LinkedHashSet<>();
                     for (final CommandNode<S> child : children) {
-                        final String usage = getSmartUsage(child, source, childOptional, true);
+                        final String usage = this.getSmartUsage(child, source, childOptional, true);
                         if (usage != null) {
                             childUsage.add(usage);
                         }
                     }
                     if (childUsage.size() == 1) {
                         final String usage = childUsage.iterator().next();
-                        return self + ARGUMENT_SEPARATOR + (childOptional ? USAGE_OPTIONAL_OPEN + usage + USAGE_OPTIONAL_CLOSE : usage);
+                        return self + CommandDispatcher.ARGUMENT_SEPARATOR + (childOptional ? CommandDispatcher.USAGE_OPTIONAL_OPEN + usage + CommandDispatcher.USAGE_OPTIONAL_CLOSE : usage);
                     } else if (childUsage.size() > 1) {
                         final StringBuilder builder = new StringBuilder(open);
                         int count = 0;
@@ -551,7 +552,7 @@ public class CommandDispatcher<S> {
                         }
                         if (count > 0) {
                             builder.append(close);
-                            return self + ARGUMENT_SEPARATOR + builder.toString();
+                            return self + CommandDispatcher.ARGUMENT_SEPARATOR + builder.toString();
                         }
                     }
                 }
@@ -577,7 +578,7 @@ public class CommandDispatcher<S> {
      * @return a future that will eventually resolve into a {@link Suggestions} object
      */
     public CompletableFuture<Suggestions> getCompletionSuggestions(final ParseResults<S> parse) {
-        return getCompletionSuggestions(parse, parse.getReader().getTotalLength());
+        return this.getCompletionSuggestions(parse, parse.getReader().getTotalLength());
     }
 
     public CompletableFuture<Suggestions> getCompletionSuggestions(final ParseResults<S> parse, int cursor) {
@@ -597,7 +598,7 @@ public class CommandDispatcher<S> {
             // Paper start - Don't suggest if the requirement isn't met
             if (parent != this.root || node.canUse(context.getSource())) {
             try {
-                future = node.listSuggestions(context.build(truncatedInput), new SuggestionsBuilder(truncatedInput, truncatedInputLowerCase, start));
+                future = node.listSuggestions(context.build(truncatedInput), new SuggestionsBuilder(truncatedInput, truncatedInputLowerCase, start)); // CraftBukkit
             } catch (final CommandSyntaxException ignored) {
             }
             }
@@ -627,7 +628,7 @@ public class CommandDispatcher<S> {
      * @return root of the command tree
      */
     public RootCommandNode<S> getRoot() {
-        return root;
+        return this.root;
     }
 
     /**
@@ -646,13 +647,13 @@ public class CommandDispatcher<S> {
      */
     public Collection<String> getPath(final CommandNode<S> target) {
         final List<List<CommandNode<S>>> nodes = new ArrayList<>();
-        addPaths(root, nodes, new ArrayList<>());
+        this.addPaths(this.root, nodes, new ArrayList<>());
 
         for (final List<CommandNode<S>> list : nodes) {
             if (list.get(list.size() - 1) == target) {
                 final List<String> result = new ArrayList<>(list.size());
                 for (final CommandNode<S> node : list) {
-                    if (node != root) {
+                    if (node != this.root) {
                         result.add(node.getName());
                     }
                 }
@@ -675,7 +676,7 @@ public class CommandDispatcher<S> {
      * @return the node at the given path, or null if not found
      */
     public CommandNode<S> findNode(final Collection<String> path) {
-        CommandNode<S> node = root;
+        CommandNode<S> node = this.root;
         for (final String name : path) {
             node = node.getChild(name);
             if (node == null) {
@@ -696,7 +697,7 @@ public class CommandDispatcher<S> {
      * @param consumer a callback to be notified of potential ambiguities
      */
     public void findAmbiguities(final AmbiguityConsumer<S> consumer) {
-        root.findAmbiguities(consumer);
+        this.root.findAmbiguities(consumer);
     }
 
     private void addPaths(final CommandNode<S> node, final List<List<CommandNode<S>>> result, final List<CommandNode<S>> parents) {
@@ -705,7 +706,7 @@ public class CommandDispatcher<S> {
         result.add(current);
 
         for (final CommandNode<S> child : node.getChildren()) {
-            addPaths(child, result, current);
+            this.addPaths(child, result, current);
         }
     }
 }

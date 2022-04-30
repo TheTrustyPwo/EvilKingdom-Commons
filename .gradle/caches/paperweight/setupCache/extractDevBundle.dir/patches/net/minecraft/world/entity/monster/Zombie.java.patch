@@ -433,12 +433,12 @@
 -                world.levelEvent((Player)null, 1026, this.blockPosition(), 0);
 +            Villager entityvillager = (Villager) other;
 +            // CraftBukkit start
-+            Zombie.zombifyVillager(world, entityvillager, this.blockPosition(), this.isSilent(), false);
++            Zombie.zombifyVillager(world, entityvillager, this.blockPosition(), this.isSilent(), CreatureSpawnEvent.SpawnReason.INFECTION);
 +        }
 +    }
 +
-+    public static ZombieVillager zombifyVillager(ServerLevel worldserver, Villager entityvillager, net.minecraft.core.BlockPos blockPosition, boolean silent, boolean custom) {
-+        ZombieVillager entityzombievillager = (ZombieVillager) entityvillager.convertTo(EntityType.ZOMBIE_VILLAGER, false, EntityTransformEvent.TransformReason.INFECTION, (custom) ? CreatureSpawnEvent.SpawnReason.CUSTOM : CreatureSpawnEvent.SpawnReason.INFECTION);
++    public static ZombieVillager zombifyVillager(ServerLevel worldserver, Villager entityvillager, net.minecraft.core.BlockPos blockPosition, boolean silent, CreatureSpawnEvent.SpawnReason spawnReason) {
++        ZombieVillager entityzombievillager = (ZombieVillager) entityvillager.convertTo(EntityType.ZOMBIE_VILLAGER, false, EntityTransformEvent.TransformReason.INFECTION, spawnReason);
 +        if (entityzombievillager != null) {
 +            // CraftBukkit end
 +            entityzombievillager.finalizeSpawn(worldserver, worldserver.getCurrentDifficultyAt(entityzombievillager.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false, true), (CompoundTag) null);

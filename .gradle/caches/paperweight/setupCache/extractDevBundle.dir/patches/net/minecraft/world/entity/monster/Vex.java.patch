@@ -16,6 +16,17 @@
      public static final float FLAP_DEGREES_PER_TICK = 45.836624F;
      public static final int TICKS_PER_FLAP = Mth.ceil(3.9269907F);
      protected static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(Vex.class, EntityDataSerializers.BYTE);
+@@ -47,8 +49,8 @@
+     Mob owner;
+     @Nullable
+     private BlockPos boundOrigin;
+-    public boolean hasLimitedLife;
+-    public int limitedLifeTicks;
++    public boolean hasLimitedLife; // CraftBukkit - PAIL, private -> public
++    public int limitedLifeTicks; // CraftBukkit - PAIL, private -> public
+ 
+     public Vex(EntityType<? extends Vex> type, Level world) {
+         super(type, world);
 @@ -58,7 +60,7 @@
  
      @Override

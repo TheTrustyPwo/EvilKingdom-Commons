@@ -51,23 +51,30 @@
      }
  
      public FallingBlockEntity(Level world, double x, double y, double z, BlockState block) {
-@@ -73,10 +82,12 @@
+@@ -73,10 +82,18 @@
      }
  
      public static FallingBlockEntity fall(Level world, BlockPos pos, BlockState state) {
 -        FallingBlockEntity fallingBlockEntity = new FallingBlockEntity(world, (double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D, state.hasProperty(BlockStateProperties.WATERLOGGED) ? state.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(false)) : state);
-+        FallingBlockEntity entityfallingblock = new FallingBlockEntity(world, (double) pos.getX() + 0.5D, (double) pos.getY(), (double) pos.getZ() + 0.5D, state.hasProperty(BlockStateProperties.WATERLOGGED) ? (BlockState) state.setValue(BlockStateProperties.WATERLOGGED, false) : state);
-+        if (CraftEventFactory.callEntityChangeBlockEvent(entityfallingblock, pos, state.getFluidState().createLegacyBlock()).isCancelled()) return entityfallingblock; // CraftBukkit
-+
-         world.setBlock(pos, state.getFluidState().createLegacyBlock(), 3);
+-        world.setBlock(pos, state.getFluidState().createLegacyBlock(), 3);
 -        world.addFreshEntity(fallingBlockEntity);
 -        return fallingBlockEntity;
-+        world.addFreshEntity(entityfallingblock);
++        // CraftBukkit start
++        return FallingBlockEntity.fall(world, pos, state, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
++    }
++
++    public static FallingBlockEntity fall(Level world, BlockPos blockposition, BlockState iblockdata, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason spawnReason) {
++        // CraftBukkit end
++        FallingBlockEntity entityfallingblock = new FallingBlockEntity(world, (double) blockposition.getX() + 0.5D, (double) blockposition.getY(), (double) blockposition.getZ() + 0.5D, iblockdata.hasProperty(BlockStateProperties.WATERLOGGED) ? (BlockState) iblockdata.setValue(BlockStateProperties.WATERLOGGED, false) : iblockdata);
++        if (CraftEventFactory.callEntityChangeBlockEvent(entityfallingblock, blockposition, iblockdata.getFluidState().createLegacyBlock()).isCancelled()) return entityfallingblock; // CraftBukkit
++
++        world.setBlock(blockposition, iblockdata.getFluidState().createLegacyBlock(), 3);
++        world.addFreshEntity(entityfallingblock, spawnReason); // CraftBukkit
 +        return entityfallingblock;
      }
  
      @Override
-@@ -85,11 +96,11 @@
+@@ -85,11 +102,11 @@
      }
  
      public void setStartPos(BlockPos pos) {
@@ -81,7 +88,7 @@
      }
  
      @Override
-@@ -99,7 +110,7 @@
+@@ -99,7 +116,7 @@
  
      @Override
      protected void defineSynchedData() {
@@ -90,7 +97,7 @@
      }
  
      @Override
-@@ -109,90 +120,127 @@
+@@ -109,90 +126,127 @@
  
      @Override
      public void tick() {
@@ -255,7 +262,7 @@
                          }
                      }
                  }
-@@ -204,7 +252,7 @@
+@@ -204,7 +258,7 @@
  
      public void callOnBrokenAfterFall(Block block, BlockPos pos) {
          if (block instanceof Fallable) {
@@ -264,7 +271,7 @@
          }
  
      }
-@@ -215,31 +263,39 @@
+@@ -215,31 +269,39 @@
              return false;
          } else {
              int i = Mth.ceil(fallDistance - 1.0F);
@@ -317,7 +324,7 @@
                      }
                  }
  
-@@ -265,6 +321,18 @@
+@@ -265,6 +327,18 @@
      @Override
      protected void readAdditionalSaveData(CompoundTag nbt) {
          this.blockState = NbtUtils.readBlockState(nbt.getCompound("BlockState"));
@@ -336,7 +343,7 @@
          this.time = nbt.getInt("Time");
          if (nbt.contains("HurtEntities", 99)) {
              this.hurtEntities = nbt.getBoolean("HurtEntities");
-@@ -286,6 +354,14 @@
+@@ -286,6 +360,14 @@
              this.blockState = Blocks.SAND.defaultBlockState();
          }
  
@@ -351,7 +358,7 @@
      }
  
      public void setHurtsEntities(float fallHurtAmount, int fallHurtMax) {
-@@ -302,7 +378,7 @@
+@@ -302,7 +384,7 @@
      @Override
      public void fillCrashReportCategory(CrashReportCategory section) {
          super.fillCrashReportCategory(section);
@@ -360,7 +367,7 @@
      }
  
      public BlockState getBlockState() {
-@@ -324,10 +400,11 @@
+@@ -324,10 +406,11 @@
          super.recreateFromPacket(packet);
          this.blockState = Block.stateById(packet.getData());
          this.blocksBuilding = true;
