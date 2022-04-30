@@ -65,15 +65,9 @@ public class DatapointModel {
      * @param document ~ The Mongo document.
      * @return The datapoint model from a Mongo document.
      */
-    public DatapointModel fromMongo(final Document document) {
+    public static DatapointModel fromMongo(final Document document) {
         final DatapointModel datapointModel = new DatapointModel(document.getString("_id"));
-        document.forEach((key, value) -> {
-            if (value.getClass() == BasicDBObject.class) {
-                datapointModel.getObjects().put(key, new DatapointObject().fromMongo((BasicDBObject) value));
-            } else {
-                datapointModel.getObjects().put(key, new DatapointObject(value));
-            }
-        });
+        document.forEach((key, value) -> datapointModel.getObjects().put(key, DatapointObject.fromMongo(value)));
         return datapointModel;
     }
 
@@ -83,9 +77,9 @@ public class DatapointModel {
      * @param jsonObject ~ The JSON object.
      * @return The datapoint model from JSON.
      */
-    public DatapointModel fromJson(final JsonObject jsonObject) {
+    public static DatapointModel fromJson(final JsonObject jsonObject) {
         final DatapointModel datapointModel = new DatapointModel(jsonObject.get("_id").getAsString());
-        jsonObject.entrySet().forEach(key -> datapointModel.getObjects().put(key.getKey(), new DatapointObject().fromJson(key.getValue().getAsJsonObject())));
+        jsonObject.entrySet().forEach(key -> datapointModel.getObjects().put(key.getKey(), DatapointObject.fromJson(key.getValue())));
         return datapointModel;
     }
 

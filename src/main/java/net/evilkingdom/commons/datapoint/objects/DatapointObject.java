@@ -94,15 +94,15 @@ public class DatapointObject {
     public Object asJson() {
         if (this.innerObjects.isEmpty()) {
             if (this.object.getClass() != DatapointObject.class) {
-                return JsonParser.parseString(new Gson().toJson(this.object)).getAsJsonObject();
+                return this.object;
             } else {
                 final DatapointObject datapointObject = (DatapointObject) this.object;
-                return datapointObject.asMongo();
+                return datapointObject.asJson();
             }
         } else {
             final JsonObject jsonObject = new JsonObject();
             this.innerObjects.forEach((key, object) -> {
-                if (object.innerObjects.isEmpty()) {
+                if (object.getInnerObjects().isEmpty()) {
                     jsonObject.add(key, JsonParser.parseString(new Gson().toJson(object.getObject())));
                 } else {
                     final JsonObject innerJsonObject = new JsonObject();
@@ -119,47 +119,35 @@ public class DatapointObject {
     /**
      * Allows you to retrieve the datapoint object from a Mongo object.
      *
-     * @param basicDBObject ~ The Mongo object.
-     * @return The datapoint object from a Mongo object.
+     * @param object ~ The Mongo object.
+     * @return The datapoint object from the Mongo object.
      */
-    public DatapointObject fromMongo(final BasicDBObject basicDBObject) {
-        DatapointObject datapointObject = null;
-        for (final Map.Entry<String, Object> objectEntry : basicDBObject.entrySet()) {
-            if (objectEntry.getValue().getClass() == BasicDBObject.class) {
-                datapointObject = new DatapointObject();
-                final BasicDBObject innerBasicDBObject = (BasicDBObject) object;
-                for (final Map.Entry<String, Object> innerObjectEntry : innerBasicDBObject.entrySet()) {
-                    final BasicDBObject innerInnerBasicDBObject = (BasicDBObject) innerObjectEntry.getValue();
-                    datapointObject.getInnerObjects().put(innerObjectEntry.getKey(), this.fromMongo(innerInnerBasicDBObject));
-                }
-            } else {
-                datapointObject = new DatapointObject(object);
-            }
+    public static DatapointObject fromMongo(final Object object) {
+        if (object.getClass() != BasicDBObject.class) {
+            return new DatapointObject(object);
+        } else {
+            final DatapointObject datapointObject = new DatapointObject();
+            final BasicDBObject basicDBObject = (BasicDBObject) object;
+            basicDBObject.forEach((innerKey, innerObject) -> datapointObject.getInnerObjects().put(innerKey, fromMongo(innerObject)));
+            return datapointObject;
         }
-        return datapointObject;
     }
 
     /**
-     * Allows you to retrieve the datapoint object from JSON.
+     * Allows you to retrieve the datapoint object from a JSON Element.
      *
-     * @param jsonObject ~ The JSON object.
-     * @return The datapoint object from JSON.
+     * @param jsonElement ~ The JSON element.
+     * @return The datapoint object from the JSON element.
      */
-    public DatapointObject fromJson(final JsonObject jsonObject) {
-        DatapointObject datapointObject = null;
-        for (final Map.Entry<String, JsonElement> objectEntry : jsonObject.entrySet()) {
-            if (objectEntry.getValue().isJsonObject()) {
-                datapointObject = new DatapointObject();
-                final JsonObject innerJsonObject = objectEntry.getValue().getAsJsonObject();
-                for (final Map.Entry<String, JsonElement> innerObjectEntry : innerJsonObject.entrySet()) {
-                    final JsonObject innerInnerJsonObject = innerObjectEntry.getValue().getAsJsonObject();
-                    datapointObject.getInnerObjects().put(innerObjectEntry.getKey(), this.fromJson(innerInnerJsonObject));
-                }
-            } else {
-                datapointObject = new DatapointObject(object);
-            }
+    public static DatapointObject fromJson(final JsonElement jsonElement) {
+        if (jsonElement.isJsonPrimitive()) {
+            return new DatapointObject(jsonElement.getAsJsonPrimitive());
+        } else {
+            final DatapointObject datapointObject = new DatapointObject();
+            final JsonObject jsonObject = jsonElement.getAsJsonObject();
+            jsonObject.entrySet().forEach(innerKey -> datapointObject.getInnerObjects().put(innerKey.getKey(), fromJson(innerKey.getValue())));
+            return datapointObject;
         }
-        return datapointObject;
     }
 
 }
