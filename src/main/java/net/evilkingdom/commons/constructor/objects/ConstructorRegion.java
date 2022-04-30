@@ -132,8 +132,8 @@ public class ConstructorRegion {
         return CompletableFuture.supplyAsync(() -> {
             final HashMap<Material, Integer> blockComposition = new HashMap<Material, Integer>();
             try (final EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder().world(this.region.getWorld()).fastMode(true).build()) {
-                editSession.getBlockDistribution(this.region, false).forEach(blockState -> {
-                    final Material material = BukkitAdapter.adapt(blockState.getID().getBlockType());
+                editSession.getBlockDistribution(this.region).forEach(blockState -> {
+                    final Material material = BukkitAdapter.adapt(blockState.getID());
                     int count = blockComposition.getOrDefault(material, 0);
                     count++;
                     blockComposition.put(material, count);
