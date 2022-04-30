@@ -9,11 +9,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
+import net.evilkingdom.commons.cooldown.CooldownImplementor;
+import net.evilkingdom.commons.cooldown.objects.Cooldown;
 import org.bson.Document;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Objects;
 
 public class DatapointModel {
@@ -69,11 +72,8 @@ public class DatapointModel {
      */
     public static DatapointModel fromMongo(final Document document) {
         final DatapointModel datapointModel = new DatapointModel(document.getString("_id"));
-        document.forEach((key, value) -> {
-            if (!value.toString().equals("N/A")) {
-                datapointModel.getObjects().put(key, DatapointObject.fromMongo(value));
-            }
-        });
+        document.forEach((key, value) -> datapointModel.getObjects().put(key, DatapointObject.fromMongo(value)));
+        datapointModel.getObjects().values().removeIf(datapointObject -> datapointObject.getObject() != null && datapointObject.getObject().equals("N/A"));
         return datapointModel;
     }
 
@@ -85,11 +85,8 @@ public class DatapointModel {
      */
     public static DatapointModel fromJson(final JsonObject jsonObject) {
         final DatapointModel datapointModel = new DatapointModel(jsonObject.get("_id").getAsString());
-        jsonObject.entrySet().forEach(key -> {
-            if (!key.getValue().toString().equals("N/A")) {
-                datapointModel.getObjects().put(key.getKey(), DatapointObject.fromJson(key.getValue()));
-            }
-        });
+        jsonObject.entrySet().forEach(key -> datapointModel.getObjects().put(key.getKey(), DatapointObject.fromJson(key.getValue())));
+        datapointModel.getObjects().values().removeIf(datapointObject -> datapointObject.getObject() != null && datapointObject.getObject().equals("N/A"));
         return datapointModel;
     }
 
