@@ -18,7 +18,9 @@ public class InventoryUtilities {
      * @return If the checked ItemStack can fit in the checked inventory.
      */
     public static boolean canFit(final Inventory inventory, final ItemStack itemStack) {
-        return inventory.addItem(itemStack).isEmpty();
+        final Inventory clonedInventory = Bukkit.getServer().createInventory(inventory.getHolder(), inventory.getType());
+        clonedInventory.setContents(inventory.getContents());
+        return clonedInventory.addItem(itemStack).isEmpty();
     }
 
 }
