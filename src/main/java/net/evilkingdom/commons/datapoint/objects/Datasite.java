@@ -6,6 +6,7 @@ package net.evilkingdom.commons.datapoint.objects;
 
 import com.mongodb.ClientSessionOptions;
 import com.mongodb.MongoClientException;
+import com.mongodb.MongoDriverInformation;
 import com.mongodb.TransactionOptions;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
