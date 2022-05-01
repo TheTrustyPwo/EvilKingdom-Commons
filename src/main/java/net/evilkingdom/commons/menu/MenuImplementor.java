@@ -4,7 +4,6 @@ package net.evilkingdom.commons.menu;
  * Made with love by https://kodirati.com/.
  */
 
-import net.evilkingdom.commons.border.BorderImplementor;
 import net.evilkingdom.commons.command.CommandImplementor;
 import net.evilkingdom.commons.command.implementations.CommandConverter;
 import net.evilkingdom.commons.command.objects.Command;
@@ -28,7 +27,7 @@ public class MenuImplementor {
 
     private final HashSet<Menu> menus;
 
-    private static HashSet<MenuImplementor> cache = new HashSet<MenuImplementor>();
+    private static final HashSet<MenuImplementor> cache = new HashSet<MenuImplementor>();
 
     /**
      * Allows you to create a MenuImplementor.
@@ -43,9 +42,7 @@ public class MenuImplementor {
         new MenuRunnable(this.plugin);
         new MenuListener(this.plugin);
 
-        final HashSet<MenuImplementor> previousCache = cache;
-        previousCache.add(this);
-        cache = previousCache;
+        cache.add(this);
     }
 
     /**

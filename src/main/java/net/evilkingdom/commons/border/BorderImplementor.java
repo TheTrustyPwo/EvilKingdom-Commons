@@ -6,7 +6,6 @@ package net.evilkingdom.commons.border;
 
 import net.evilkingdom.commons.border.implementations.BorderListener;
 import net.evilkingdom.commons.border.objects.Border;
-import net.evilkingdom.commons.command.CommandImplementor;
 import net.evilkingdom.commons.command.implementations.CommandConverter;
 import net.evilkingdom.commons.command.objects.Command;
 import org.bukkit.Bukkit;
@@ -22,7 +21,7 @@ public class BorderImplementor {
 
     private HashSet<Border> borders;
 
-    private static HashSet<BorderImplementor> cache = new HashSet<BorderImplementor>();
+    private static final HashSet<BorderImplementor> cache = new HashSet<BorderImplementor>();
 
     /**
      * Allows you to create a BorderImplementor.
@@ -36,9 +35,7 @@ public class BorderImplementor {
         new BorderListener(this.plugin);
         this.borders = new HashSet<Border>();
 
-        final HashSet<BorderImplementor> previousCache = cache;
-        previousCache.add(this);
-        cache = previousCache;
+        cache.add(this);
     }
 
     /**

@@ -6,7 +6,6 @@ package net.evilkingdom.commons.command;
 
 import net.evilkingdom.commons.command.objects.Command;
 import net.evilkingdom.commons.command.implementations.CommandConverter;
-import net.evilkingdom.commons.cooldown.CooldownImplementor;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,7 +21,7 @@ public class CommandImplementor {
 
     private HashSet<Command> commands;
 
-    private static HashSet<CommandImplementor> cache = new HashSet<CommandImplementor>();
+    private static final HashSet<CommandImplementor> cache = new HashSet<CommandImplementor>();
 
     /**
      * Allows you to create a CommandImplementor.
@@ -35,9 +34,7 @@ public class CommandImplementor {
 
         this.commands = new HashSet<Command>();
 
-        final HashSet<CommandImplementor> previousCache = cache;
-        previousCache.add(this);
-        cache = previousCache;
+        cache.add(this);
     }
 
     /**

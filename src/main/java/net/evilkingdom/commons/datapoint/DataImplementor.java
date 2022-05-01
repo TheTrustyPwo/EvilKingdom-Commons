@@ -16,7 +16,7 @@ public class DataImplementor {
 
     private final HashSet<Datasite> datasites;
 
-    private static HashSet<DataImplementor> cache = new HashSet<DataImplementor>();
+    private static final HashSet<DataImplementor> cache = new HashSet<DataImplementor>();
 
     /**
      * Allows you to create a DataImplementor.
@@ -29,9 +29,7 @@ public class DataImplementor {
 
         this.datasites = new HashSet<Datasite>();
 
-        final HashSet<DataImplementor> previousCache = cache;
-        previousCache.add(this);
-        cache = previousCache;
+        cache.add(this);
     }
 
     /**
