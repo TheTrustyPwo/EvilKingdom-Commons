@@ -27,6 +27,7 @@ public class Datasite {
 
     private final JavaPlugin plugin;
 
+    private final String name;
     private final DatasiteType type;
     private final String[] parameters;
     private MongoClient mongoClient;
@@ -37,12 +38,14 @@ public class Datasite {
      * This is used for datasites that don't require any extra parameters.
      *
      * @param plugin ~ The plugin the datasite is for.
+     * @param name ~ The name of the datasite.
      * @param type ~ The type of datasite.
      */
-    public Datasite(final JavaPlugin plugin, final DatasiteType type) {
+    public Datasite(final JavaPlugin plugin, final String name, final DatasiteType type) {
         this.plugin = plugin;
 
         this.type = type;
+        this.name = name;
         this.parameters = new String[]{};
         this.datapoints = new ArrayList<Datapoint>();
         final DataImplementor dataImplementor = DataImplementor.get(this.plugin);
@@ -54,13 +57,15 @@ public class Datasite {
      * This is used for datasites that requires any extra parameters.
      *
      * @param plugin ~ The plugin the datasite is for.
+     * @param name ~ The name of the datasite.
      * @param type ~ The type of datasite.
      * @param parameters ~ Any extra parameters the datasite will need.
      */
-    public Datasite(final JavaPlugin plugin, final DatasiteType type, final String[] parameters) {
+    public Datasite(final JavaPlugin plugin, final String name, final DatasiteType type, final String[] parameters) {
         this.plugin = plugin;
 
         this.type = type;
+        this.name = name;
         this.parameters = parameters;
         this.datapoints = new ArrayList<Datapoint>();
         final DataImplementor dataImplementor = DataImplementor.get(this.plugin);
@@ -77,7 +82,7 @@ public class Datasite {
             case MONGO_DATABASE -> {
                 this.mongoClient = MongoClients.create(parameters[0]);
                 Logger.getLogger("org.mongodb.driver").setLevel(Level.SEVERE);
-                final MongoDatabase mongoDatabase = this.mongoClient.getDatabase(this.plugin.getName());
+                final MongoDatabase mongoDatabase = this.mongoClient.getDatabase(this.name);
                 if (!this.mongoClient.listDatabaseNames().into(new ArrayList<String>()).contains(mongoDatabase.getName())) {
                     this.datapoints.forEach(datapoint -> {
                         if (!mongoDatabase.listCollectionNames().into(new ArrayList<String>()).contains(datapoint.getName())) {
@@ -108,6 +113,15 @@ public class Datasite {
         switch (this.type) {
             case MONGO_DATABASE -> this.mongoClient.close();
         }
+    }
+
+    /**
+     * Allows you to retrieve the datasite's name.
+     *
+     * @return The datasite's name.
+     */
+    public String getName() {
+        return this.name;
     }
 
     /**

@@ -69,7 +69,7 @@ public class Datapoint {
         return CompletableFuture.supplyAsync(() -> {
             switch (this.datasite.getType()) {
                 case MONGO_DATABASE -> {
-                    final Optional<Document> optionalDocument = Optional.ofNullable(this.datasite.getMongoClient().getDatabase(this.datasite.getPlugin().getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
+                    final Optional<Document> optionalDocument = Optional.ofNullable(this.datasite.getMongoClient().getDatabase(this.datasite.getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
                     if (optionalDocument.isPresent()) {
                         final Document document = optionalDocument.get();
                         return Optional.of(DatapointModel.fromMongo(document));
@@ -111,9 +111,9 @@ public class Datapoint {
                 final String identifier = (String) datapointModel.getObjects().get("_id").getObject();
                 final Document document = datapointModel.asMongo();
                 if (asynchronous) {
-                    CompletableFuture.runAsync(() -> this.datasite.getMongoClient().getDatabase(this.datasite.getPlugin().getName()).getCollection(this.name).findOneAndReplace(Filters.eq("_id", identifier), document, new FindOneAndReplaceOptions().upsert(true)));
+                    CompletableFuture.runAsync(() -> this.datasite.getMongoClient().getDatabase(this.datasite.getName()).getCollection(this.name).findOneAndReplace(Filters.eq("_id", identifier), document, new FindOneAndReplaceOptions().upsert(true)));
                 } else {
-                    this.datasite.getMongoClient().getDatabase(this.datasite.getPlugin().getName()).getCollection(this.name).findOneAndReplace(Filters.eq("_id", identifier), document, new FindOneAndReplaceOptions().upsert(true));
+                    this.datasite.getMongoClient().getDatabase(this.datasite.getName()).getCollection(this.name).findOneAndReplace(Filters.eq("_id", identifier), document, new FindOneAndReplaceOptions().upsert(true));
                 }
             }
             case JSON -> {
@@ -164,7 +164,7 @@ public class Datapoint {
         return CompletableFuture.supplyAsync(() -> {
             switch (this.datasite.getType()) {
                 case MONGO_DATABASE -> {
-                    final Optional<Document> optionalDocument = Optional.ofNullable(this.datasite.getMongoClient().getDatabase(this.datasite.getPlugin().getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
+                    final Optional<Document> optionalDocument = Optional.ofNullable(this.datasite.getMongoClient().getDatabase(this.datasite.getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
                     if (optionalDocument.isPresent()) {
                         return true;
                     }
