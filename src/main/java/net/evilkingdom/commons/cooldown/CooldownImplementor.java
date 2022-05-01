@@ -6,6 +6,7 @@ package net.evilkingdom.commons.cooldown;
 
 import net.evilkingdom.commons.cooldown.implementations.CooldownRunnable;
 import net.evilkingdom.commons.cooldown.objects.Cooldown;
+import net.evilkingdom.commons.datapoint.DataImplementor;
 import net.evilkingdom.commons.datapoint.objects.Datasite;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -18,7 +19,7 @@ public class CooldownImplementor {
 
     private final HashSet<Cooldown> cooldowns;
 
-    private static final HashSet<CooldownImplementor> cache = new HashSet<CooldownImplementor>();
+    private static HashSet<CooldownImplementor> cache = new HashSet<CooldownImplementor>();
 
     /**
      * Allows you to create a CooldownImplementor.
@@ -32,7 +33,9 @@ public class CooldownImplementor {
         new CooldownRunnable(this.plugin);
         this.cooldowns = new HashSet<Cooldown>();
 
-        cache.add(this);
+        final HashSet<CooldownImplementor> previousCache = cache;
+        previousCache.add(this);
+        cache = previousCache;
     }
 
     /**

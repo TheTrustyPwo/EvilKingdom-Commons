@@ -4,6 +4,7 @@ package net.evilkingdom.commons.scoreboard;
  * Made with love by https://kodirati.com/.
  */
 
+import net.evilkingdom.commons.menu.MenuImplementor;
 import net.evilkingdom.commons.scoreboard.implementations.ScoreboardListener;
 import net.evilkingdom.commons.scoreboard.implementations.ScoreboardRunnable;
 import net.evilkingdom.commons.scoreboard.objects.Scoreboard;
@@ -20,7 +21,7 @@ public class ScoreboardImplementor {
 
     private final HashSet<Scoreboard> scoreboards;
 
-    private static final HashSet<ScoreboardImplementor> cache = new HashSet<ScoreboardImplementor>();
+    private static HashSet<ScoreboardImplementor> cache = new HashSet<ScoreboardImplementor>();
 
     /**
      * Allows you to create a ScoreboardImplementor.
@@ -35,7 +36,9 @@ public class ScoreboardImplementor {
         new ScoreboardRunnable(this.plugin);
         this.scoreboards = new HashSet<Scoreboard>();
 
-        cache.add(this);
+        final HashSet<ScoreboardImplementor> previousCache = cache;
+        previousCache.add(this);
+        cache = previousCache;
     }
 
     /**
