@@ -83,13 +83,11 @@ public class Datasite {
             case MONGO_DATABASE -> {
                 this.mongoClient = MongoClients.create(parameters[0]);
                 final MongoDatabase mongoDatabase = this.mongoClient.getDatabase(this.name);
-                if (!this.mongoClient.listDatabaseNames().into(new ArrayList<String>()).contains(mongoDatabase.getName())) {
-                    this.datapoints.forEach(datapoint -> {
-                        if (!mongoDatabase.listCollectionNames().into(new ArrayList<String>()).contains(datapoint.getName())) {
-                            mongoDatabase.createCollection(datapoint.getName());
-                        }
-                    });
-                }
+                this.datapoints.forEach(datapoint -> {
+                    if (!mongoDatabase.listCollectionNames().into(new ArrayList<String>()).contains(datapoint.getName())) {
+                        mongoDatabase.createCollection(datapoint.getName());
+                    }
+                });
             }
             case JSON -> {
                 final File dataFolder = new File(this.plugin.getDataFolder(), "data");
