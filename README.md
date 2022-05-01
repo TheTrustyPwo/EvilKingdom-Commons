@@ -1,1 +1,1 @@
-Used as a library for the servers of Evil Kingdom.
+Used as the library for the servers of Evil Kingdom.
