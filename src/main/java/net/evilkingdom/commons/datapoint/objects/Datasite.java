@@ -81,7 +81,6 @@ public class Datasite {
         switch (this.type) {
             case MONGO_DATABASE -> {
                 this.mongoClient = MongoClients.create(parameters[0]);
-                Logger.getLogger("org.mongodb.driver").setLevel(Level.SEVERE);
                 final MongoDatabase mongoDatabase = this.mongoClient.getDatabase(this.name);
                 if (!this.mongoClient.listDatabaseNames().into(new ArrayList<String>()).contains(mongoDatabase.getName())) {
                     this.datapoints.forEach(datapoint -> {
