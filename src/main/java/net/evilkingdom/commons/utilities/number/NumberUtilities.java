@@ -21,7 +21,7 @@ public class NumberUtilities {
     public static boolean isInteger(final String string) {
         try {
             Integer.parseInt(string);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException numberFormatException) {
             return false;
         }
         return true;
@@ -36,7 +36,7 @@ public class NumberUtilities {
     public static boolean isDouble(final String string) {
         try {
             Double.parseDouble(string);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException numberFormatException) {
             return false;
         }
         return true;
@@ -51,7 +51,7 @@ public class NumberUtilities {
     public static boolean isLong(final String string) {
         try {
             Long.parseLong(string);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException numberFormatException) {
             return false;
         }
         return true;

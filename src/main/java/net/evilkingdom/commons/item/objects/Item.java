@@ -24,8 +24,7 @@ import java.util.stream.Collectors;
 
 public class Item {
 
-    private ItemMeta itemMeta;
-    private ItemStack itemStack;
+    private final ItemStack itemStack;
 
     /**
      * Allows you to create an item.
@@ -34,7 +33,6 @@ public class Item {
      */
     public Item(final ItemStack itemStack) {
         this.itemStack = itemStack;
-        this.itemMeta = itemStack.getItemMeta();
     }
 
     /**
@@ -50,21 +48,20 @@ public class Item {
      * Allows you to make the item unbreakable.
      */
     public void unbreakable() {
-        this.itemMeta.setUnbreakable(true);
-        this.itemMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-        this.itemStack.setItemMeta(this.itemMeta);
+        this.itemStack.getItemMeta().setUnbreakable(true);
+        this.itemStack.getItemMeta().addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
     }
 
     /**
      * Allows you to make the item glow.
      */
     public void glow() {
-        if (!this.itemMeta.getEnchants().isEmpty()) {
+        if (!this.itemStack.getItemMeta().getEnchants().isEmpty()) {
             return;
         }
-        this.itemMeta.addEnchant(Enchantment.RIPTIDE, 1, true);
-        this.itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        this.itemStack.setItemMeta(this.itemMeta);
+        this.itemStack.getItemMeta().addEnchant(Enchantment.RIPTIDE, 1, true);
+        this.itemStack.getItemMeta().addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        this.itemStack.setItemMeta(this.itemStack.getItemMeta());
     }
 
     /**
@@ -73,21 +70,19 @@ public class Item {
      * @param name ~ The name to be set.
      */
     public void setName(final String name) {
-        this.itemMeta.displayName(Component.text(name));
-        this.itemStack.setItemMeta(this.itemMeta);
+        this.itemStack.getItemMeta().displayName(Component.text(name));
+        this.itemStack.setItemMeta(this.itemStack.getItemMeta());
     }
 
     /**
      * Allows you to set the lore of the item.
      *
      * @param lore ~ The lore to be set.
-     * @return The self class.
      */
-    public Item setLore(final ArrayList<String> lore) {
+    public void setLore(final ArrayList<String> lore) {
         ArrayList<Component> componentLore = new ArrayList<Component>(lore.stream().map(loreItem -> Component.text(loreItem)).collect(Collectors.toList()));
-        this.itemMeta.lore(componentLore);
-        this.itemStack.setItemMeta(this.itemMeta);
-        return this;
+        this.itemStack.getItemMeta().lore(componentLore);
+        this.itemStack.setItemMeta(this.itemStack.getItemMeta());
     }
 
     /**
@@ -99,11 +94,11 @@ public class Item {
      */
     public void setHeadBase64(final UUID uuid, final String base64) {
         if (this.itemStack.getType() == Material.PLAYER_HEAD) {
-            final SkullMeta skullMeta = ((SkullMeta) this.itemMeta);
+            final SkullMeta skullMeta = ((SkullMeta) this.itemStack.getItemMeta());
             final PlayerProfile playerProfile = Bukkit.getServer().createProfile(uuid);
             playerProfile.getProperties().add(new ProfileProperty("textures", base64));
             skullMeta.setPlayerProfile(playerProfile);
-            this.itemStack.setItemMeta(this.itemMeta);
+            this.itemStack.setItemMeta(this.itemStack.getItemMeta());
         }
     }
 
@@ -115,9 +110,9 @@ public class Item {
      */
     public void setHeadOwner(final OfflinePlayer owner) {
         if (this.itemStack.getType() == Material.PLAYER_HEAD) {
-            final SkullMeta skullMeta = ((SkullMeta) this.itemMeta);
+            final SkullMeta skullMeta = ((SkullMeta) this.itemStack.getItemMeta());
             skullMeta.setOwningPlayer(owner);
-            this.itemStack.setItemMeta(this.itemMeta);
+            this.itemStack.setItemMeta(this.itemStack.getItemMeta());
         }
     }
 
@@ -129,9 +124,9 @@ public class Item {
      */
     public void setLeatherColor(final Color color) {
         if (this.itemStack.getType() == Material.LEATHER_BOOTS || this.itemStack.getType() == Material.LEATHER_LEGGINGS || this.itemStack.getType() == Material.LEATHER_CHESTPLATE || this.itemStack.getType() == Material.LEATHER_HELMET) {
-            final LeatherArmorMeta leatherArmorMeta = ((LeatherArmorMeta) this.itemMeta);
+            final LeatherArmorMeta leatherArmorMeta = ((LeatherArmorMeta) this.itemStack.getItemMeta());
             leatherArmorMeta.setColor(color);
-            this.itemStack.setItemMeta(this.itemMeta);
+            this.itemStack.setItemMeta(this.itemStack.getItemMeta());
         }
     }
 
@@ -142,8 +137,8 @@ public class Item {
      * @param level ~ The level of the enchantment to be added.
      */
     public void addEnchantment(final Enchantment enchantment, int level) {
-        this.itemMeta.addEnchant(enchantment, level, true);
-        this.itemStack.setItemMeta(this.itemMeta);
+        this.itemStack.getItemMeta().addEnchant(enchantment, level, true);
+        this.itemStack.setItemMeta(this.itemStack.getItemMeta());
     }
 
     /**
@@ -152,8 +147,8 @@ public class Item {
      * @param enchantment ~ The enchantment to be removed.
      */
     public void removeEnchantment(final Enchantment enchantment) {
-        this.itemMeta.removeEnchant(enchantment);
-        this.itemStack.setItemMeta(this.itemMeta);
+        this.itemStack.getItemMeta().removeEnchant(enchantment);
+        this.itemStack.setItemMeta(this.itemStack.getItemMeta());
     }
 
     /**
@@ -162,8 +157,8 @@ public class Item {
      * @param customModelData ~ The custom model data ID.
      */
     public void setCustomModelData(final int customModelData) {
-        this.itemMeta.setCustomModelData(customModelData);
-        this.itemStack.setItemMeta(this.itemMeta);
+        this.itemStack.getItemMeta().setCustomModelData(customModelData);
+        this.itemStack.setItemMeta(this.itemStack.getItemMeta());
     }
 
     /**

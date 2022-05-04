@@ -16,7 +16,7 @@ public class ItemData {
 
     private final JavaPlugin plugin;
 
-    private ItemStack itemStack;
+    private final ItemStack itemStack;
 
     /**
      * Allows you to create an ItemData for a plugin.
