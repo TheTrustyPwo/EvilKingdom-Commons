@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -162,9 +163,9 @@ public class Menu {
             return;
         }
         if (this.type == InventoryType.CHEST) {
-            this.inventory = Optional.of(Bukkit.getServer().createInventory(null, (this.rows.get() * 9), Component.text(title)));
+            this.inventory = Optional.of(Bukkit.getServer().createInventory(null, (this.rows.get() * 9), Component.text(this.title)));
         } else {
-            this.inventory = Optional.of(Bukkit.getServer().createInventory(null, this.type, Component.text(title)));
+            this.inventory = Optional.of(Bukkit.getServer().createInventory(null, this.type, Component.text(this.title)));
         }
         final Inventory inventory = this.inventory.get();
         for (int i = 0; i < inventory.getSize(); i++) {
@@ -188,7 +189,7 @@ public class Menu {
         if (this.inventory.isPresent()) {
             return;
         }
-        Inventory inventory = this.inventory.get();
+        final Inventory inventory = this.inventory.get();
         for (int i = 0; i < inventory.getSize(); i++) {
             if (this.items.containsKey(i)) {
                 inventory.setItem(i, this.items.get(i).getItemStack());
