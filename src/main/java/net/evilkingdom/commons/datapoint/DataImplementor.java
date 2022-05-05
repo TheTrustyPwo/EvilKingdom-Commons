@@ -14,7 +14,7 @@ public class DataImplementor {
 
     private final JavaPlugin plugin;
 
-    private final HashSet<Datasite> datasites;
+    private final HashSet<Datasite> sites;
 
     private static final HashSet<DataImplementor> cache = new HashSet<DataImplementor>();
 
@@ -27,7 +27,7 @@ public class DataImplementor {
     public DataImplementor(final JavaPlugin plugin) {
         this.plugin = plugin;
 
-        this.datasites = new HashSet<Datasite>();
+        this.sites = new HashSet<Datasite>();
 
         cache.add(this);
     }
@@ -42,12 +42,12 @@ public class DataImplementor {
     }
 
     /**
-     * Allows you to retrieve the implementor's datasites.
+     * Allows you to retrieve the implementor's sites.
      *
-     * @return The implementor's datasites.
+     * @return The implementor's sites.
      */
-    public HashSet<Datasite> getDatasites() {
-        return this.datasites;
+    public HashSet<Datasite> getSites() {
+        return this.sites;
     }
 
     /**

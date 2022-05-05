@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 public class Datapoint {
     
     private final String name;
-    private final Datasite datasite;
+    private final Datasite site;
 
     /**
      * Allows you to create a datapoint for a plugin.
@@ -37,17 +37,16 @@ public class Datapoint {
      */
     public Datapoint(final Datasite datasite, final String name) {
         this.name = name;
-        this.datasite = datasite;
-        this.datasite.getDatapoints().add(this);
+        this.site = datasite;
     }
 
     /**
-     * Allows you to retrieve the datapoint's datasite.
+     * Allows you to retrieve the datapoint's site.
      *
-     * @return The datapoint's datasite.
+     * @return The datapoint's site.
      */
-    public Datasite getDatasite() {
-        return this.datasite;
+    public Datasite getSite() {
+        return this.site;
     }
 
     /**
@@ -60,6 +59,13 @@ public class Datapoint {
     }
 
     /**
+     * Allows you to register the datapoint.
+     */
+    public void register() {
+        this.site.getPoints().add(this);
+    }
+
+    /**
      * Allows you to retrieve a datapoint model from an identifier.
      *
      * @param identifier ~ The identifier of the datapoint model.
@@ -67,9 +73,9 @@ public class Datapoint {
      */
     public CompletableFuture<Optional<DatapointModel>> get(final String identifier) {
         return CompletableFuture.supplyAsync(() -> {
-            switch (this.datasite.getType()) {
+            switch (this.site.getType()) {
                 case MONGO_DATABASE -> {
-                    final Optional<Document> optionalDocument = Optional.ofNullable(this.datasite.getMongoClient().getDatabase(this.datasite.getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
+                    final Optional<Document> optionalDocument = Optional.ofNullable(this.site.getMongoClient().getDatabase(this.site.getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
                     if (optionalDocument.isPresent()) {
                         final Document document = optionalDocument.get();
                         return Optional.of(DatapointModel.fromMongo(document));
@@ -78,7 +84,7 @@ public class Datapoint {
                     }
                 }
                 case JSON -> {
-                    final Optional<File> optionalFile = Arrays.stream(new File(this.datasite.getPlugin().getDataFolder() + File.separator + "data", this.name).listFiles()).filter(file -> file.getName().equals(identifier + ".json")).findFirst();
+                    final Optional<File> optionalFile = Arrays.stream(new File(this.site.getPlugin().getDataFolder() + File.separator + "data", this.name).listFiles()).filter(file -> file.getName().equals(identifier + ".json")).findFirst();
                     if (optionalFile.isPresent()) {
                         final File file = optionalFile.get();
                         final String jsonString;
@@ -106,14 +112,14 @@ public class Datapoint {
      * @param asynchronous ~ If the save is asynchronous (should always be unless it's an emergency saves).
      */
     public void save(final DatapointModel datapointModel, final boolean asynchronous) {
-        switch (this.datasite.getType()) {
+        switch (this.site.getType()) {
             case MONGO_DATABASE -> {
                 final String identifier = (String) datapointModel.getObjects().get("_id").getObject();
                 final Document document = datapointModel.asMongo();
                 if (asynchronous) {
-                    CompletableFuture.runAsync(() -> this.datasite.getMongoClient().getDatabase(this.datasite.getName()).getCollection(this.name).findOneAndReplace(Filters.eq("_id", identifier), document, new FindOneAndReplaceOptions().upsert(true)));
+                    CompletableFuture.runAsync(() -> this.site.getMongoClient().getDatabase(this.site.getName()).getCollection(this.name).findOneAndReplace(Filters.eq("_id", identifier), document, new FindOneAndReplaceOptions().upsert(true)));
                 } else {
-                    this.datasite.getMongoClient().getDatabase(this.datasite.getName()).getCollection(this.name).findOneAndReplace(Filters.eq("_id", identifier), document, new FindOneAndReplaceOptions().upsert(true));
+                    this.site.getMongoClient().getDatabase(this.site.getName()).getCollection(this.name).findOneAndReplace(Filters.eq("_id", identifier), document, new FindOneAndReplaceOptions().upsert(true));
                 }
             }
             case JSON -> {
@@ -121,7 +127,7 @@ public class Datapoint {
                 final JsonObject jsonObject = datapointModel.asJson();
                 if (asynchronous) {
                     CompletableFuture.runAsync(() -> {
-                        final File file = new File(this.datasite.getPlugin().getDataFolder() + File.separator + "data" + File.separator + this.name, identifier + ".json");
+                        final File file = new File(this.site.getPlugin().getDataFolder() + File.separator + "data" + File.separator + this.name, identifier + ".json");
                         if (file.exists()) {
                             file.delete();
                         }
@@ -136,7 +142,7 @@ public class Datapoint {
                         }
                     });
                 } else {
-                    final File file = new File(this.datasite.getPlugin().getDataFolder() + File.separator + "data" + File.separator + this.name, identifier + ".json");
+                    final File file = new File(this.site.getPlugin().getDataFolder() + File.separator + "data" + File.separator + this.name, identifier + ".json");
                     if (file.exists()) {
                         file.delete();
                     }
@@ -162,15 +168,15 @@ public class Datapoint {
 
     public CompletableFuture<Boolean> exists(final String identifier) {
         return CompletableFuture.supplyAsync(() -> {
-            switch (this.datasite.getType()) {
+            switch (this.site.getType()) {
                 case MONGO_DATABASE -> {
-                    final Optional<Document> optionalDocument = Optional.ofNullable(this.datasite.getMongoClient().getDatabase(this.datasite.getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
+                    final Optional<Document> optionalDocument = Optional.ofNullable(this.site.getMongoClient().getDatabase(this.site.getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
                     if (optionalDocument.isPresent()) {
                         return true;
                     }
                 }
                 case JSON -> {
-                    final Optional<File> optionalFile = Arrays.stream(new File(this.datasite.getPlugin().getDataFolder() + File.separator + "data", this.name).listFiles()).filter(file -> file.getName().equals(identifier + ".json")).findFirst();
+                    final Optional<File> optionalFile = Arrays.stream(new File(this.site.getPlugin().getDataFolder() + File.separator + "data", this.name).listFiles()).filter(file -> file.getName().equals(identifier + ".json")).findFirst();
                     if (optionalFile.isPresent()) {
                         return true;
                     }

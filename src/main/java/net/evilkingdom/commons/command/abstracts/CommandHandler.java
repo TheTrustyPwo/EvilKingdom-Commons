@@ -12,17 +12,22 @@ public abstract class CommandHandler {
 
     /**
      * The execution of the command.
-     * Just uses the bukkit arguments since bukkit handles the magic.
+     *
+     * @param sender ~ The command's sender.
+     * @param arguments ~ The command's arguments.
      */
-    public boolean onExecution(final CommandSender commandSender, final String[] arguments) {
+    public boolean onExecution(final CommandSender sender, final String[] arguments) {
+        //It'll be overridden wherever it is used, therefore it is empty.
         return false;
     }
 
     /**
      * The tab completion of the command.
-     * Just uses the bukkit arguments since bukkit handles the magic and the converter filters the options returned.
+     *
+     * @param sender ~ The command's sender.
+     * @param arguments ~ The command's arguments.
      */
-    public ArrayList<String> onTabCompletion(final CommandSender commandSender, final String[] arguments) {
+    public ArrayList<String> onTabCompletion(final CommandSender sender, final String[] arguments) {
         return new ArrayList<String>();
     }
 

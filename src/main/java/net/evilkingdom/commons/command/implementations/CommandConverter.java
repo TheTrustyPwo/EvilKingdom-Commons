@@ -34,16 +34,17 @@ public class CommandConverter extends org.bukkit.command.Command {
 
     /**
      * The bukkit execution of the command.
-     * Bukkit handles the magic.
+     * All of the magic is handled by bukkit.
      */
     @Override
     public boolean execute(final CommandSender commandSender, final String commandLabel, final String[] arguments) {
-        return this.command.getHandler().onExecution(commandSender, arguments);
+        this.command.getHandler().onExecution(commandSender, arguments);
+        return true;
     }
 
     /**
      * The bukkit tab completion of the command.
-     * The converter filters the returned options and bukkit handles the magic.
+     * The converter filters the returned options and bukkit handles all of the magic.
      */
     @Override
     public @NotNull List<String> tabComplete(final CommandSender commandSender, final String commandLabel, final String[] arguments) {

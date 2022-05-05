@@ -32,7 +32,7 @@ public class Datasite {
     private final DatasiteType type;
     private final String[] parameters;
     private MongoClient mongoClient;
-    private final ArrayList<Datapoint> datapoints;
+    private final ArrayList<Datapoint> points;
 
     /**
      * Allows you to create a datasite for a plugin.
@@ -48,9 +48,7 @@ public class Datasite {
         this.type = type;
         this.name = name;
         this.parameters = new String[]{};
-        this.datapoints = new ArrayList<Datapoint>();
-        final DataImplementor dataImplementor = DataImplementor.get(this.plugin);
-        dataImplementor.getDatasites().add(this);
+        this.points = new ArrayList<Datapoint>();
     }
 
     /**
@@ -68,9 +66,7 @@ public class Datasite {
         this.type = type;
         this.name = name;
         this.parameters = parameters;
-        this.datapoints = new ArrayList<Datapoint>();
-        final DataImplementor dataImplementor = DataImplementor.get(this.plugin);
-        dataImplementor.getDatasites().add(this);
+        this.points = new ArrayList<Datapoint>();
     }
 
     /**
@@ -79,11 +75,13 @@ public class Datasite {
      * @throws Exception ~ If anything fails.
      */
     public void initialize() throws Exception {
+        final DataImplementor dataImplementor = DataImplementor.get(this.plugin);
+        dataImplementor.getSites().add(this);
         switch (this.type) {
             case MONGO_DATABASE -> {
                 this.mongoClient = MongoClients.create(parameters[0]);
                 final MongoDatabase mongoDatabase = this.mongoClient.getDatabase(this.name);
-                this.datapoints.forEach(datapoint -> {
+                this.points.forEach(datapoint -> {
                     if (!mongoDatabase.listCollectionNames().into(new ArrayList<String>()).contains(datapoint.getName())) {
                         mongoDatabase.createCollection(datapoint.getName());
                     }
@@ -94,7 +92,7 @@ public class Datasite {
                 if (!dataFolder.exists()) {
                     dataFolder.mkdirs();
                 }
-                this.datapoints.forEach(datapoint -> {
+                this.points.forEach(datapoint -> {
                     final File datapointFolder = new File(dataFolder, datapoint.getName());
                     if (!datapointFolder.exists()) {
                         datapointFolder.mkdirs();
@@ -141,12 +139,12 @@ public class Datasite {
     }
 
     /**
-     * Allows you to retrieve the datasite's datapoints.
+     * Allows you to retrieve the datasite's points.
      *
-     * @return The datasite's datapoints.
+     * @return The datasite's points.
      */
-    public ArrayList<Datapoint> getDatapoints() {
-        return this.datapoints;
+    public ArrayList<Datapoint> getPoints() {
+        return this.points;
     }
 
     /**
