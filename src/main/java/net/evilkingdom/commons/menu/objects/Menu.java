@@ -186,7 +186,7 @@ public class Menu {
      * Allows you to update the menu for the player.
      */
     public void update() {
-        if (this.inventory.isPresent()) {
+        if (this.inventory.isEmpty()) {
             return;
         }
         final Inventory inventory = this.inventory.get();
