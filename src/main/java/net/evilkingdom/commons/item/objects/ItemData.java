@@ -38,9 +38,9 @@ public class ItemData {
      * @return The value on the item's data.
      */
     public Object getValue(final String key, final PersistentDataType keyType) {
-        NamespacedKey namespacedKey = new NamespacedKey(this.plugin, key);
-        ItemMeta itemMeta = this.itemStack.getItemMeta();
-        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+        final NamespacedKey namespacedKey = new NamespacedKey(this.plugin, key);
+        final ItemMeta itemMeta = this.itemStack.getItemMeta();
+        final PersistentDataContainer container = itemMeta.getPersistentDataContainer();
         return container.get(namespacedKey, keyType);
     }
 
@@ -52,9 +52,9 @@ public class ItemData {
      * @return If the item's data has the key.
      */
     public boolean hasKey(final String key, final PersistentDataType keyType) {
-        NamespacedKey namespacedKey = new NamespacedKey(this.plugin, key);
-        ItemMeta itemMeta = this.itemStack.getItemMeta();
-        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+        final NamespacedKey namespacedKey = new NamespacedKey(this.plugin, key);
+        final ItemMeta itemMeta = this.itemStack.getItemMeta();
+        final PersistentDataContainer container = itemMeta.getPersistentDataContainer();
         return container.has(namespacedKey, keyType);
     }
 
@@ -64,9 +64,9 @@ public class ItemData {
      * @param key ~ The key to remove from the item's data.
      */
     public void removeKey(final String key) {
-        NamespacedKey namespacedKey = new NamespacedKey(this.plugin, key);
-        ItemMeta itemMeta = this.itemStack.getItemMeta();
-        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+        final NamespacedKey namespacedKey = new NamespacedKey(this.plugin, key);
+        final ItemMeta itemMeta = this.itemStack.getItemMeta();
+        final PersistentDataContainer container = itemMeta.getPersistentDataContainer();
         container.remove(namespacedKey);
         this.itemStack.setItemMeta(itemMeta);
     }
@@ -79,9 +79,9 @@ public class ItemData {
      * @param valueType ~ The value of the data's type.
      */
     public void setValue(final String key, final Object value, final PersistentDataType valueType) {
-        NamespacedKey namespacedKey = new NamespacedKey(this.plugin, key);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+        final NamespacedKey namespacedKey = new NamespacedKey(this.plugin, key);
+        final ItemMeta itemMeta = this.itemStack.getItemMeta();
+        final PersistentDataContainer container = itemMeta.getPersistentDataContainer();
         container.set(namespacedKey, valueType, value);
         this.itemStack.setItemMeta(itemMeta);
     }
