@@ -209,19 +209,4 @@ public class Menu {
         menuImplementor.getMenus().remove(this);
     }
 
-    /**
-     * Allows you to swap the menu to another menu for the player.
-     * Pretty similar to the close function, except it abuses the fact that Bukkit closes the current inventory when opening another one (so it shouldn't move their cursor).
-     *
-     * @param menu ~ The menu to swap to.
-     */
-    public void swap(final Menu menu) {
-        if (this.inventory.isPresent()) {
-            return;
-        }
-        final MenuImplementor menuImplementor = MenuImplementor.get(this.plugin);
-        menuImplementor.getMenus().remove(this);
-        menu.open();
-    }
-
 }
