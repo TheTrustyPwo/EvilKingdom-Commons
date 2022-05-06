@@ -16,10 +16,12 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class TransmissionTask {
 
+    private final UUID uuid;
     private final String data;
     private final TransmissionType type;
     private final TransmissionSite site;
@@ -33,13 +35,15 @@ public class TransmissionTask {
      * @param transmissionSite ~ The transmission site of the transmission.
      * @param targetTransmissionServer ~ The target transmission server of the transmission.
      * @param transmissionType ~ The type of the transmission.
+     * @param uuid ~ The uuid of the transmission.
      * @param data ~ The data of the transmission.
      */
-    public TransmissionTask(final TransmissionSite transmissionSite, final TransmissionType transmissionType, final TransmissionServer targetTransmissionServer, final String data) {
-        this.data = data;
-        this.type = transmissionType;
+    public TransmissionTask(final TransmissionSite transmissionSite, final TransmissionType transmissionType, final TransmissionServer targetTransmissionServer, final UUID uuid, final String data) {
         this.site = transmissionSite;
+        this.type = transmissionType;
         this.targetServer = targetTransmissionServer;
+        this.uuid = uuid;
+        this.data = data;
     }
 
     /**
@@ -53,6 +57,13 @@ public class TransmissionTask {
     }
 
     /**
+     * Allows you to stop the task.
+     */
+    public void stop() {
+        this.site.getTasks().remove(this);
+    }
+
+    /**
      * Allows you to send the socket data.
      */
     private void sendSocketData() {
@@ -63,8 +74,9 @@ public class TransmissionTask {
             if (socket.isClosed()) {
                 return;
             }
-            out.writeUTF(this.type.toString());
             out.writeUTF(this.site.getName());
+            out.writeUTF(this.type.toString());
+            out.writeUTF(this.uuid.toString());
             out.writeUTF(this.data);
             out.writeUTF("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS");
         } catch (final IOException ioException) {
@@ -90,6 +102,15 @@ public class TransmissionTask {
      */
     public String getResponseData() {
         return this.responseData;
+    }
+
+    /**
+     * Allows you to set the task's response data.
+     *
+     * @param responseData ~ The task's response data to set.
+     */
+    public void setResponseData(final String responseData) {
+        this.responseData = responseData;
     }
 
     /**
@@ -126,6 +147,15 @@ public class TransmissionTask {
      */
     public String getData() {
         return this.data;
+    }
+
+    /**
+     * Allows you to retrieve if the task's uuid.
+     *
+     * @return ~ The task's uuid.
+     */
+    public UUID getUUID() {
+        return this.uuid;
     }
 
 }

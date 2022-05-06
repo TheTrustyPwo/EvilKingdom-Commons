@@ -10,10 +10,12 @@ import net.evilkingdom.commons.transmission.implementations.TransmissionTask;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class Transmission {
 
+    private final UUID uuid;
     private final TransmissionSite site;
     private final TransmissionServer targetServer;
     private final TransmissionType type;
@@ -27,10 +29,11 @@ public class Transmission {
      * @param transmissionType ~ The type of the transmission.
      * @param data ~ The data of the transmission.
      */
-    public Transmission(final TransmissionSite transmissionSite, final TransmissionServer targetTransmissionServer, final TransmissionType transmissionType, final String data) {
+    public Transmission(final TransmissionSite transmissionSite, final TransmissionServer targetTransmissionServer, final TransmissionType transmissionType, final UUID uuid, final String data) {
         this.site = transmissionSite;
         this.targetServer = targetTransmissionServer;
         this.type = transmissionType;
+        this.uuid = uuid;
         this.data = data;
     }
 
@@ -40,11 +43,13 @@ public class Transmission {
      * @return ~ The data of the response (if there will be one, if not it'll just be null).
      */
     public CompletableFuture<String> send() {
-        final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServer, this.data);
+        final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServer, this.uuid, this.data);
         task.start();
         if (this.type == TransmissionType.REQUEST) {
             return CompletableFuture.supplyAsync(() -> {
-                while (task.isRunning()) {}
+                while (task.isRunning()) {
+                    //Does nothing, just to halt the response until the task is done running.
+                }
                 return task.getResponseData();
             });
         } else {
@@ -86,6 +91,15 @@ public class Transmission {
      */
     public String getData() {
         return this.data;
+    }
+
+    /**
+     * Allows you to retrieve if the task's UUID.
+     *
+     * @return ~ The task's UUID.
+     */
+    public UUID getUUID() {
+        return this.uuid;
     }
 
 }
