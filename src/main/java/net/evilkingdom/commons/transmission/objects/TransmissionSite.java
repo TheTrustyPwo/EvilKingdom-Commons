@@ -131,23 +131,23 @@ public class TransmissionSite {
      * Allows you to open the socket.
      */
     private void openSocket() {
+        ServerSocket serverSocket;
+        try {
+            serverSocket = new ServerSocket(this.port);
+        } catch (final IOException ioException) {
+            serverSocket = null;
+            //Does nothing, just in case! :)
+        }
+        this.serverSocket = serverSocket;
         this.thread = new Thread(() -> {
-            ServerSocket serverSocket;
-            try {
-                serverSocket = new ServerSocket(this.port);
-            } catch (final IOException ioException) {
-                serverSocket = null;
-                //Does nothing, just in case! :)
-            }
-            this.serverSocket = serverSocket;
-            while (!serverSocket.isClosed()) {
+            while (!this.serverSocket.isClosed()) {
                 TransmissionServer server = null;
                 TransmissionType type = null;
                 String data = null;
                 String authentication = null;
                 UUID uuid = null;
                 try {
-                    final Socket socket = serverSocket.accept();
+                    final Socket socket = this.serverSocket.accept();
                     final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
                     final String serverName = inputStream.readUTF();
                     server = this.servers.stream().filter(transmissionServer -> transmissionServer.getName().equals(serverName)).findFirst().get();
