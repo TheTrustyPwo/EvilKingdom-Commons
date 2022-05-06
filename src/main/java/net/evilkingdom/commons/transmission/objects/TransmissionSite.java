@@ -10,6 +10,7 @@ import net.evilkingdom.commons.transmission.enums.TransmissionType;
 import net.evilkingdom.commons.transmission.implementations.TransmissionTask;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -24,7 +25,7 @@ public class TransmissionSite {
 
     private final JavaPlugin plugin;
 
-    private Thread thread;
+    private BukkitTask task;
     private ServerSocket serverSocket;
     private final String name;
     private final int port;
@@ -139,8 +140,9 @@ public class TransmissionSite {
             //Does nothing, just in case! :)
         }
         this.serverSocket = serverSocket;
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
+        this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
             if (this.serverSocket.isClosed()) {
+                this.task.cancel();
                 return;
             }
             TransmissionServer server = null;
