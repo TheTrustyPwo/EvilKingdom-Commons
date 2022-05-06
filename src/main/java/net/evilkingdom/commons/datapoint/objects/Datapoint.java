@@ -7,6 +7,8 @@ package net.evilkingdom.commons.datapoint.objects;
 import com.google.gson.*;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
 import net.evilkingdom.commons.datapoint.enums.DatasiteType;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -63,6 +66,21 @@ public class Datapoint {
      */
     public void register() {
         this.site.getPoints().add(this);
+        switch (this.site.getType()) {
+            case MONGO_DATABASE -> {
+                final MongoDatabase mongoDatabase = this.site.getMongoClient().getDatabase(this.site.getName());
+                if (!mongoDatabase.listCollectionNames().into(new ArrayList<String>()).contains(this.name)) {
+                    mongoDatabase.createCollection(this.name);
+                }
+            }
+            case JSON -> {
+                final File dataFolder = new File(this.site.getPlugin().getDataFolder(), "data");
+                final File datapointFolder = new File(dataFolder, this.name);
+                if (!datapointFolder.exists()) {
+                    datapointFolder.mkdirs();
+                }
+            }
+        }
     }
 
     /**
