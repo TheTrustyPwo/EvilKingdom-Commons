@@ -16,6 +16,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketOption;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -24,6 +25,7 @@ public class TransmissionSite {
     private final JavaPlugin plugin;
 
     private Thread thread;
+    private ServerSocket serverSocket;
     private final String name;
     private final int port;
     private final HashSet<TransmissionServer> servers;
@@ -115,34 +117,29 @@ public class TransmissionSite {
     public void register() {
         TransmissionImplementor transmissionImplementor = TransmissionImplementor.get(this.plugin);
         transmissionImplementor.getTransmissionSites().add(this);
-        try {
-            this.createSocket();
-        } catch (final IOException ioException) {
-            //Does nothing, just in case :)
-        }
+        this.openSocket();
     }
 
     /**
-     * Allows you to register the transmission site.
+     * Allows you to unregister the transmission site.
      */
     public void unregister() {
-        this.thread.stop();
-        this.thread = null;
+        this.closeSocket();
     }
 
     /**
-     * Allows you to create the socket.
+     * Allows you to open the socket.
      */
-    private void createSocket() throws IOException {
-        ServerSocket preServerSocket;
-        try {
-            preServerSocket = new ServerSocket(this.port);
-        } catch (final IOException ioException) {
-            preServerSocket = null;
-            //Does nothing, just in case :)
-        }
-        final ServerSocket serverSocket = preServerSocket;
+    private void openSocket() {
         this.thread = new Thread(() -> {
+            ServerSocket serverSocket;
+            try {
+                serverSocket = new ServerSocket(this.port);
+            } catch (final IOException ioException) {
+                serverSocket = null;
+                //Does nothing, just in case! :)
+            }
+            this.serverSocket = serverSocket;
             while (!serverSocket.isClosed()) {
                 TransmissionServer server = null;
                 TransmissionType type = null;
@@ -175,7 +172,20 @@ public class TransmissionSite {
                 }
             }
         });
+        this.thread.setName(this.plugin.getName() + " TS " + this.name + " Thread");
         this.thread.start();
     }
+
+    /**
+     * Allows you to close the socket.
+     */
+    private void closeSocket() {
+        try {
+            this.serverSocket.close();
+        } catch (final IOException ioException) {
+            //Does nothing, just in case! :)
+        }
+    }
+
 
 }
