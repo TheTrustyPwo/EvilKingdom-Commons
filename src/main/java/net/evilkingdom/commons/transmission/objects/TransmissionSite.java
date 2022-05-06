@@ -141,10 +141,6 @@ public class TransmissionSite {
         }
         this.serverSocket = serverSocket;
         this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
-            if (this.serverSocket.isClosed()) {
-                this.task.cancel();
-                return;
-            }
             TransmissionServer server = null;
             TransmissionType type = null;
             String data = null;
@@ -185,6 +181,7 @@ public class TransmissionSite {
      * Allows you to close the socket.
      */
     private void closeSocket() {
+        this.task.cancel();
         try {
             this.serverSocket.close();
         } catch (final IOException ioException) {
