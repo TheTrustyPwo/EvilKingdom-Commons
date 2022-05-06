@@ -139,41 +139,44 @@ public class TransmissionSite {
             //Does nothing, just in case! :)
         }
         this.serverSocket = serverSocket;
-        this.thread = new Thread(() -> {
-            while (!this.serverSocket.isClosed()) {
-                TransmissionServer server = null;
-                TransmissionType type = null;
-                String data = null;
-                String authentication = null;
-                UUID uuid = null;
-                try {
-                    final Socket socket = this.serverSocket.accept();
-                    final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-                    final String serverName = inputStream.readUTF();
-                    server = this.servers.stream().filter(transmissionServer -> transmissionServer.getName().equals(serverName)).findFirst().get();
-                    type = TransmissionType.valueOf(inputStream.readUTF());
-                    uuid = UUID.fromString(inputStream.readUTF());
-                    data = inputStream.readUTF();
-                    authentication = inputStream.readUTF();
-                } catch (final IOException ioException) {
-                    //Does nothing, just in case :)
-                }
-                if (!authentication.equals("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS")) {
-                    return;
-                }
-                if (type == TransmissionType.RESPONSE) {
-                    final TransmissionServer finalServer = server;
-                    final UUID finalUuid = uuid;
-                    final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getTargetServer() == finalServer && transmissionTask.getUUID() == finalUuid).findFirst().get();
-                    task.setResponseData(data);
-                    task.stop();
-                } else {
-                    this.handler.onReceive(server, type, uuid, data);
-                }
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
+            if (this.serverSocket.isClosed()) {
+                return;
             }
-        });
-        this.thread.setName(this.plugin.getName() + " TS " + this.name + " Thread");
-        this.thread.start();
+            TransmissionServer server = null;
+            TransmissionType type = null;
+            String data = null;
+            String authentication = null;
+            UUID uuid = null;
+            try {
+                final Socket socket = this.serverSocket.accept();
+                final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+                final String serverName = inputStream.readUTF();
+                server = this.servers.stream().filter(transmissionServer -> transmissionServer.getName().equals(serverName)).findFirst().get();
+                type = TransmissionType.valueOf(inputStream.readUTF());
+                uuid = UUID.fromString(inputStream.readUTF());
+                data = inputStream.readUTF();
+                authentication = inputStream.readUTF();
+            } catch (final IOException ioException) {
+                //Does nothing, just in case :)
+            }
+            if (!authentication.equals("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS")) {
+                return;
+            }
+            if (type == TransmissionType.RESPONSE) {
+                final TransmissionServer finalServer = server;
+                final UUID finalUUID = uuid;
+                final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getTargetServer() == finalServer && transmissionTask.getUUID() == finalUUID).findFirst().get();
+                task.setResponseData(data);
+                task.stop();
+            } else {
+                TransmissionServer finalServer = server;
+                TransmissionType finalType = type;
+                UUID finalUUID = uuid;
+                String finalData = data;
+                Bukkit.getScheduler().runTask(this.plugin, () -> this.handler.onReceive(finalServer, finalType, finalUUID, finalData));
+            }
+        }, 0L, 1L);
     }
 
     /**
