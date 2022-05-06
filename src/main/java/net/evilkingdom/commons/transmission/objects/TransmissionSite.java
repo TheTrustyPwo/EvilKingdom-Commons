@@ -23,6 +23,7 @@ public class TransmissionSite {
 
     private final JavaPlugin plugin;
 
+    private Thread thread;
     private final String name;
     private final int port;
     private final HashSet<TransmissionServer> servers;
@@ -122,6 +123,14 @@ public class TransmissionSite {
     }
 
     /**
+     * Allows you to register the transmission site.
+     */
+    public void unregister() {
+        this.thread.stop();
+        this.thread = null;
+    }
+
+    /**
      * Allows you to create the socket.
      */
     private void createSocket() throws IOException {
@@ -133,7 +142,7 @@ public class TransmissionSite {
             //Does nothing, just in case :)
         }
         final ServerSocket serverSocket = preServerSocket;
-        new Thread(() -> {
+        this.thread = new Thread(() -> {
             while (!serverSocket.isClosed()) {
                 TransmissionServer server = null;
                 TransmissionType type = null;
@@ -166,6 +175,7 @@ public class TransmissionSite {
                 }
             }
         });
+        this.thread.start();
     }
 
 }
