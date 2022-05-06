@@ -51,7 +51,7 @@ public class TransmissionSite {
      * @param transmissionHandler ~ The transmission site's handler to set.
      */
     public void setHandler(final TransmissionHandler transmissionHandler) {
-        this.handler = handler;
+        this.handler = transmissionHandler;
     }
 
     /**

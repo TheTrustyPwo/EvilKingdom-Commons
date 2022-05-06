@@ -12,13 +12,11 @@ public abstract class CommandHandler {
 
     /**
      * The execution of the command.
-     *
-     * @param sender ~ The command's sender.
+     *  @param sender ~ The command's sender.
      * @param arguments ~ The command's arguments.
      */
-    public boolean onExecution(final CommandSender sender, final String[] arguments) {
+    public void onExecution(final CommandSender sender, final String[] arguments) {
         //It'll be overridden wherever it is used, therefore it is empty.
-        return false;
     }
 
     /**
