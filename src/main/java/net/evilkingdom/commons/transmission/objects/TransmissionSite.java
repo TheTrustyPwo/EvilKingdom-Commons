@@ -46,12 +46,30 @@ public class TransmissionSite {
     }
 
     /**
+     * Allows you to set the transmission site's handler.
+     *
+     * @param transmissionHandler ~ The transmission site's handler to set.
+     */
+    public void setHandler(final TransmissionHandler transmissionHandler) {
+        this.handler = handler;
+    }
+
+    /**
      * Allows you to retrieve the transmission site's name.
      *
      * @return ~ The transmission site's name.
      */
     public String getName() {
         return this.name;
+    }
+
+    /**
+     * Allows you to retrieve the transmission site's handler.
+     *
+     * @return ~ The transmission site's handler.
+     */
+    public TransmissionHandler getHandler() {
+        return this.handler;
     }
 
     /**

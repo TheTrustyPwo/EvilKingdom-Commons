@@ -60,10 +60,10 @@ public class Command {
     /**
      * Allows you to set the command's handler.
      *
-     * @param handler ~ The command's handler that will be set.
+     * @param commandHandler ~ The command's handler that will be set.
      */
-    public void setHandler(final CommandHandler handler) {
-        this.handler = handler;
+    public void setHandler(final CommandHandler commandHandler) {
+        this.handler = commandHandler;
     }
 
     /**
