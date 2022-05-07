@@ -144,16 +144,20 @@ public class TransmissionSite {
             } catch (final IOException ioException) {
                 //Does nothing, just in case :)
             }
-            if (!authentication.equals("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS")) {
-                return;
-            }
             if (type == TransmissionType.RESPONSE) {
                 final TransmissionServer finalServer = server;
                 final UUID finalUUID = uuid;
                 final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getTargetServer() == finalServer && transmissionTask.getUUID() == finalUUID).findFirst().get();
-                task.setResponseData(data);
+                if (authentication.equals("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS")) {
+                    task.setResponseData(data);
+                } else {
+                    task.setResponseData("response=authentication_failed");
+                }
                 task.stop();
             } else {
+                if (!authentication.equals("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS")) {
+                    return;
+                }
                 TransmissionServer finalServer = server;
                 TransmissionType finalType = type;
                 UUID finalUUID = uuid;

@@ -52,7 +52,7 @@ public class TransmissionTask {
     public void start() {
         final String ip = this.targetServer.getAddress()[0];
         final int port = Integer.parseInt(this.targetServer.getAddress()[1]);
-        Bukkit.getScheduler().runTaskAsynchronously(this.site.getPlugin(), () -> {
+        CompletableFuture.runAsync(() -> {
             try {
                 final Socket socket = new Socket(InetAddress.getByName(ip), port);
                 if (socket.isClosed()) {
