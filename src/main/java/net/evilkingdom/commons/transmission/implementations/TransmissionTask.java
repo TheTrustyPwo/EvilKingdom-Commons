@@ -60,7 +60,7 @@ public class TransmissionTask {
                 }
                 final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                 out.writeUTF(this.site.getName());
-                out.writeUTF(this.type.toString());
+                out.writeUTF(this.type.name());
                 out.writeUTF(this.uuid.toString());
                 out.writeUTF(this.data);
                 out.writeUTF("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS");
