@@ -140,7 +140,7 @@ public class TransmissionSite {
             UUID uuid = null;
             try {
                 final Socket socket = this.serverSocket.accept();
-                if (socket.getInputStream().available() != 5) {
+                if (socket.getInputStream().available() < 5) {
                     return;
                 }
                 final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
