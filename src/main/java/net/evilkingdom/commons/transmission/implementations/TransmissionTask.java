@@ -50,10 +50,27 @@ public class TransmissionTask {
      * Allows you to start the task.
      */
     public void start() {
-        this.sendSocketData();
-        if (this.type == TransmissionType.REQUEST) {
-            this.site.getTasks().add(this);
-        }
+        final String ip = this.targetServer.getAddress()[0];
+        final int port = Integer.parseInt(this.targetServer.getAddress()[1]);
+        CompletableFuture.runAsync(() -> {
+            try {
+                final Socket socket = new Socket(InetAddress.getByName(ip), port);
+                if (socket.isClosed()) {
+                    return;
+                }
+                final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                out.writeUTF(this.site.getName());
+                out.writeUTF(this.type.toString());
+                out.writeUTF(this.uuid.toString());
+                out.writeUTF(this.data);
+                out.writeUTF("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS");
+                if (this.type == TransmissionType.REQUEST) {
+                    this.site.getTasks().add(this);
+                }
+            } catch (final IOException ioException) {
+                //Does nothing, just in case :)
+            }
+        });
     }
 
     /**
@@ -61,27 +78,6 @@ public class TransmissionTask {
      */
     public void stop() {
         this.site.getTasks().remove(this);
-    }
-
-    /**
-     * Allows you to send the socket data.
-     */
-    private void sendSocketData() {
-        final String ip = this.targetServer.getAddress()[0];
-        final int port = Integer.parseInt(this.targetServer.getAddress()[1]);
-        try (final Socket socket = new Socket(InetAddress.getByName(ip), port)) {
-            final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-            if (socket.isClosed()) {
-                return;
-            }
-            out.writeUTF(this.site.getName());
-            out.writeUTF(this.type.toString());
-            out.writeUTF(this.uuid.toString());
-            out.writeUTF(this.data);
-            out.writeUTF("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS");
-        } catch (final IOException ioException) {
-            //Does nothing, just in case :)
-        }
     }
 
     /**
