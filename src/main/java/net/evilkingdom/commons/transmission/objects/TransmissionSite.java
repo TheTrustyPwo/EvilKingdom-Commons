@@ -140,6 +140,9 @@ public class TransmissionSite {
             UUID uuid = null;
             try {
                 final Socket socket = this.serverSocket.accept();
+                if (socket.getInputStream().available() != 5) {
+                    return;
+                }
                 final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
                 final String serverName = inputStream.readUTF();
                 server = this.servers.stream().filter(transmissionServer -> transmissionServer.getName().equals(serverName)).findFirst().get();
@@ -147,6 +150,7 @@ public class TransmissionSite {
                 uuid = UUID.fromString(inputStream.readUTF());
                 data = inputStream.readUTF();
                 authentication = inputStream.readUTF();
+                inputStream.close();
             } catch (final IOException ioException) {
                 //Does nothing, just in case :)
             }

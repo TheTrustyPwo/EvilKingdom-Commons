@@ -64,6 +64,7 @@ public class TransmissionTask {
                 out.writeUTF(this.uuid.toString());
                 out.writeUTF(this.data);
                 out.writeUTF("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS");
+                out.close();
                 if (this.type == TransmissionType.REQUEST) {
                     this.site.getTasks().add(this);
                 }
