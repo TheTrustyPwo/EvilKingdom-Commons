@@ -8,7 +8,6 @@ import net.evilkingdom.commons.scoreboard.implementations.ScoreboardListener;
 import net.evilkingdom.commons.scoreboard.implementations.ScoreboardRunnable;
 import net.evilkingdom.commons.scoreboard.objects.Scoreboard;
 import net.evilkingdom.commons.transmission.objects.Transmission;
-import net.evilkingdom.commons.transmission.objects.TransmissionServer;
 import net.evilkingdom.commons.transmission.objects.TransmissionSite;
 import org.bukkit.plugin.java.JavaPlugin;
 

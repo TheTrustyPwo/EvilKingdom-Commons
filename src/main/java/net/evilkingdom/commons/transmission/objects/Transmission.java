@@ -17,7 +17,7 @@ public class Transmission {
 
     private final UUID uuid;
     private final TransmissionSite site;
-    private final TransmissionServer targetServer;
+    private final String targetServer;
     private final TransmissionType type;
     private final String data;
 
@@ -25,13 +25,13 @@ public class Transmission {
      * Allows you to create a transmission for a plugin.
      *
      * @param transmissionSite ~ The transmission site of the transmission.
-     * @param targetTransmissionServer ~ The target transmission server of the transmission.
+     * @param targetServer ~ The target server of the transmission.
      * @param transmissionType ~ The type of the transmission.
      * @param data ~ The data of the transmission.
      */
-    public Transmission(final TransmissionSite transmissionSite, final TransmissionServer targetTransmissionServer, final TransmissionType transmissionType, final UUID uuid, final String data) {
+    public Transmission(final TransmissionSite transmissionSite, final String targetServer, final TransmissionType transmissionType, final UUID uuid, final String data) {
         this.site = transmissionSite;
-        this.targetServer = targetTransmissionServer;
+        this.targetServer = targetServer;
         this.type = transmissionType;
         this.uuid = uuid;
         this.data = data;
@@ -62,7 +62,7 @@ public class Transmission {
      *
      * @return ~ The task's target server.
      */
-    public TransmissionServer getTargetServer() {
+    public String getTargetServer() {
         return this.targetServer;
     }
 

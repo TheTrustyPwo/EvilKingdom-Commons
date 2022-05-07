@@ -4,13 +4,15 @@ package net.evilkingdom.commons.transmission.implementations;
  * Made with love by https://kodirati.com/.
  */
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import net.evilkingdom.commons.transmission.TransmissionImplementor;
 import net.evilkingdom.commons.transmission.enums.TransmissionType;
-import net.evilkingdom.commons.transmission.objects.TransmissionServer;
 import net.evilkingdom.commons.transmission.objects.TransmissionSite;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,23 +27,23 @@ public class TransmissionTask {
     private final String data;
     private final TransmissionType type;
     private final TransmissionSite site;
-    private final TransmissionServer targetServer;
+    private final String targetServer;
     private String responseData;
 
     /**
      * Allows you to create a transmission task for a plugin.
      * This should not be used inside your plugin whatsoever!
      *
-     * @param transmissionSite ~ The transmission site of the transmission.
-     * @param targetTransmissionServer ~ The target transmission server of the transmission.
-     * @param transmissionType ~ The type of the transmission.
+     * @param site ~ The transmission site of the transmission.
+     * @param targetServer ~ The target server of the transmission.
+     * @param type ~ The type of the transmission.
      * @param uuid ~ The uuid of the transmission.
      * @param data ~ The data of the transmission.
      */
-    public TransmissionTask(final TransmissionSite transmissionSite, final TransmissionType transmissionType, final TransmissionServer targetTransmissionServer, final UUID uuid, final String data) {
-        this.site = transmissionSite;
-        this.type = transmissionType;
-        this.targetServer = targetTransmissionServer;
+    public TransmissionTask(final TransmissionSite site, final TransmissionType type, final String targetServer, final UUID uuid, final String data) {
+        this.site = site;
+        this.type = type;
+        this.targetServer = targetServer;
         this.uuid = uuid;
         this.data = data;
     }
@@ -50,28 +52,22 @@ public class TransmissionTask {
      * Allows you to start the task.
      */
     public void start() {
-        final String ip = this.targetServer.getAddress()[0];
-        final int port = Integer.parseInt(this.targetServer.getAddress()[1]);
-        CompletableFuture.runAsync(() -> {
-            try {
-                final Socket socket = new Socket(ip, port);
-                if (socket.isClosed()) {
-                    return;
-                }
-                final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                out.writeUTF(this.site.getName());
-                out.writeUTF(this.type.name());
-                out.writeUTF(this.uuid.toString());
-                out.writeUTF(this.data);
-                out.writeUTF("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS");
-                out.close();
-                if (this.type == TransmissionType.REQUEST) {
-                    this.site.getTasks().add(this);
-                }
-            } catch (final IOException ioException) {
-                //Does nothing, just in case :)
-            }
-        });
+        final ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("Forward");
+        out.writeUTF(this.targetServer);
+        out.writeUTF("Transmissions");
+        final ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
+        final DataOutputStream messageOut = new DataOutputStream(messageBytes);
+        try {
+            messageOut.writeUTF(this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
+        } catch (final IOException ioException) {
+            //Does nothing, just in case :)
+        }
+        out.writeShort(messageBytes.toByteArray().length);
+        out.write(messageBytes.toByteArray());
+        if (this.type == TransmissionType.REQUEST) {
+            this.site.getTasks().add(this);
+        }
     }
 
     /**
@@ -115,7 +111,7 @@ public class TransmissionTask {
      *
      * @return ~ The task's target server.
      */
-    public TransmissionServer getTargetServer() {
+    public String getTargetServer() {
         return this.targetServer;
     }
 
