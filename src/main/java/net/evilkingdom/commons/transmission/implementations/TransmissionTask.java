@@ -24,10 +24,9 @@ import java.util.concurrent.CompletableFuture;
 public class TransmissionTask {
 
     private final UUID uuid;
-    private final String data;
+    private final String data, targetSiteName, targetServerName;
     private final TransmissionType type;
     private final TransmissionSite site;
-    private final String targetServer;
     private String responseData;
 
     /**
@@ -35,15 +34,17 @@ public class TransmissionTask {
      * This should not be used inside your plugin whatsoever!
      *
      * @param site ~ The transmission site of the transmission.
-     * @param targetServer ~ The target server of the transmission.
+     * @param targetServerName ~ The target server's name of the transmission.
+     * @param targetSiteName ~ The target site's name of the transmission.
      * @param type ~ The type of the transmission.
      * @param uuid ~ The uuid of the transmission.
      * @param data ~ The data of the transmission.
      */
-    public TransmissionTask(final TransmissionSite site, final TransmissionType type, final String targetServer, final UUID uuid, final String data) {
+    public TransmissionTask(final TransmissionSite site, final TransmissionType type, final String targetServerName, final String targetSiteName, final UUID uuid, final String data) {
         this.site = site;
         this.type = type;
-        this.targetServer = targetServer;
+        this.targetSiteName = targetSiteName;
+        this.targetServerName = targetServerName;
         this.uuid = uuid;
         this.data = data;
     }
@@ -52,19 +53,23 @@ public class TransmissionTask {
      * Allows you to start the task.
      */
     public void start() {
-        final ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("Forward");
-        out.writeUTF(this.targetServer);
-        out.writeUTF("Transmissions");
+        if (Bukkit.getOnlinePlayers().stream().findFirst().isEmpty()) {
+            return;
+        }
+        final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
+        outputStream.writeUTF("Forward");
+        outputStream.writeUTF(this.targetServerName);
+        outputStream.writeUTF("Transmissions-" + this.targetSiteName);
         final ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
         final DataOutputStream messageOut = new DataOutputStream(messageBytes);
         try {
-            messageOut.writeUTF(this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
+            messageOut.writeUTF(this.site.getServerName() + "|" + this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
         } catch (final IOException ioException) {
             //Does nothing, just in case :)
         }
-        out.writeShort(messageBytes.toByteArray().length);
-        out.write(messageBytes.toByteArray());
+        outputStream.writeShort(messageBytes.toByteArray().length);
+        outputStream.write(messageBytes.toByteArray());
+        Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);
         }
@@ -107,12 +112,21 @@ public class TransmissionTask {
     }
 
     /**
-     * Allows you to retrieve the task's target server.
+     * Allows you to retrieve the task's target server name.
      *
-     * @return ~ The task's target server.
+     * @return ~ The task's target server name.
      */
-    public String getTargetServer() {
-        return this.targetServer;
+    public String getTargetServerName() {
+        return this.targetServerName;
+    }
+
+    /**
+     * Allows you to retrieve the task's target site name.
+     *
+     * @return ~ The task's target site name.
+     */
+    public String getTargetSiteName() {
+        return this.targetSiteName;
     }
 
     /**

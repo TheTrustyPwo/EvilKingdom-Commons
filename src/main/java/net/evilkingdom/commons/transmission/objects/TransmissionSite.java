@@ -32,10 +32,7 @@ public class TransmissionSite {
 
     private final JavaPlugin plugin;
 
-    private BukkitTask task;
-    private ServerSocket serverSocket;
-    private final String name;
-    private final int port;
+    private final String name, serverName;
     private final HashSet<TransmissionTask> tasks;
     private TransmissionHandler handler;
 
@@ -43,14 +40,14 @@ public class TransmissionSite {
      * Allows you to create a transmission site for a plugin.
      *
      * @param plugin ~ The plugin the transmission site is for.
+     * @param serverName ~ The name of the transmission site's server.
      * @param name ~ The name of the transmission site.
-     * @param port ~ The port of the transmission site.
      */
-    public TransmissionSite(final JavaPlugin plugin, final String name, final int port) {
+    public TransmissionSite(final JavaPlugin plugin, final String serverName, final String name) {
         this.plugin = plugin;
 
+        this.serverName = serverName;
         this.name = name;
-        this.port = port;
         this.tasks = new HashSet<TransmissionTask>();
     }
 
@@ -73,21 +70,21 @@ public class TransmissionSite {
     }
 
     /**
+     * Allows you to retrieve the transmission site's server name.
+     *
+     * @return ~ The transmission site's server name.
+     */
+    public String getServerName() {
+        return this.serverName;
+    }
+
+    /**
      * Allows you to retrieve the transmission site's handler.
      *
      * @return ~ The transmission site's handler.
      */
     public TransmissionHandler getHandler() {
         return this.handler;
-    }
-
-    /**
-     * Allows you to retrieve the transmission site's port.
-     *
-     * @return ~ The transmission site's port.
-     */
-    public int getPort() {
-        return this.port;
     }
 
     /**
@@ -113,44 +110,35 @@ public class TransmissionSite {
      */
     public void register() {
         TransmissionImplementor transmissionImplementor = TransmissionImplementor.get(this.plugin);
-        transmissionImplementor.getTransmissionSites().add(this);
-        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "Transmissions");
-        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(plugin, "Transmissions", (channel, player, message) -> {
-            if (!channel.equals("Transmissions")) {
-                return;
-            }
-            final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
-            String messageData;
-            try {
-                messageData = inputStream.readUTF();
-            } catch (final IOException ioException) {
-                messageData = null;
-                //Does nothing, just in case! :)
-            }
-            final String server = messageData.split("\\|")[0];
-            final TransmissionType type = TransmissionType.valueOf(messageData.split("\\|")[1]);
-            final UUID uuid = UUID.fromString(messageData.split("\\|")[2]);
-            final String data = messageData.split("\\|")[3];;
-            if (type == TransmissionType.RESPONSE) {
-                final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getTargetServer().equals(server) && transmissionTask.getUUID() == uuid).findFirst().get();
-                task.setResponseData(data);
-                task.stop();
-            } else {
-                this.handler.onReceive(server, type, uuid, data);
-            }
-        });
+        transmissionImplementor.getSites().add(this);
+    }
+
+    /**
+     * Allows you to handle the BungeeCord message.
+     * This should not be used inside your plugin whatsoever!
+     *
+     * @param serverName ~ The server name of the transmission.
+     * @param siteName ~ The site name of the transmission.
+     * @param type ~ The type of the transmission.
+     * @param uuid ~ The uuid of the transmission.
+     * @param data ~ The data of the transmission.
+     */
+    public void handleBungeeCordMessage(final String serverName, final String siteName, final TransmissionType type, final UUID uuid, final String data) {
+        if (type == TransmissionType.RESPONSE) {
+            final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getTargetServerName().equals(serverName) && transmissionTask.getTargetSiteName().equals(siteName) && transmissionTask.getUUID() == uuid).findFirst().get();
+            task.setResponseData(data);
+            task.stop();
+        } else {
+            this.handler.onReceive(serverName, siteName, type, uuid, data);
+        }
     }
 
     /**
      * Allows you to unregister the transmission site.
      */
     public void unregister() {
-        this.task.cancel();
-        try {
-            this.serverSocket.close();
-        } catch (final IOException ioException) {
-            //Does nothing, just in case! :)
-        }
+        TransmissionImplementor transmissionImplementor = TransmissionImplementor.get(this.plugin);
+        transmissionImplementor.getSites().remove(this);
     }
 
 }
