@@ -118,20 +118,6 @@ public class TransmissionSite {
     public void register() {
         TransmissionImplementor transmissionImplementor = TransmissionImplementor.get(this.plugin);
         transmissionImplementor.getTransmissionSites().add(this);
-        this.openSocket();
-    }
-
-    /**
-     * Allows you to unregister the transmission site.
-     */
-    public void unregister() {
-        this.closeSocket();
-    }
-
-    /**
-     * Allows you to open the socket.
-     */
-    private void openSocket() {
         ServerSocket serverSocket;
         try {
             serverSocket = new ServerSocket(this.port);
@@ -178,9 +164,9 @@ public class TransmissionSite {
     }
 
     /**
-     * Allows you to close the socket.
+     * Allows you to unregister the transmission site.
      */
-    private void closeSocket() {
+    public void unregister() {
         this.task.cancel();
         try {
             this.serverSocket.close();
@@ -188,6 +174,5 @@ public class TransmissionSite {
             //Does nothing, just in case! :)
         }
     }
-
 
 }
