@@ -127,6 +127,9 @@ public class TransmissionSite {
         }
         this.serverSocket = serverSocket;
         this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
+            if (this.serverSocket.isClosed()) {
+                return;
+            }
             TransmissionServer server = null;
             TransmissionType type = null;
             String data = null;
@@ -158,10 +161,10 @@ public class TransmissionSite {
                 if (!authentication.equals("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS")) {
                     return;
                 }
-                TransmissionServer finalServer = server;
-                TransmissionType finalType = type;
-                UUID finalUUID = uuid;
-                String finalData = data;
+                final TransmissionServer finalServer = server;
+                final TransmissionType finalType = type;
+                final UUID finalUUID = uuid;
+                final String finalData = data;
                 Bukkit.getScheduler().runTask(this.plugin, () -> this.handler.onReceive(finalServer, finalType, finalUUID, finalData));
             }
         }, 0L, 1L);

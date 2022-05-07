@@ -54,7 +54,7 @@ public class TransmissionTask {
         final int port = Integer.parseInt(this.targetServer.getAddress()[1]);
         CompletableFuture.runAsync(() -> {
             try {
-                final Socket socket = new Socket(InetAddress.getByName(ip), port);
+                final Socket socket = new Socket(ip, port);
                 if (socket.isClosed()) {
                     return;
                 }
