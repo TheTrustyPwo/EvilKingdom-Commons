@@ -13,7 +13,8 @@ public abstract class TransmissionHandler {
     /**
      * The receiving of a transmission.
      *
-     * @param server ~ The transmission's server.
+     * @param serverName ~ The transmission's server name.
+     * @param siteName ~ The transmission's site name.
      * @param type ~ The transmission's transmission type.
      * @param uuid ~ The transmission's uuid.
      * @param data ~ The transmission's data.
