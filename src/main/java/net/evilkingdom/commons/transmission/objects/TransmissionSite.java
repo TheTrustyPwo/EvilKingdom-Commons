@@ -28,7 +28,7 @@ public class TransmissionSite {
 
     private final JavaPlugin plugin;
 
-    private Timer task;
+    private BukkitTask task;
     private ServerSocket serverSocket;
     private final String name;
     private final int port;
@@ -121,60 +121,54 @@ public class TransmissionSite {
     public void register() {
         TransmissionImplementor transmissionImplementor = TransmissionImplementor.get(this.plugin);
         transmissionImplementor.getTransmissionSites().add(this);
-        ServerSocket preServerSocket;
+        ServerSocket serverSocket;
         try {
-            preServerSocket = new ServerSocket(this.port);
+            serverSocket = new ServerSocket(this.port);
         } catch (final IOException ioException) {
-            preServerSocket = null;
+            serverSocket = null;
             //Does nothing, just in case! :)
         }
-        this.serverSocket = preServerSocket;
-        this.task = new Timer();
-        this.task.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                CompletableFuture.runAsync(() -> {
-                    if (serverSocket.isClosed()) {
-                        return;
-                    }
-                    TransmissionServer server = null;
-                    TransmissionType type = null;
-                    String data = null;
-                    String authentication = null;
-                    UUID uuid = null;
-                    try {
-                        final Socket socket = serverSocket.accept();
-                        final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-                        final String serverName = inputStream.readUTF();
-                        server = servers.stream().filter(transmissionServer -> transmissionServer.getName().equals(serverName)).findFirst().get();
-                        type = TransmissionType.valueOf(inputStream.readUTF());
-                        uuid = UUID.fromString(inputStream.readUTF());
-                        data = inputStream.readUTF();
-                        authentication = inputStream.readUTF();
-                    } catch (final IOException ioException) {
-                        //Does nothing, just in case :)
-                    }
-                    if (type == TransmissionType.RESPONSE) {
-                        final TransmissionServer finalServer = server;
-                        final UUID finalUUID = uuid;
-                        final TransmissionTask task = tasks.stream().filter(transmissionTask -> transmissionTask.getTargetServer() == finalServer && transmissionTask.getUUID() == finalUUID).findFirst().get();
-                        if (authentication.equals("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS")) {
-                            task.setResponseData(data);
-                        } else {
-                            task.setResponseData("response=authentication_failed");
-                        }
-                        task.stop();
-                    } else {
-                        if (!authentication.equals("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS")) {
-                            return;
-                        }
-                        final TransmissionServer finalServer = server;
-                        final TransmissionType finalType = type;
-                        final UUID finalUUID = uuid;
-                        final String finalData = data;
-                        Bukkit.getScheduler().runTask(plugin, () -> handler.onReceive(finalServer, finalType, finalUUID, finalData));
-                    }
-                });
+        this.serverSocket = serverSocket;
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
+            if (this.serverSocket.isClosed()) {
+                return;
+            }
+            TransmissionServer server = null;
+            TransmissionType type = null;
+            String data = null;
+            String authentication = null;
+            UUID uuid = null;
+            try {
+                final Socket socket = this.serverSocket.accept();
+                final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+                final String serverName = inputStream.readUTF();
+                server = this.servers.stream().filter(transmissionServer -> transmissionServer.getName().equals(serverName)).findFirst().get();
+                type = TransmissionType.valueOf(inputStream.readUTF());
+                uuid = UUID.fromString(inputStream.readUTF());
+                data = inputStream.readUTF();
+                authentication = inputStream.readUTF();
+            } catch (final IOException ioException) {
+                //Does nothing, just in case :)
+            }
+            if (type == TransmissionType.RESPONSE) {
+                final TransmissionServer finalServer = server;
+                final UUID finalUUID = uuid;
+                final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getTargetServer() == finalServer && transmissionTask.getUUID() == finalUUID).findFirst().get();
+                if (authentication.equals("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS")) {
+                    task.setResponseData(data);
+                } else {
+                    task.setResponseData("response=authentication_failed");
+                }
+                task.stop();
+            } else {
+                if (!authentication.equals("evilKingdomAuthenticated-uW9ezXQECPL6aRgePG6ab5qS")) {
+                    return;
+                }
+                final TransmissionServer finalServer = server;
+                final TransmissionType finalType = type;
+                final UUID finalUUID = uuid;
+                final String finalData = data;
+                Bukkit.getScheduler().runTask(this.plugin, () -> this.handler.onReceive(finalServer, finalType, finalUUID, finalData));
             }
         }, 0L, 1L);
     }
