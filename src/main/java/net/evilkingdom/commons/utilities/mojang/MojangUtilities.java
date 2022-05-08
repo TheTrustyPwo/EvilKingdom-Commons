@@ -42,12 +42,13 @@ public class MojangUtilities {
      * Allows you to retrieve if a server is online.
      * Uses MCSrvstat's API, website magic, and runs asynchronously in order to keep the server from lagging.
      *
-     * @param address ~ The server's ip address.
+     * @param ip ~ The server's ip.
+     * @param port ~ The server's port.
      * @return If the server is online.
      */
-    public static CompletableFuture<Boolean> isOnline(final String address) {
+    public static CompletableFuture<Boolean> isOnline(final String ip, final int port) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://api.mcsrvstat.us/2/" + address)).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://api.mcsrvstat.us/2/" + ip + ":" + port)).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty()) {
                 return false;
