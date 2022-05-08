@@ -40,6 +40,7 @@ public class TransmissionImplementor {
         this.sites = new HashSet<TransmissionSite>();
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this.plugin, "BungeeCord");
         Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this.plugin, "BungeeCord", (channel, player, message) -> {
+            System.out.println("received data!");
             final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
             String subChannel = null;
             String messageData = null;
@@ -50,10 +51,13 @@ public class TransmissionImplementor {
                 //Does nothing, just in case! :)
             }
             final String finalSubChannel = subChannel;
+            System.out.println("sub channel - " + finalSubChannel);
             final Optional<TransmissionSite> optionalSite = this.sites.stream().filter(transmissionSite -> transmissionSite.getName().equals(finalSubChannel.replace("Transmissions-", ""))).findFirst();
             if (optionalSite.isEmpty()) {
+                System.out.println("empty!");
                 return;
             }
+            System.out.println("message data - " + messageData);
             final TransmissionSite site = optionalSite.get();
             final String serverName = messageData.split("\\|")[0];
             final String siteName = messageData.split("\\|")[1];

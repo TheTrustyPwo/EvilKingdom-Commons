@@ -53,9 +53,6 @@ public class TransmissionTask {
      * Allows you to start the task.
      */
     public void start() {
-        if (Bukkit.getOnlinePlayers().stream().findFirst().isEmpty()) {
-            return;
-        }
         final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
         outputStream.writeUTF("Forward");
         outputStream.writeUTF(this.targetServerName);
@@ -69,6 +66,7 @@ public class TransmissionTask {
         }
         outputStream.writeShort(messageBytes.toByteArray().length);
         outputStream.write(messageBytes.toByteArray());
+        System.out.println("sending data!");
         Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);

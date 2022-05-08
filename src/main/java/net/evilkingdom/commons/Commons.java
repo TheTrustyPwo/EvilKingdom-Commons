@@ -16,34 +16,18 @@ public class Commons extends JavaPlugin implements Listener {
     private static Commons plugin;
 
     /**
-     * Bukkit's on enable method for plugins.
-     * It just uses the method I created further down on the class since it's sexier.
+     * Bukkit's detection for the plugin enabling.
      */
     public void onEnable() {
-        this.initialize();
-    }
-
-    /**
-     * Bukkit's on enable method for plugins.
-     * It just uses the method I created further down on the class since it's sexier.
-     */
-    public void onDisable() {
-        this.terminate();
-    }
-
-    /**
-     * Allows you to initialize the plugin.
-     */
-    private void initialize() {
         Bukkit.getConsoleSender().sendMessage(StringUtilities.colorize("&2[Commons] &aInitializing..."));
         plugin = this;
         Bukkit.getConsoleSender().sendMessage(StringUtilities.colorize("&2[Commons] &aInitialized."));
     }
 
     /**
-     * Allows you to terminate the plugin.
+     * Bukkit's detection for the plugin disabling.
      */
-    private void terminate() {
+    public void onDisable() {
         Bukkit.getConsoleSender().sendMessage(StringUtilities.colorize("&4[Commons] &cTerminating..."));
         plugin = null;
         Bukkit.getConsoleSender().sendMessage(StringUtilities.colorize("&4[Commons] &cTerminated."));
