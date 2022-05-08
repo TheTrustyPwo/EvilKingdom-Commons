@@ -47,6 +47,11 @@ public class PaperWorldConfig {
         }
     }
 
+    private void remove(String path) {
+        config.addDefault("world-settings.default." + path, null);
+        set(path, null);
+    }
+
     public void removeOldValues() {
         boolean needsSave = false;
 
@@ -77,13 +82,41 @@ public class PaperWorldConfig {
         piglinsGuardChests = getBoolean("piglins-guard-chests", piglinsGuardChests);
     }
 
-    public boolean useEigencraftRedstone = false;
-    private void useEigencraftRedstone() {
-        useEigencraftRedstone = this.getBoolean("use-faster-eigencraft-redstone", false);
-        if (useEigencraftRedstone) {
-            log("Using Eigencraft redstone algorithm by theosib.");
+    public enum RedstoneImplementation {
+        VANILLA, EIGENCRAFT, ALTERNATE_CURRENT
+    }
+    public RedstoneImplementation redstoneImplementation = RedstoneImplementation.VANILLA;
+    private void redstoneImplementation() {
+        String implementation;
+        if (PaperConfig.version < 27) {
+            implementation = "vanilla";
+            if (config.contains("world-settings.default.use-faster-eigencraft-redstone")) {
+                implementation = config.getBoolean("world-settings.default.use-faster-eigencraft-redstone") ? "eigencraft" : "vanilla";
+                config.set("world-settings.default.redstone-implementation", implementation);
+            }
+            if (config.contains("world-settings." + worldName + ".use-faster-eigencraft-redstone")) {
+                implementation = config.getBoolean("world-settings." + worldName + ".use-faster-eigencraft-redstone") ? "eigencraft" : "vanilla";
+                config.set("world-settings." + worldName + ".redstone-implementation", implementation);
+            }
+            remove("use-faster-eigencraft-redstone");
         } else {
-            log("Using vanilla redstone algorithm.");
+            implementation = this.getString("redstone-implementation", "vanilla").toLowerCase().trim();
+        }
+        switch (implementation) {
+            default:
+                logError("Invalid redstone-implementation config " + implementation + " - must be one of: vanilla, eigencraft, alternate-current");
+            case "vanilla":
+                redstoneImplementation = RedstoneImplementation.VANILLA;
+                log("Using the Vanilla redstone implementation.");
+                break;
+            case "eigencraft":
+                redstoneImplementation = RedstoneImplementation.EIGENCRAFT;
+                log("Using Eigencraft's redstone implementation by theosib.");
+                break;
+            case "alternate-current":
+                redstoneImplementation = RedstoneImplementation.ALTERNATE_CURRENT;
+                log("Using Alternate Current's redstone implementation by Space Walker.");
+                break;
         }
     }
 
@@ -134,24 +167,26 @@ public class PaperWorldConfig {
     private void disableMobSpawnerSpawnEggTransformation() {
         disableMobSpawnerSpawnEggTransformation = getBoolean("game-mechanics.disable-mob-spawner-spawn-egg-transformation", disableMobSpawnerSpawnEggTransformation);
     }
-
-    public List<net.minecraft.world.Difficulty> zombieBreakDoors;
-    public List<net.minecraft.world.Difficulty> vindicatorBreakDoors;
+    
+    private final List<net.minecraft.world.entity.EntityType<?>> entitiesValidForBreakDoors = Arrays.asList(net.minecraft.world.entity.EntityType.ZOMBIE, net.minecraft.world.entity.EntityType.ZOMBIE_VILLAGER, net.minecraft.world.entity.EntityType.HUSK, net.minecraft.world.entity.EntityType.ZOMBIFIED_PIGLIN, net.minecraft.world.entity.EntityType.VINDICATOR);
+    public java.util.Map<net.minecraft.world.entity.EntityType<?>, java.util.List<net.minecraft.world.Difficulty>> entitiesDifficultyBreakDoors = new it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap<>();
     private void setupEntityBreakingDoors() {
-        zombieBreakDoors = getEnumList(
-            "door-breaking-difficulty.zombie",
-            java.util.Arrays.stream(net.minecraft.world.Difficulty.values())
-                .filter(net.minecraft.world.entity.monster.Zombie.DOOR_BREAKING_PREDICATE)
-                .collect(Collectors.toList()),
-            net.minecraft.world.Difficulty.class
-        );
-        vindicatorBreakDoors = getEnumList(
-            "door-breaking-difficulty.vindicator",
-            java.util.Arrays.stream(net.minecraft.world.Difficulty.values())
-                .filter(net.minecraft.world.entity.monster.Vindicator.DOOR_BREAKING_PREDICATE)
-                .collect(Collectors.toList()),
-            net.minecraft.world.Difficulty.class
-        );
+        for (net.minecraft.world.entity.EntityType<?> entityType : entitiesValidForBreakDoors) {
+            java.util.function.Predicate<net.minecraft.world.Difficulty> difficultyPredicate = net.minecraft.world.entity.monster.Zombie.DOOR_BREAKING_PREDICATE;
+            if (entityType == net.minecraft.world.entity.EntityType.VINDICATOR) {
+                difficultyPredicate = net.minecraft.world.entity.monster.Vindicator.DOOR_BREAKING_PREDICATE;
+            }
+            entitiesDifficultyBreakDoors.put(
+                entityType,
+                getEnumList(
+                    "door-breaking-difficulty." + entityType.id,
+                    java.util.Arrays.stream(net.minecraft.world.Difficulty.values())
+                        .filter(difficultyPredicate)
+                        .collect(Collectors.toList()),
+                    net.minecraft.world.Difficulty.class
+                )
+            );
+        }
     }
 
     public Map<net.minecraft.world.entity.EntityType<?>, Integer> entityPerChunkSaveLimits = new HashMap<>();
@@ -794,50 +829,72 @@ public class PaperWorldConfig {
     }
 
     public boolean altItemDespawnRateEnabled;
-    public java.util.Map<org.bukkit.Material, Integer> altItemDespawnRateMap;
+    public java.util.Map<net.minecraft.resources.ResourceLocation, Integer> altItemDespawnRateMap = new HashMap<>();
     private void altItemDespawnRate() {
         String path = "alt-item-despawn-rate";
+        // Migrate from bukkit material to Mojang item ids
+        if (PaperConfig.version < 26) {
+            String world = worldName;
+            try {
+                org.bukkit.configuration.ConfigurationSection mapSection = config.getConfigurationSection("world-settings." + world + "." + path + ".items");
+                if (mapSection == null) {
+                    world = "default";
+                    mapSection = config.getConfigurationSection("world-settings." + world + "." + path + ".items");
+                }
+                if (mapSection != null) {
+                    for (String key : mapSection.getKeys(false)) {
+                        int val = mapSection.getInt(key);
+                        try {
+                            // Ignore options that are already valid mojang wise, otherwise we might try to migrate the same config twice and fail.
+                            boolean isMojangMaterial = net.minecraft.core.Registry.ITEM.getOptional(new net.minecraft.resources.ResourceLocation(key.toLowerCase())).isPresent();
+                            mapSection.set(key, null);
+                            String newKey = isMojangMaterial ? key.toLowerCase() : org.bukkit.Material.valueOf(key).getKey().getKey().toLowerCase();
+                            mapSection.set(newKey, val);
+                        } catch (Exception e) {
+                            logError("Could not add item " + key + " to altItemDespawnRateMap: " + e.getMessage());
+                        }
+                    }
+                    config.set("world-settings." + world + "." + path + ".items", mapSection);
+                }
+            } catch (Exception e) {
+                logError("alt-item-despawn-rate was malformatted");
+                return;
+            }
+        }
 
         altItemDespawnRateEnabled = getBoolean(path + ".enabled", false);
 
-        java.util.Map<org.bukkit.Material, Integer> altItemDespawnRateMapDefault = new java.util.EnumMap<>(org.bukkit.Material.class);
-        altItemDespawnRateMapDefault.put(org.bukkit.Material.COBBLESTONE, 300);
-        for (org.bukkit.Material key : altItemDespawnRateMapDefault.keySet()) {
-            config.addDefault("world-settings.default." + path + ".items." + key, altItemDespawnRateMapDefault.get(key));
+        if (config.getConfigurationSection("world-settings.default." + path + ".items") == null) {
+            // Initialize default
+            config.addDefault("world-settings.default." + path + ".items.cobblestone", 300);
         }
 
-        java.util.Map<String, Integer> rawMap = new java.util.HashMap<>();
-        try {
-            org.bukkit.configuration.ConfigurationSection mapSection = config.getConfigurationSection("world-settings." + worldName + "." + path + ".items");
-            if (mapSection == null) {
-                mapSection = config.getConfigurationSection("world-settings.default." + path + ".items");
-            }
-            for (String key : mapSection.getKeys(false)) {
-                int val = mapSection.getInt(key);
-                rawMap.put(key, val);
-            }
-        }
-        catch (Exception e) {
-            logError("alt-item-despawn-rate was malformatted");
-            altItemDespawnRateEnabled = false;
-        }
-
-        altItemDespawnRateMap = new java.util.EnumMap<>(org.bukkit.Material.class);
         if (!altItemDespawnRateEnabled) {
             return;
         }
 
-        for(String key : rawMap.keySet()) {
-            try {
-                altItemDespawnRateMap.put(org.bukkit.Material.valueOf(key), rawMap.get(key));
-            } catch (Exception e) {
-                logError("Could not add item " + key + " to altItemDespawnRateMap: " + e.getMessage());
+        org.bukkit.configuration.ConfigurationSection mapSection = config.getConfigurationSection("world-settings." + worldName + "." + path + ".items");
+        if (mapSection == null) {
+            mapSection = config.getConfigurationSection("world-settings.default." + path + ".items");
+        }
+        if (mapSection != null) {
+            for (String key : mapSection.getKeys(false)) {
+                try {
+                    int val = mapSection.getInt(key);
+                    net.minecraft.resources.ResourceLocation keyLocation = new net.minecraft.resources.ResourceLocation(key);
+                    if (net.minecraft.core.Registry.ITEM.getOptional(keyLocation).isPresent()) {
+                        altItemDespawnRateMap.put(keyLocation, val);
+                    } else {
+                        logError("Could not add item " + key + " to altItemDespawnRateMap: not a valid item");
+                    }
+                } catch (Exception e) {
+                    logError("Could not add item " + key + " to altItemDespawnRateMap: " + e.getMessage());
+                }
             }
         }
-        if(altItemDespawnRateEnabled) {
-            for(org.bukkit.Material key : altItemDespawnRateMap.keySet()) {
-                log("Alternative item despawn rate of " + key + ": " + altItemDespawnRateMap.get(key));
-            }
+
+        for (net.minecraft.resources.ResourceLocation key : altItemDespawnRateMap.keySet()) {
+            log("Alternative item despawn rate of " + key.getPath() + ": " + altItemDespawnRateMap.get(key));
         }
     }
 

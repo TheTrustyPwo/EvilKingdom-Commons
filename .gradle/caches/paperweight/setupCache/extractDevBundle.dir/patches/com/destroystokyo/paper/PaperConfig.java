@@ -71,8 +71,8 @@ public class PaperConfig {
         commands.put("paper", new PaperCommand("paper"));
         commands.put("mspt", new MSPTCommand("mspt"));
 
-        version = getInt("config-version", 25);
-        set("config-version", 25);
+        version = getInt("config-version", 27);
+        set("config-version", 27);
         readConfig(PaperConfig.class, null);
     }
 
