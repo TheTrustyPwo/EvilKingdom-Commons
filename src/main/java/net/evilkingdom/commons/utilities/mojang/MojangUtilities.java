@@ -9,6 +9,8 @@ import com.google.gson.JsonParser;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -35,6 +37,28 @@ public class MojangUtilities {
             }
             final JsonObject jsonObject = JsonParser.parseString(httpResponse.body()).getAsJsonObject();
             return Optional.of(UUID.fromString(jsonObject.get("id").getAsString().replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5")));
+        });
+    }
+
+    /**
+     * Allows you to retrieve if a server is online.
+     * Uses socket magic and runs asynchronously in order to keep the server from lagging.
+     *
+     * @param ip ~ The server's ip.
+     * @param port ~ The server's port.
+     * @return If the server is online.
+     */
+    public static CompletableFuture<Boolean> isOnline(final String ip, final int port) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                final Socket socket = new Socket();
+                socket.connect(new InetSocketAddress(ip, port), 15);
+                socket.close();
+                return true;
+            } catch (final Exception exception) {
+                // not online
+                return false;
+            }
         });
     }
 
