@@ -50,6 +50,9 @@ public class TransmissionImplementor {
             } catch (final IOException ioException) {
                 //Does nothing, just in case! :)
             }
+            System.out.println("chnnl - " + channel);
+            System.out.println("subchnl - " + subChannel);
+            System.out.println("msgdata - " + messageData);
             final String finalSubChannel = subChannel;
             final Optional<TransmissionSite> optionalSite = this.sites.stream().filter(transmissionSite -> transmissionSite.getName().equals(finalSubChannel.replace("Transmissions-", ""))).findFirst();
             if (optionalSite.isEmpty()) {

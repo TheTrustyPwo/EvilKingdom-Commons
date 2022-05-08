@@ -16,7 +16,7 @@ public class NumberUtilities {
      * Allows you to validate if a string is an integer.
      *
      * @param string ~ The string that needs to be validated.
-     * @return If checked string is an integer.
+     * @return If validated string is an integer.
      */
     public static boolean isInteger(final String string) {
         try {
@@ -31,7 +31,7 @@ public class NumberUtilities {
      * Allows you to validate if a string is a double.
      *
      * @param string ~ The string that needs to be validated.
-     * @return If checked string is an double.
+     * @return If validated string is an double.
      */
     public static boolean isDouble(final String string) {
         try {
@@ -46,7 +46,7 @@ public class NumberUtilities {
      * Allows you to validate if a string is a long.
      *
      * @param string ~ The string that needs to be validated.
-     * @return If checked string is a long.
+     * @return If validated string is a long.
      */
     public static boolean isLong(final String string) {
         try {
@@ -96,7 +96,7 @@ public class NumberUtilities {
     }
 
     /**
-     * Allows you to check if a chance is selected.
+     * Allows you to validate if a chance is selected.
      * This should be used highly for chance based systems like crates, enchants, etc.
      *
      * @param chance ~ The chance you want.
@@ -107,7 +107,7 @@ public class NumberUtilities {
     }
 
     /**
-     * Allows you to check if an item with a chance is selected.
+     * Allows you to validate if an item with a chance is selected.
      * This should be used highly for chance based systems like crates, enchants, etc.
      *
      * @param itemChances ~ The hashmap of items to their chances.

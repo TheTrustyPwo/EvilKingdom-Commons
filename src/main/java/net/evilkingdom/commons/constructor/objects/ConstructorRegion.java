@@ -150,7 +150,7 @@ public class ConstructorRegion {
     }
 
     /**
-     * Allows you to check if a location is within the region.
+     * Allows you to validate if a location is within the region.
      * Uses FastAsyncWorldEdit's API.
      *
      * @return If the location is in the region.

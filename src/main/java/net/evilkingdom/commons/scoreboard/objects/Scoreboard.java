@@ -25,7 +25,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Team;
-import org.checkerframework.checker.units.qual.C;
 
 import javax.swing.text.html.Option;
 import java.util.*;

@@ -11,11 +11,11 @@ import org.bukkit.inventory.ItemStack;
 public class InventoryUtilities {
 
     /**
-     * Allows you to check if an inventory can fit an ItemStack.
+     * Allows you to validate if an inventory can fit an ItemStack.
      *
-     * @param inventory ~ The inventory that needs to be checked.
-     * @param itemStack ~ The ItemStack that needs to be checked.
-     * @return If the checked ItemStack can fit in the checked inventory.
+     * @param inventory ~ The inventory that needs to be validated.
+     * @param itemStack ~ The ItemStack that needs to be validated.
+     * @return If the validated ItemStack can fit in the validated inventory.
      */
     public static boolean canFit(final Inventory inventory, final ItemStack itemStack) {
         final Inventory clonedInventory = Bukkit.getServer().createInventory(inventory.getHolder(), inventory.getType());
