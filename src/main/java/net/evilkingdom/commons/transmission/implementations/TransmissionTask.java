@@ -60,6 +60,7 @@ public class TransmissionTask {
         outputStream.writeUTF("Transmissions-" + this.targetSiteName);
         final ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
         final DataOutputStream messageOut = new DataOutputStream(messageBytes);
+        System.out.println("server name - " + this.site.getServerName());
         try {
             messageOut.writeUTF(this.site.getServerName() + "|" + this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
         } catch (final IOException ioException) {

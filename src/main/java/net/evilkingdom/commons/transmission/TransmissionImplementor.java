@@ -53,12 +53,9 @@ public class TransmissionImplementor {
             System.out.println("chnnl - " + channel);
             System.out.println("subchnl - " + subChannel);
             System.out.println("msgdata - " + messageData);
-            final String finalSubChannel = subChannel;
-            final Optional<TransmissionSite> optionalSite = this.sites.stream().filter(transmissionSite -> transmissionSite.getName().equals(finalSubChannel.replace("Transmissions-", ""))).findFirst();
-            if (optionalSite.isEmpty()) {
-                return;
-            }
-            final TransmissionSite site = optionalSite.get();
+            final String currentSiteName = subChannel.replace("Transmissions-", "");
+            System.out.println("site name - " + currentSiteName);
+            final TransmissionSite site = this.sites.stream().filter(transmissionSite -> transmissionSite.getName().equals(currentSiteName)).findFirst().get();
             final String serverName = messageData.split("\\|")[0];
             final String siteName = messageData.split("\\|")[1];
             final TransmissionType type = TransmissionType.valueOf(messageData.split("\\|")[2]);
