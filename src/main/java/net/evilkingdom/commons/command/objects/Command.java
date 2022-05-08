@@ -15,19 +15,22 @@ public class Command {
     private final JavaPlugin plugin;
 
     private final String name;
-    private CommandHandler handler;
-    private ArrayList<String> aliases;
+    private final CommandHandler handler;
+    private final ArrayList<String> aliases;
 
     /**
-     * Allows you to create a command.
+     * Allows you to create a command for a plugin.
      *
      * @param plugin ~ The plugin the command is for.
-     * @param name ~ The name of the command to create.
+     * @param name ~ The name of the command.
+     * @param aliases ~ The aliases of the command.
+     * @param handler ~ The handler of the command.
      */
-    public Command(final JavaPlugin plugin, final String name) {
+    public Command(final JavaPlugin plugin, final String name, final ArrayList<String> aliases, final CommandHandler handler) {
         this.plugin = plugin;
         this.name = name;
-        this.aliases = new ArrayList<String>();
+        this.aliases = aliases;
+        this.handler = handler;
     }
 
     /**
@@ -46,24 +49,6 @@ public class Command {
      */
     public ArrayList<String> getAliases() {
         return this.aliases;
-    }
-
-    /**
-     * Allows you to set the command's aliases.
-     *
-     * @param aliases ~ The command's aliases that will be set.
-     */
-    public void setAliases(final ArrayList<String> aliases) {
-        this.aliases = aliases;
-    }
-
-    /**
-     * Allows you to set the command's handler.
-     *
-     * @param commandHandler ~ The command's handler that will be set.
-     */
-    public void setHandler(final CommandHandler commandHandler) {
-        this.handler = commandHandler;
     }
 
     /**
