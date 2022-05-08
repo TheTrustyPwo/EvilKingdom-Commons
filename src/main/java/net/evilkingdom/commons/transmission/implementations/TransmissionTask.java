@@ -10,6 +10,7 @@ import net.evilkingdom.commons.transmission.TransmissionImplementor;
 import net.evilkingdom.commons.transmission.enums.TransmissionType;
 import net.evilkingdom.commons.transmission.objects.TransmissionSite;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.ByteArrayOutputStream;
@@ -66,7 +67,6 @@ public class TransmissionTask {
         }
         outputStream.writeShort(messageBytes.toByteArray().length);
         outputStream.write(messageBytes.toByteArray());
-        System.out.println("sending data!");
         Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);

@@ -4,6 +4,8 @@ package net.evilkingdom.commons.transmission;
  * Made with love by https://kodirati.com/.
  */
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import net.evilkingdom.commons.scoreboard.implementations.ScoreboardListener;
 import net.evilkingdom.commons.scoreboard.implementations.ScoreboardRunnable;
 import net.evilkingdom.commons.scoreboard.objects.Scoreboard;
@@ -11,11 +13,10 @@ import net.evilkingdom.commons.transmission.enums.TransmissionType;
 import net.evilkingdom.commons.transmission.objects.Transmission;
 import net.evilkingdom.commons.transmission.objects.TransmissionSite;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
@@ -81,6 +82,19 @@ public class TransmissionImplementor {
      */
     public JavaPlugin getPlugin() {
         return this.plugin;
+    }
+
+    /**
+     * Allows you to send a player to a server.
+     *
+     * @param player ~ The player to send.
+     * @param serverName ~ The server's name to send the player to.
+     */
+    public void send(final Player player, final String serverName) {
+        final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
+        outputStream.writeUTF("Connect");
+        outputStream.writeUTF(serverName);
+        player.sendPluginMessage(this.plugin, "BungeeCord", outputStream.toByteArray());
     }
 
     /**
