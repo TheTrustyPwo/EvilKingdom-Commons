@@ -38,27 +38,4 @@ public class MojangUtilities {
         });
     }
 
-    /**
-     * Allows you to retrieve a server's player count.
-     * Uses MCSrvstat's API, website magic, and runs asynchronously in order to keep the server from lagging.
-     *
-     * @param ip ~ The server's ip.
-     * @param port ~ The server's port.
-     * @return If server's player count if the server is online- if it isn't it'll return an empty optional.
-     */
-    public static CompletableFuture<Optional<Integer>> getPlayerCount(final String ip, final int port) {
-        final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://api.mcsrvstat.us/2/" + ip + ":" + port)).GET().build();
-        return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
-            if (httpResponse.body().isEmpty()) {
-                return Optional.empty();
-            }
-            final JsonObject jsonObject = JsonParser.parseString(httpResponse.body()).getAsJsonObject();
-            if (!jsonObject.get("online").getAsBoolean()) {
-                return Optional.empty();
-            }
-            return Optional.of(jsonObject.get("players").getAsJsonObject().get("online").getAsInt());
-        });
-    }
-
 }
