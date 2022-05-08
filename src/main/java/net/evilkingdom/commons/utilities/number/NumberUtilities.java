@@ -13,9 +13,9 @@ import java.util.*;
 public class NumberUtilities {
 
     /**
-     * Allows you to check if a string is an integer.
+     * Allows you to validate if a string is an integer.
      *
-     * @param string ~ The string that needs to be checked.
+     * @param string ~ The string that needs to be validated.
      * @return If checked string is an integer.
      */
     public static boolean isInteger(final String string) {
@@ -28,9 +28,9 @@ public class NumberUtilities {
     }
 
     /**
-     * Allows you to check if a string is a double.
+     * Allows you to validate if a string is a double.
      *
-     * @param string ~ The string that needs to be checked.
+     * @param string ~ The string that needs to be validated.
      * @return If checked string is an double.
      */
     public static boolean isDouble(final String string) {
@@ -43,9 +43,9 @@ public class NumberUtilities {
     }
 
     /**
-     * Allows you to check if a string is a long.
+     * Allows you to validate if a string is a long.
      *
-     * @param string ~ The string that needs to be checked.
+     * @param string ~ The string that needs to be validated.
      * @return If checked string is a long.
      */
     public static boolean isLong(final String string) {
