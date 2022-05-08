@@ -43,24 +43,20 @@ public class TransmissionImplementor {
         Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this.plugin, "BungeeCord", (channel, player, message) -> {
             final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
             String subChannel = null;
-            String messageData = null;
+            String[] messageData = null;
             try {
                 subChannel = inputStream.readUTF();
-                messageData = inputStream.readUTF();
+                messageData = inputStream.readUTF().split("\\|");
             } catch (final IOException ioException) {
                 //Does nothing, just in case! :)
             }
-            System.out.println("chnnl - " + channel);
-            System.out.println("subchnl - " + subChannel);
-            System.out.println("msgdata - " + messageData);
             final String currentSiteName = subChannel.replace("Transmissions-", "");
-            System.out.println("site name - " + currentSiteName);
             final TransmissionSite site = this.sites.stream().filter(transmissionSite -> transmissionSite.getName().equals(currentSiteName)).findFirst().get();
-            final String serverName = messageData.split("\\|")[0];
-            final String siteName = messageData.split("\\|")[1];
-            final TransmissionType type = TransmissionType.valueOf(messageData.split("\\|")[2]);
-            final UUID uuid = UUID.fromString(messageData.split("\\|")[3]);
-            final String data = messageData.split("\\|")[4];
+            final String serverName = messageData[0].substring(1);
+            final String siteName = messageData[1];
+            final TransmissionType type = TransmissionType.valueOf(messageData[2]);
+            final UUID uuid = UUID.fromString(messageData[3]);
+            final String data = messageData[4];
             site.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
         });
         cache.add(this);
