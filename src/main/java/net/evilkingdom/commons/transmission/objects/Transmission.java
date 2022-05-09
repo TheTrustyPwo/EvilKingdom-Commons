@@ -47,9 +47,8 @@ public class Transmission {
     public CompletableFuture<String> send() {
         final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServerName, this.targetSiteName, this.uuid, this.data);
         task.start();
-        Bukkit.getConsoleSender().sendMessage("ok time to send that hoe lol");
         if (this.type == TransmissionType.REQUEST) {
-            final long stopTime = System.currentTimeMillis() + 100L;
+            final long stopTime = System.currentTimeMillis() + 200L;
             return CompletableFuture.supplyAsync(() -> {
                 while (System.currentTimeMillis() < stopTime) {
                     //All this does is pause the thread until the time limit is reached.
