@@ -40,34 +40,6 @@ public class TransmissionImplementor {
         this.plugin = plugin;
 
         this.sites = new HashSet<TransmissionSite>();
-        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this.plugin, "BungeeCord");
-        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this.plugin, "BungeeCord", (channel, player, message) -> {
-            final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
-            String preInternalSiteName = null;
-            String[] preData = null;
-            try {
-                preInternalSiteName = inputStream.readUTF().replace("Transmissions-", "");
-                final short messageBytesLength = inputStream.readShort();
-                final byte[] messageBytes = new byte[messageBytesLength];
-                inputStream.readFully(messageBytes);
-                final DataInputStream messageStream = new DataInputStream(new ByteArrayInputStream(messageBytes));
-                preData = messageStream.readUTF().split("\\|");
-            } catch (final IOException ioException) {
-                //Does nothing, just in case! :)
-            }
-            final long timeSent = Long.parseLong(preData[0]);
-            if ((System.currentTimeMillis() - timeSent) > 250) {
-                return;
-            }
-            final String internalSiteName = preInternalSiteName;
-            final TransmissionSite internalSite = this.sites.stream().filter(site -> site.getName().equals(internalSiteName)).findFirst().get();
-            final String serverName = preData[1];
-            final String siteName = preData[2];
-            final TransmissionType type = TransmissionType.valueOf(preData[3]);
-            final UUID uuid = UUID.fromString(preData[4]);
-            final String data = preData[5];
-            internalSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
-        });
 
         cache.add(this);
     }
@@ -92,15 +64,18 @@ public class TransmissionImplementor {
 
     /**
      * Allows you to send a player to a server.
+     * It'll temporarily register the BungeeCord channel, send the data, then unregister it.
      *
      * @param player ~ The player to send.
      * @param serverName ~ The server's name to send the player to.
      */
     public void send(final Player player, final String serverName) {
+        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this.plugin, "BungeeCord");
         final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
         outputStream.writeUTF("Connect");
         outputStream.writeUTF(serverName);
         player.sendPluginMessage(this.plugin, "BungeeCord", outputStream.toByteArray());
+        Bukkit.getServer().getMessenger().unregisterOutgoingPluginChannel(this.plugin, "BungeeCord");
     }
 
     /**

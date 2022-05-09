@@ -16,7 +16,8 @@ import java.util.concurrent.CompletableFuture;
 public class Transmission {
 
     private final UUID uuid;
-    private final String data, targetSiteName, targetServerName;
+    private final String data;
+    private final TransmissionServer targetServer;
     private final TransmissionType type;
     private final TransmissionSite site;
 
@@ -24,17 +25,15 @@ public class Transmission {
      * Allows you to create a transmission for a plugin.
      *
      * @param site ~ The transmission site of the transmission.
-     * @param targetServerName ~ The target server's name of the transmission.
-     * @param targetSiteName ~ The target site's name of the transmission.
+     * @param targetServer ~ The target server of the transmission.
      * @param type ~ The type of the transmission.
      * @param uuid ~ The uuid of the transmission.
      * @param data ~ The data of the transmission.
      */
-    public Transmission(final TransmissionSite site, final TransmissionType type, final String targetServerName, final String targetSiteName, final UUID uuid, final String data) {
+    public Transmission(final TransmissionSite site, final TransmissionType type, final TransmissionServer targetServer, final UUID uuid, final String data) {
         this.site = site;
         this.type = type;
-        this.targetSiteName = targetSiteName;
-        this.targetServerName = targetServerName;
+        this.targetServer = targetServer;
         this.uuid = uuid;
         this.data = data;
     }
@@ -53,7 +52,7 @@ public class Transmission {
                 return CompletableFuture.supplyAsync(() -> null);
             }
         }
-        final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServerName, this.targetSiteName, this.uuid, this.data);
+        final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServer, this.uuid, this.data);
         task.start();
         if (this.type == TransmissionType.REQUEST) {
             final long startTime = System.currentTimeMillis();
@@ -61,7 +60,8 @@ public class Transmission {
                 while (task.isRunning()) {
                     if ((System.currentTimeMillis() - startTime) > 250) {
                         task.setResponseData("response=request_failed");
-                        task.stop(); //This should break it by itself.
+                        task.delete();
+                        task.stop();
                     }
                 }
                 return task.getResponseData();
@@ -72,21 +72,12 @@ public class Transmission {
     }
 
     /**
-     * Allows you to retrieve the transmission's target site's name.
+     * Allows you to retrieve the transmission's target server.
      *
-     * @return ~ The transmission's target site's name.
+     * @return ~ The transmission's target server.
      */
-    public String getTargetSiteName() {
-        return this.targetSiteName;
-    }
-
-    /**
-     * Allows you to retrieve the transmission's target server's name.
-     *
-     * @return ~ The transmission's target server's name.
-     */
-    public String getTargetServerName() {
-        return this.targetServerName;
+    public TransmissionServer getTargetServer() {
+        return this.targetServer;
     }
 
     /**

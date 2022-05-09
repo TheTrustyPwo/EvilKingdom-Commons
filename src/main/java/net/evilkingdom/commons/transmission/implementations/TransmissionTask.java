@@ -6,16 +6,18 @@ package net.evilkingdom.commons.transmission.implementations;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import net.evilkingdom.commons.transmission.TransmissionImplementor;
 import net.evilkingdom.commons.transmission.enums.TransmissionType;
+import net.evilkingdom.commons.transmission.objects.TransmissionServer;
 import net.evilkingdom.commons.transmission.objects.TransmissionSite;
+import net.evilkingdom.commons.utilities.pterodactyl.PterodactylUtilities;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Optional;
@@ -25,7 +27,8 @@ import java.util.concurrent.CompletableFuture;
 public class TransmissionTask {
 
     private final UUID uuid;
-    private final String data, targetSiteName, targetServerName;
+    private final String data;
+    private final TransmissionServer targetServer;
     private final TransmissionType type;
     private final TransmissionSite site;
     private String responseData;
@@ -35,17 +38,15 @@ public class TransmissionTask {
      * This should not be used inside your plugin whatsoever!
      *
      * @param site ~ The transmission site of the transmission.
-     * @param targetServerName ~ The target server's name of the transmission.
-     * @param targetSiteName ~ The target site's name of the transmission.
+     * @param targetServer ~ The target server of the transmission.
      * @param type ~ The type of the transmission.
      * @param uuid ~ The uuid of the transmission.
      * @param data ~ The data of the transmission.
      */
-    public TransmissionTask(final TransmissionSite site, final TransmissionType type, final String targetServerName, final String targetSiteName, final UUID uuid, final String data) {
+    public TransmissionTask(final TransmissionSite site, final TransmissionType type, final TransmissionServer targetServer, final UUID uuid, final String data) {
         this.site = site;
         this.type = type;
-        this.targetSiteName = targetSiteName;
-        this.targetServerName = targetServerName;
+        this.targetServer = targetServer;
         this.uuid = uuid;
         this.data = data;
     }
@@ -54,23 +55,36 @@ public class TransmissionTask {
      * Allows you to start the task.
      */
     public void start() {
-        final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
-        outputStream.writeUTF("Forward");
-        outputStream.writeUTF(this.targetServerName);
-        outputStream.writeUTF("Transmissions-" + this.targetSiteName);
-        final ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
-        final DataOutputStream messageStream = new DataOutputStream(messageBytes);
+        final JsonObject jsonObject = new JsonObject();
+        if (this.type != TransmissionType.RESPONSE) {
+            jsonObject.addProperty("serverName", this.site.getServerName());
+            jsonObject.addProperty("siteName", this.site.getName());
+        }
+        jsonObject.addProperty("data", this.data);
+        final File file = new File(this.site.getPlugin() + File.separator + "transmissions" + File.separator + this.type.name() + "s", this.uuid.toString());
+        file.delete();
         try {
-            messageStream.writeUTF(System.currentTimeMillis() + "|" + this.site.getServerName() + "|" + this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
+            file.createNewFile();
+            final FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write(new Gson().toJson(jsonObject));
+            fileWriter.flush();
+            fileWriter.close();
         } catch (final IOException ioException) {
             //Does nothing, just in case! :)
         }
-        outputStream.writeShort(messageBytes.toByteArray().length);
-        outputStream.write(messageBytes.toByteArray());
-        Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
+        PterodactylUtilities.uploadFile(this.site.getToken(), this.targetServer.getId(), file.toPath());
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);
         }
+    }
+
+    /**
+     * Allows you to delete the request.
+     * This should only be used in external means.
+     */
+    public void delete() {
+        final File file = new File(this.site.getPlugin() + File.separator + "transmissions" + File.separator + this.type.name() + "s", this.uuid.toString());
+        PterodactylUtilities.deleteFile(this.site.getToken(), this.targetServer.getId(), file.toPath());
     }
 
     /**
@@ -110,21 +124,12 @@ public class TransmissionTask {
     }
 
     /**
-     * Allows you to retrieve the task's target server name.
+     * Allows you to retrieve the task's target server.
      *
-     * @return ~ The task's target server name.
+     * @return ~ The task's target server.
      */
-    public String getTargetServerName() {
-        return this.targetServerName;
-    }
-
-    /**
-     * Allows you to retrieve the task's target site name.
-     *
-     * @return ~ The task's target site name.
-     */
-    public String getTargetSiteName() {
-        return this.targetSiteName;
+    public TransmissionServer getTargetServer() {
+        return this.targetServer;
     }
 
     /**
