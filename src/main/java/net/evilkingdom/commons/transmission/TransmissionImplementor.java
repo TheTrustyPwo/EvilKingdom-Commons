@@ -6,6 +6,7 @@ package net.evilkingdom.commons.transmission;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import net.evilkingdom.commons.Commons;
 import net.evilkingdom.commons.scoreboard.implementations.ScoreboardListener;
 import net.evilkingdom.commons.scoreboard.implementations.ScoreboardRunnable;
 import net.evilkingdom.commons.scoreboard.objects.Scoreboard;
@@ -94,12 +95,17 @@ public class TransmissionImplementor {
      *
      * @param player ~ The player to send.
      * @param serverName ~ The server's name to send the player to.
+     * @param urgent ~ If the send is urgent (possibly if the plugin sending is disabling)
      */
-    public void send(final Player player, final String serverName) {
+    public void send(final Player player, final String serverName, final boolean urgent) {
         final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
         outputStream.writeUTF("Connect");
         outputStream.writeUTF(serverName);
-        player.sendPluginMessage(this.plugin, "BungeeCord", outputStream.toByteArray());
+        if (urgent) {
+            player.sendPluginMessage(Commons.getPlugin(), "BungeeCord", outputStream.toByteArray());
+        } else {
+            player.sendPluginMessage(this.plugin, "BungeeCord", outputStream.toByteArray());
+        }
     }
 
     /**
