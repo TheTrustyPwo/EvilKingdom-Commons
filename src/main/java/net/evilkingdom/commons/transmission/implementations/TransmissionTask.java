@@ -55,20 +55,22 @@ public class TransmissionTask {
      * Allows you to start the task.
      */
     public void start() {
-        final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
-        outputStream.writeUTF("Forward");
-        outputStream.writeUTF(this.targetServerName);
-        outputStream.writeUTF("Transmissions-" + this.targetSiteName);
-        outputStream.writeUTF(this.site.getServerName());
-        outputStream.writeUTF(this.site.getName());
-        outputStream.writeUTF(this.type.name());
-        outputStream.writeUTF(this.uuid.toString());
-        outputStream.writeUTF(this.data);
-        Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
-        if (this.type == TransmissionType.REQUEST) {
-            this.startedTime = System.currentTimeMillis();
-            this.site.getTasks().add(this);
-        }
+        Bukkit.getScheduler().runTaskAsynchronously(this.site.getPlugin(), () -> {
+            final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
+            outputStream.writeUTF("Forward");
+            outputStream.writeUTF(this.targetServerName);
+            outputStream.writeUTF("Transmissions-" + this.targetSiteName);
+            outputStream.writeUTF(this.site.getServerName());
+            outputStream.writeUTF(this.site.getName());
+            outputStream.writeUTF(this.type.name());
+            outputStream.writeUTF(this.uuid.toString());
+            outputStream.writeUTF(this.data);
+            Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
+            if (this.type == TransmissionType.REQUEST) {
+                this.startedTime = System.currentTimeMillis();
+                this.site.getTasks().add(this);
+            }
+        });
     }
 
     /**

@@ -41,26 +41,28 @@ public class TransmissionImplementor {
         this.sites = new HashSet<TransmissionSite>();
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this.plugin, "BungeeCord");
         Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this.plugin, "BungeeCord", (channel, player, message) -> {
-            final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
-            String currentSiteName = null;
-            String serverName = null;
-            String siteName = null;
-            TransmissionType type = null;
-            UUID uuid = null;
-            String data = null;
-            try {
-                currentSiteName = inputStream.readUTF().replace("Transmissions-", "");
-                serverName = inputStream.readUTF();
-                siteName = inputStream.readUTF();
-                type = TransmissionType.valueOf(inputStream.readUTF());
-                uuid = UUID.fromString(inputStream.readUTF());
-                data = inputStream.readUTF();
-            } catch (final IOException ioException) {
-                //Does nothing, just in case! :)
-            }
-            final String finalCurrentSiteName = currentSiteName;
-            final TransmissionSite currentSite = this.sites.stream().filter(site -> site.getName().equals(finalCurrentSiteName)).findFirst().get();
-            currentSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
+            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+                final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
+                String currentSiteName = null;
+                String serverName = null;
+                String siteName = null;
+                TransmissionType type = null;
+                UUID uuid = null;
+                String data = null;
+                try {
+                    currentSiteName = inputStream.readUTF().replace("Transmissions-", "");
+                    serverName = inputStream.readUTF();
+                    siteName = inputStream.readUTF();
+                    type = TransmissionType.valueOf(inputStream.readUTF());
+                    uuid = UUID.fromString(inputStream.readUTF());
+                    data = inputStream.readUTF();
+                } catch (final IOException ioException) {
+                    //Does nothing, just in case! :)
+                }
+                final String finalCurrentSiteName = currentSiteName;
+                final TransmissionSite currentSite = this.sites.stream().filter(site -> site.getName().equals(finalCurrentSiteName)).findFirst().get();
+                currentSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
+            });
         });
 
         cache.add(this);
