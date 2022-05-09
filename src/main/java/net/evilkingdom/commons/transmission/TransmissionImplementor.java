@@ -42,22 +42,25 @@ public class TransmissionImplementor {
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this.plugin, "BungeeCord");
         Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this.plugin, "BungeeCord", (channel, player, message) -> {
             final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
-            String subChannel = null;
-            String[] messageData = null;
+            String currentSiteName = null;
+            String serverName = null;
+            String siteName = null;
+            TransmissionType type = null;
+            UUID uuid = null;
+            String data = null;
             try {
-                subChannel = inputStream.readUTF();
-                messageData = inputStream.readUTF().split("\\|");
+                currentSiteName = inputStream.readUTF().replace("Transmissions-", "");
+                serverName = inputStream.readUTF();
+                siteName = inputStream.readUTF();
+                type = TransmissionType.valueOf(inputStream.readUTF());
+                uuid = UUID.fromString(inputStream.readUTF());
+                data = inputStream.readUTF();
             } catch (final IOException ioException) {
                 //Does nothing, just in case! :)
             }
-            final String currentSiteName = subChannel.replace("Transmissions-", "");
-            final TransmissionSite site = this.sites.stream().filter(transmissionSite -> transmissionSite.getName().equals(currentSiteName)).findFirst().get();
-            final String serverName = messageData[0].substring(1);
-            final String siteName = messageData[1];
-            final TransmissionType type = TransmissionType.valueOf(messageData[2]);
-            final UUID uuid = UUID.fromString(messageData[3]);
-            final String data = messageData[4];
-            site.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
+            final String finalCurrentSiteName = currentSiteName;
+            final TransmissionSite currentSite = this.sites.stream().filter(transmissionSite -> transmissionSite.getName().equals(finalCurrentSiteName)).findFirst().get();
+            currentSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
         });
         cache.add(this);
     }

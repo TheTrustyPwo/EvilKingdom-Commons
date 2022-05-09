@@ -58,15 +58,11 @@ public class TransmissionTask {
         outputStream.writeUTF("Forward");
         outputStream.writeUTF(this.targetServerName);
         outputStream.writeUTF("Transmissions-" + this.targetSiteName);
-        final ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
-        final DataOutputStream messageOut = new DataOutputStream(messageBytes);
-        try {
-            messageOut.writeUTF(this.site.getServerName() + "|" + this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
-        } catch (final IOException ioException) {
-            //Does nothing, just in case :)
-        }
-        outputStream.writeShort(messageBytes.toByteArray().length);
-        outputStream.write(messageBytes.toByteArray());
+        outputStream.writeUTF(this.site.getServerName());
+        outputStream.writeUTF(this.site.getName());
+        outputStream.writeUTF(this.type.name());
+        outputStream.writeUTF(this.uuid.toString());
+        outputStream.writeUTF(this.data);
         Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);
