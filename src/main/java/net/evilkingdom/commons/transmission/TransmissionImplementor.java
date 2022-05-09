@@ -41,7 +41,6 @@ public class TransmissionImplementor {
         this.sites = new HashSet<TransmissionSite>();
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this.plugin, "BungeeCord");
         Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this.plugin, "BungeeCord", (channel, player, message) -> {
-            Bukkit.getConsoleSender().sendMessage("received cord message");
             final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
             String preInternalSiteName = null;
             String[] preData = null;
@@ -55,13 +54,20 @@ public class TransmissionImplementor {
             } catch (final IOException ioException) {
                 //Does nothing, just in case! :)
             }
+            final long shouldBeReceivedBy = Long.parseLong(preData[0]);
+            if (shouldBeReceivedBy > System.currentTimeMillis()) {
+                Bukkit.getConsoleSender().sendMessage("too long ago lol");
+                return;
+            }
             final String internalSiteName = preInternalSiteName;
+            Bukkit.getConsoleSender().sendMessage("internal site (not actual) name - " + internalSiteName);
             final TransmissionSite internalSite = this.sites.stream().filter(site -> site.getName().equals(internalSiteName)).findFirst().get();
-            final String serverName = preData[0];
-            final String siteName = preData[1];
-            final TransmissionType type = TransmissionType.valueOf(preData[2]);
-            final UUID uuid = UUID.fromString(preData[3]);
-            final String data = preData[4];
+            Bukkit.getConsoleSender().sendMessage("internal site name - " + internalSite.getName());
+            final String serverName = preData[1];
+            final String siteName = preData[2];
+            final TransmissionType type = TransmissionType.valueOf(preData[3]);
+            final UUID uuid = UUID.fromString(preData[4]);
+            final String data = preData[5];
             internalSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
         });
 
