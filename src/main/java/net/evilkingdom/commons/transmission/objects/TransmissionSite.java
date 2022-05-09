@@ -22,10 +22,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketOption;
-import java.util.HashSet;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class TransmissionSite {
@@ -110,15 +107,17 @@ public class TransmissionSite {
      * Allows you to register the transmission site.
      */
     public void register() {
-        TransmissionImplementor transmissionImplementor = TransmissionImplementor.get(this.plugin);
-        transmissionImplementor.getSites().add(this);
+        TransmissionImplementor implementor = TransmissionImplementor.get(this.plugin);
+        implementor.getSites().add(this);
         this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
-            this.tasks.forEach(task -> {
+            for (final Iterator<TransmissionTask> taskIterator = this.tasks.iterator(); taskIterator.hasNext();) {
+                final TransmissionTask task = taskIterator.next();
                 if (task.getStartedTime() < (System.currentTimeMillis() + 100L)) {
                     return;
                 }
                 task.setResponseData("response=request_failed");
-            });
+                taskIterator.remove();
+            }
         }, 0L, 1L);
     }
 
@@ -150,6 +149,7 @@ public class TransmissionSite {
     public void unregister() {
         TransmissionImplementor transmissionImplementor = TransmissionImplementor.get(this.plugin);
         transmissionImplementor.getSites().remove(this);
+        this.task.cancel();
     }
 
 }

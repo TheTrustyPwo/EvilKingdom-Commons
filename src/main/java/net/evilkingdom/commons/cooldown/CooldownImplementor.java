@@ -61,8 +61,8 @@ public class CooldownImplementor {
      * @return The self class.
      */
     public static CooldownImplementor get(final JavaPlugin plugin) {
-        final Optional<CooldownImplementor> optionalCooldownImplementor = cache.stream().filter(cooldownImplementor -> cooldownImplementor.getPlugin() == plugin).findFirst();
-        return optionalCooldownImplementor.orElseGet(() -> new CooldownImplementor(plugin));
+        final Optional<CooldownImplementor> optionalImplementor = cache.stream().filter(implementor -> implementor.getPlugin() == plugin).findFirst();
+        return optionalImplementor.orElseGet(() -> new CooldownImplementor(plugin));
     }
 
 }

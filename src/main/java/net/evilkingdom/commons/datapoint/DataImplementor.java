@@ -58,8 +58,8 @@ public class DataImplementor {
      * @return The self class.
      */
     public static DataImplementor get(final JavaPlugin plugin) {
-        final Optional<DataImplementor> optionalDataImplementor = cache.stream().filter(dataImplementor -> dataImplementor.getPlugin() == plugin).findFirst();
-        return optionalDataImplementor.orElseGet(() -> new DataImplementor(plugin));
+        final Optional<DataImplementor> optionalImplementor = cache.stream().filter(implementor -> implementor.getPlugin() == plugin).findFirst();
+        return optionalImplementor.orElseGet(() -> new DataImplementor(plugin));
     }
 
 }

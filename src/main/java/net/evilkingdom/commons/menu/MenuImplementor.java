@@ -71,8 +71,8 @@ public class MenuImplementor {
      * @return The self class.
      */
     public static MenuImplementor get(final JavaPlugin plugin) {
-        final Optional<MenuImplementor> optionalMenuImplementor = cache.stream().filter(menuImplementor -> menuImplementor.getPlugin() == plugin).findFirst();
-        return optionalMenuImplementor.orElseGet(() -> new MenuImplementor(plugin));
+        final Optional<MenuImplementor> optionalImplementor = cache.stream().filter(implementor -> implementor.getPlugin() == plugin).findFirst();
+        return optionalImplementor.orElseGet(() -> new MenuImplementor(plugin));
     }
 
 }

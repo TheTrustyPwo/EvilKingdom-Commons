@@ -64,8 +64,8 @@ public class ScoreboardImplementor {
      * @return The self class.
      */
     public static ScoreboardImplementor get(final JavaPlugin plugin) {
-        final Optional<ScoreboardImplementor> optionalScoreboardImplementor = cache.stream().filter(scoreboardImplementor -> scoreboardImplementor.getPlugin() == plugin).findFirst();
-        return optionalScoreboardImplementor.orElseGet(() -> new ScoreboardImplementor(plugin));
+        final Optional<ScoreboardImplementor> optionalImplementor = cache.stream().filter(implementor -> implementor.getPlugin() == plugin).findFirst();
+        return optionalImplementor.orElseGet(() -> new ScoreboardImplementor(plugin));
     }
 
 }

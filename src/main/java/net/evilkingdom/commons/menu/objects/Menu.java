@@ -175,11 +175,11 @@ public class Menu {
                 inventory.setItem(i, new ItemStack(Material.AIR));
             }
         }
-        final MenuImplementor menuImplementor = MenuImplementor.get(this.plugin);
-        final Optional<Menu> previousMenu = menuImplementor.getMenus().stream().filter(menu -> menu.getPlayer() == this.player).findFirst();
-        previousMenu.ifPresent(menu -> menuImplementor.getMenus().remove(menu));
+        final MenuImplementor implementor = MenuImplementor.get(this.plugin);
+        final Optional<Menu> previousMenu = implementor.getMenus().stream().filter(menu -> menu.getPlayer() == this.player).findFirst();
+        previousMenu.ifPresent(menu -> implementor.getMenus().remove(menu));
         this.player.openInventory(inventory);
-        menuImplementor.getMenus().add(this);
+        implementor.getMenus().add(this);
     }
 
     /**
@@ -208,8 +208,8 @@ public class Menu {
         }
         this.player.closeInventory();
         this.inventory = Optional.empty();
-        final MenuImplementor menuImplementor = MenuImplementor.get(this.plugin);
-        menuImplementor.getMenus().remove(this);
+        final MenuImplementor implementor = MenuImplementor.get(this.plugin);
+        implementor.getMenus().remove(this);
     }
 
 }

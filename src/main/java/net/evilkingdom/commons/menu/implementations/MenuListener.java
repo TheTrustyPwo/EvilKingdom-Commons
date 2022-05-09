@@ -42,8 +42,8 @@ public class MenuListener implements Listener {
             return;
         }
         final Player player = (Player) inventoryClickEvent.getWhoClicked();
-        final MenuImplementor menuImplementor = MenuImplementor.get(this.plugin);
-        final Optional<Menu> optionalMenu = menuImplementor.getMenus().stream().filter(menu -> menu.getPlayer() == player).findFirst();
+        final MenuImplementor implementor = MenuImplementor.get(this.plugin);
+        final Optional<Menu> optionalMenu = implementor.getMenus().stream().filter(menu -> menu.getPlayer() == player).findFirst();
         if (optionalMenu.isEmpty()) {
             return;
         }
@@ -61,8 +61,8 @@ public class MenuListener implements Listener {
     @EventHandler
     public void onInventoryClose(final InventoryCloseEvent inventoryCloseEvent) {
         final Player player = (Player) inventoryCloseEvent.getPlayer();
-        final MenuImplementor menuImplementor = MenuImplementor.get(this.plugin);
-        final Optional<Menu> optionalMenu = menuImplementor.getMenus().stream().filter(menu -> menu.getPlayer() == player).findFirst();
+        final MenuImplementor implementor = MenuImplementor.get(this.plugin);
+        final Optional<Menu> optionalMenu = implementor.getMenus().stream().filter(menu -> menu.getPlayer() == player).findFirst();
         if (optionalMenu.isPresent()) {
             final Menu menu = optionalMenu.get();
             menu.close();

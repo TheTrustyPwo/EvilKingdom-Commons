@@ -4,9 +4,11 @@ package net.evilkingdom.commons.border.objects;
  * Made with love by https://kodirati.com/.
  */
 
+import net.evilkingdom.commons.border.BorderImplementor;
 import net.evilkingdom.commons.border.enums.BorderColor;
 import net.evilkingdom.commons.menu.MenuImplementor;
 import net.evilkingdom.commons.menu.objects.MenuItem;
+import net.evilkingdom.commons.scoreboard.ScoreboardImplementor;
 import net.kyori.adventure.text.Component;
 import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
 import net.minecraft.world.level.border.WorldBorder;
@@ -143,6 +145,8 @@ public class Border {
         }
         this.currentBorder = Optional.of(border);
         ((CraftPlayer) this.player).getHandle().connection.send(new ClientboundInitializeBorderPacket(border));
+        final BorderImplementor implementor = BorderImplementor.get(this.plugin);
+        implementor.getBorders().add(this);
     }
 
     /**
@@ -179,6 +183,8 @@ public class Border {
         border.setSize(this.player.getWorld().getWorldBorder().getSize());
         this.currentBorder = Optional.empty();
         ((CraftPlayer) this.player).getHandle().connection.send(new ClientboundInitializeBorderPacket(border));
+        final BorderImplementor implementor = BorderImplementor.get(this.plugin);
+        implementor.getBorders().remove(this);
     }
 
 }

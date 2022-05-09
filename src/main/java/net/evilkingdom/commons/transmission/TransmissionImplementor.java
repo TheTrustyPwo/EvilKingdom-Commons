@@ -59,9 +59,10 @@ public class TransmissionImplementor {
                 //Does nothing, just in case! :)
             }
             final String finalCurrentSiteName = currentSiteName;
-            final TransmissionSite currentSite = this.sites.stream().filter(transmissionSite -> transmissionSite.getName().equals(finalCurrentSiteName)).findFirst().get();
+            final TransmissionSite currentSite = this.sites.stream().filter(site -> site.getName().equals(finalCurrentSiteName)).findFirst().get();
             currentSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
         });
+
         cache.add(this);
     }
 
@@ -104,8 +105,8 @@ public class TransmissionImplementor {
      * @return The self class.
      */
     public static TransmissionImplementor get(final JavaPlugin plugin) {
-        final Optional<TransmissionImplementor> optionalTransmissionImplementor = cache.stream().filter(transmissionImplementor -> transmissionImplementor.getPlugin() == plugin).findFirst();
-        return optionalTransmissionImplementor.orElseGet(() -> new TransmissionImplementor(plugin));
+        final Optional<TransmissionImplementor> optionalImplementor = cache.stream().filter(implementor -> implementor.getPlugin() == plugin).findFirst();
+        return optionalImplementor.orElseGet(() -> new TransmissionImplementor(plugin));
     }
 
 }

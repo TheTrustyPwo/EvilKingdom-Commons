@@ -75,8 +75,8 @@ public class Datasite {
      * @throws Exception ~ If anything fails.
      */
     public void initialize() throws Exception {
-        final DataImplementor dataImplementor = DataImplementor.get(this.plugin);
-        dataImplementor.getSites().add(this);
+        final DataImplementor implementor = DataImplementor.get(this.plugin);
+        implementor.getSites().add(this);
         switch (this.type) {
             case MONGO_DATABASE -> {
                 this.mongoClient = MongoClients.create(parameters[0]);

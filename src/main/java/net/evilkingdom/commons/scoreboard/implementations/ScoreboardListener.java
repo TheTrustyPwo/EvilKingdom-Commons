@@ -43,7 +43,8 @@ public class ScoreboardListener implements Listener {
     @EventHandler
     public void onPlayerQuit(final PlayerQuitEvent playerQuitEvent) {
         final Player player = playerQuitEvent.getPlayer();
-        final Optional<Scoreboard> optionalScoreboard = ScoreboardImplementor.get(this.plugin).getScoreboards().stream().filter(implementedScoreboard -> implementedScoreboard.getPlayer() == player).findFirst();
+        final ScoreboardImplementor implementor = ScoreboardImplementor.get(this.plugin);
+        final Optional<Scoreboard> optionalScoreboard = implementor.getScoreboards().stream().filter(implementedScoreboard -> implementedScoreboard.getPlayer() == player).findFirst();
         if (optionalScoreboard.isPresent()) {
             final Scoreboard scoreboard = optionalScoreboard.get();
             scoreboard.hide();

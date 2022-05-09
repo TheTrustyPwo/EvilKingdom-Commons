@@ -44,16 +44,16 @@ public class Cooldown {
      * Allows you to start the cooldown.
      */
     public void start() {
-        final CooldownImplementor cooldownImplementor = CooldownImplementor.get(this.plugin);
-        cooldownImplementor.getCooldowns().add(this);
+        final CooldownImplementor implementor = CooldownImplementor.get(this.plugin);
+        implementor.getCooldowns().add(this);
     }
 
     /**
      * Allows you to stop the cooldown.
      */
     public void stop() {
-        final CooldownImplementor cooldownImplementor = CooldownImplementor.get(this.plugin);
-        cooldownImplementor.getCooldowns().remove(this);
+        final CooldownImplementor implementor = CooldownImplementor.get(this.plugin);
+        implementor.getCooldowns().remove(this);
     }
 
     /**

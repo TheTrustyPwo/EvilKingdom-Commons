@@ -159,8 +159,8 @@ public class Scoreboard {
         this.currentLines = this.lines;
         this.objective = Optional.of(objective);
         packets.forEach(packet -> ((CraftPlayer) this.player).getHandle().connection.send(packet));
-        final ScoreboardImplementor scoreboardImplementor = ScoreboardImplementor.get(this.plugin);
-        scoreboardImplementor.getScoreboards().add(this);
+        final ScoreboardImplementor implementor = ScoreboardImplementor.get(this.plugin);
+        implementor.getScoreboards().add(this);
     }
 
     /**
@@ -208,8 +208,8 @@ public class Scoreboard {
         ((CraftPlayer) this.player).getHandle().connection.send(clientboundSetObjectivePacket);
         this.objective = Optional.empty();
         this.currentLines.clear();
-        final ScoreboardImplementor scoreboardImplementor = ScoreboardImplementor.get(this.plugin);
-        scoreboardImplementor.getScoreboards().remove(this);
+        final ScoreboardImplementor implementor = ScoreboardImplementor.get(this.plugin);
+        implementor.getScoreboards().remove(this);
     }
 
 }

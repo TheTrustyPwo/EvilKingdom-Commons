@@ -57,15 +57,15 @@ public class BorderImplementor {
     }
 
     /**
-     * Allows you to retrieve the CommandImplementor for a plugin.
+     * Allows you to retrieve the BorderImplementor for a plugin.
      * It will either pull it out of the cache or look for one if it doesn't exist.
      *
-     * @param plugin ~ The plugin the CommandImplementor is for.
+     * @param plugin ~ The plugin the BorderImplementor is for.
      * @return The self class.
      */
     public static BorderImplementor get(final JavaPlugin plugin) {
-        final Optional<BorderImplementor> optionalBorderImplementor = cache.stream().filter(borderImplementor -> borderImplementor.getPlugin() == plugin).findFirst();
-        return optionalBorderImplementor.orElseGet(() -> new BorderImplementor(plugin));
+        final Optional<BorderImplementor> optionalImplementor = cache.stream().filter(implementor -> implementor.getPlugin() == plugin).findFirst();
+        return optionalImplementor.orElseGet(() -> new BorderImplementor(plugin));
     }
 
 }

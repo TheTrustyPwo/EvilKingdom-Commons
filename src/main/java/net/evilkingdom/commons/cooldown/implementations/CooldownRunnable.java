@@ -33,11 +33,11 @@ public class CooldownRunnable implements Runnable {
      */
     @Override
     public void run() {
-        final CooldownImplementor cooldownImplementor = CooldownImplementor.get(this.plugin);
-        for (final Iterator<Cooldown> cooldownIterator = cooldownImplementor.getCooldowns().iterator(); cooldownIterator.hasNext();) {
-            final Cooldown cooldown = cooldownIterator.next();
+        final CooldownImplementor implementor = CooldownImplementor.get(this.plugin);
+        for (final Iterator<Cooldown> iterator = implementor.getCooldowns().iterator(); iterator.hasNext();) {
+            final Cooldown cooldown = iterator.next();
             if (cooldown.getTimeLeft() <= 0) {
-                cooldownIterator.remove();
+                iterator.remove();
             }
             cooldown.setTimeLeft(cooldown.getTimeLeft() - 1L);
         }

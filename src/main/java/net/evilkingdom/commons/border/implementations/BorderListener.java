@@ -46,10 +46,11 @@ public class BorderListener implements Listener {
     @EventHandler
     public void onPlayerWorldChange(final PlayerChangedWorldEvent playerChangedWorldEvent) {
         final Player player = playerChangedWorldEvent.getPlayer();
-        final Optional<Border> optionalBorder = BorderImplementor.get(this.plugin).getBorders().stream().filter(implementedBorder -> implementedBorder.getPlayer() == player).findFirst();
+        final BorderImplementor implementor = BorderImplementor.get(this.plugin);
+        final Optional<Border> optionalBorder = implementor.getBorders().stream().filter(border -> border.getPlayer() == player).findFirst();
         if (optionalBorder.isPresent()) {
             final Border border = optionalBorder.get();
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> border.hide(), 5L);
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> border.hide(), 2L);
         }
     }
 
@@ -59,10 +60,11 @@ public class BorderListener implements Listener {
     @EventHandler
     public void onPlayerTeleport(final PlayerTeleportEvent playerTeleportEvent) {
         final Player player = playerTeleportEvent.getPlayer();
-        final Optional<Border> optionalBorder = BorderImplementor.get(this.plugin).getBorders().stream().filter(implementedBorder -> implementedBorder.getPlayer() == player).findFirst();
+        final BorderImplementor implementor = BorderImplementor.get(this.plugin);
+        final Optional<Border> optionalBorder = implementor.getBorders().stream().filter(border -> border.getPlayer() == player).findFirst();
         if (optionalBorder.isPresent()) {
             final Border border = optionalBorder.get();
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> border.hide(), 5L);
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> border.hide(), 2L);
         }
     }
 
@@ -72,7 +74,8 @@ public class BorderListener implements Listener {
     @EventHandler
     public void onPlayerQuit(final PlayerQuitEvent playerQuitEvent) {
         final Player player = playerQuitEvent.getPlayer();
-        final Optional<Border> optionalBorder = BorderImplementor.get(this.plugin).getBorders().stream().filter(implementedBorder -> implementedBorder.getPlayer() == player).findFirst();
+        final BorderImplementor implementor = BorderImplementor.get(this.plugin);
+        final Optional<Border> optionalBorder = implementor.getBorders().stream().filter(border -> border.getPlayer() == player).findFirst();
         if (optionalBorder.isPresent()) {
             final Border border = optionalBorder.get();
             border.hide();

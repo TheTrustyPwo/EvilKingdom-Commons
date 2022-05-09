@@ -76,8 +76,8 @@ public class CommandImplementor {
      * @return The self class.
      */
     public static CommandImplementor get(final JavaPlugin plugin) {
-        final Optional<CommandImplementor> optionalCommandImplementor = cache.stream().filter(commandImplementor -> commandImplementor.getPlugin() == plugin).findFirst();
-        return optionalCommandImplementor.orElseGet(() -> new CommandImplementor(plugin));
+        final Optional<CommandImplementor> optionalImplementor = cache.stream().filter(implementor -> implementor.getPlugin() == plugin).findFirst();
+        return optionalImplementor.orElseGet(() -> new CommandImplementor(plugin));
     }
 
 }

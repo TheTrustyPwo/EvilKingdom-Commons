@@ -17,7 +17,7 @@ public class MenuItem {
     /**
      * Allows you to create an item for a menu.
      *
-     * @param itemStack ~ The item showcased.
+     * @param itemStack ~ The showcased item.
      * @param clickAction ~ The action preformed upon interacting with the item.
      */
     public MenuItem(final ItemStack itemStack, final Consumer<InventoryClickEvent> clickAction) {

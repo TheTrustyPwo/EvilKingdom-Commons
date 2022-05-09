@@ -64,8 +64,8 @@ public class Command {
      * Allows you to register the command.
      */
     public void register() {
-        final CommandImplementor commandImplementor = CommandImplementor.get(this.plugin);
-        commandImplementor.register(this);
+        final CommandImplementor implementor = CommandImplementor.get(this.plugin);
+        implementor.register(this);
     }
 
 }

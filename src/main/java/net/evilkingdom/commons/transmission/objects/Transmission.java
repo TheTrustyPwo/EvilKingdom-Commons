@@ -42,17 +42,19 @@ public class Transmission {
     /**
      * Allows you to send the transmission.
      *
-     * @return ~ The data of the response (if there will be one, if not it'll just be null).
+     * @return ~ The data of the response- if it fails it'll just respond "response=request_failed" (if there will be one, if not it'll just be null).
      */
     public CompletableFuture<String> send() {
         final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServerName, this.targetSiteName, this.uuid, this.data);
         task.start();
+        System.out.println("sent transmission ma boy");
         if (this.type == TransmissionType.REQUEST) {
             return CompletableFuture.supplyAsync(() -> {
                 while (task.isRunning()) {
                     //Does nothing, just to halt the response until the task is done running.
                     //It will also detect if the response is taking too long and just respond that the request failed.
                 }
+                System.out.println("received a response ma boy");
                 return task.getResponseData();
             });
         } else {
