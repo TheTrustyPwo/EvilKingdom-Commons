@@ -121,14 +121,11 @@ public class TransmissionSite {
      * @param data ~ The data of the transmission.
      */
     public void handleBungeeCordMessage(final String serverName, final String siteName, final TransmissionType type, final UUID uuid, final String data) {
-        Bukkit.getConsoleSender().sendMessage("inner handling cord message");
         if (type == TransmissionType.RESPONSE) {
-            Bukkit.getConsoleSender().sendMessage("holy shit it's a response??");
             final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getTargetServerName().equals(serverName) && transmissionTask.getTargetSiteName().equals(siteName) && transmissionTask.getUUID() == uuid).findFirst().get();
             task.setResponseData(data);
             task.stop();
         } else {
-            Bukkit.getConsoleSender().sendMessage("lol ok handler do ur thing");
             this.handler.onReceive(serverName, siteName, type, uuid, data);
         }
     }

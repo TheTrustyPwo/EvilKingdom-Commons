@@ -62,11 +62,6 @@ public class TransmissionImplementor {
             final TransmissionType type = TransmissionType.valueOf(preData[2]);
             final UUID uuid = UUID.fromString(preData[3]);
             final String data = preData[4];
-            Bukkit.getConsoleSender().sendMessage("received server name - " + serverName);
-            Bukkit.getConsoleSender().sendMessage("received site name - " + siteName);
-            Bukkit.getConsoleSender().sendMessage("received type - " + type.name());
-            Bukkit.getConsoleSender().sendMessage("received uuid - " + uuid);
-            Bukkit.getConsoleSender().sendMessage("received data - " + data);
             internalSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
         });
 
