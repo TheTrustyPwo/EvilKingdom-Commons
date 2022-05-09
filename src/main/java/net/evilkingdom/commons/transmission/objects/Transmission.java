@@ -56,14 +56,15 @@ public class Transmission {
         final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServerName, this.targetSiteName, this.uuid, this.data);
         task.start();
         if (this.type == TransmissionType.REQUEST) {
-            final long stopTime = System.currentTimeMillis() + 250L;
+            final long startTime = System.currentTimeMillis();
             return CompletableFuture.supplyAsync(() -> {
                 while (task.isRunning()) {
-                    if (stopTime > System.currentTimeMillis()) {
+                    if ((System.currentTimeMillis() - startTime) > 250) {
                         task.setResponseData("response=request_failed");
-                        break;
+                        task.stop(); //This should break it by itself.
                     }
                 }
+                Bukkit.getConsoleSender().sendMessage("response data - " + task.getResponseData());
                 return task.getResponseData();
             });
         } else {
