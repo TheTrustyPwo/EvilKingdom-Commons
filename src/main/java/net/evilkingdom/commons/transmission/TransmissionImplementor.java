@@ -42,32 +42,32 @@ public class TransmissionImplementor {
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this.plugin, "BungeeCord");
         Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this.plugin, "BungeeCord", (channel, player, message) -> {
             Bukkit.getConsoleSender().sendMessage("received cord message");
-            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-                final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
-                String preInternalSiteName = null;
-                String[] preData = null;
-                try {
-                    preInternalSiteName = inputStream.readUTF().replace("Transmissions-", "");
-                    preData = inputStream.readUTF().split("\\|");
-                } catch (final IOException ioException) {
-                    //Does nothing, just in case! :)
-                }
-                final String internalSiteName = preInternalSiteName;
-                final TransmissionSite internalSite = this.sites.stream().filter(site -> site.getName().equals(internalSiteName)).findFirst().get();
-                final String serverName = preData[0];
-                final String siteName = preData[1];
-                final TransmissionType type = TransmissionType.valueOf(preData[2]);
-                final UUID uuid = UUID.fromString(preData[3]);
-                final String data = preData[4];
-                System.out.println("received server name - " + serverName);
-                System.out.println("received site name - " + siteName);
-                System.out.println("received type - " + type.name());
-                System.out.println("received uuid - " + uuid);
-                System.out.println("received data - " + data);
-                Bukkit.getScheduler().runTask(this.plugin, () -> {
-                    internalSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
-                });
-            });
+            final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
+            String preInternalSiteName = null;
+            String[] preData = null;
+            try {
+                preInternalSiteName = inputStream.readUTF().replace("Transmissions-", "");
+                final short messageBytesLength = inputStream.readShort();
+                final byte[] messageBytes = new byte[messageBytesLength];
+                inputStream.readFully(messageBytes);
+                final DataInputStream messageStream = new DataInputStream(new ByteArrayInputStream(messageBytes));
+                preData = messageStream.readUTF().split("\\|");
+            } catch (final IOException ioException) {
+                //Does nothing, just in case! :)
+            }
+            final String internalSiteName = preInternalSiteName;
+            final TransmissionSite internalSite = this.sites.stream().filter(site -> site.getName().equals(internalSiteName)).findFirst().get();
+            final String serverName = preData[0];
+            final String siteName = preData[1];
+            final TransmissionType type = TransmissionType.valueOf(preData[2]);
+            final UUID uuid = UUID.fromString(preData[3]);
+            final String data = preData[4];
+            Bukkit.getConsoleSender().sendMessage("received server name - " + serverName);
+            Bukkit.getConsoleSender().sendMessage("received site name - " + siteName);
+            Bukkit.getConsoleSender().sendMessage("received type - " + type.name());
+            Bukkit.getConsoleSender().sendMessage("received uuid - " + uuid);
+            Bukkit.getConsoleSender().sendMessage("received data - " + data);
+            internalSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
         });
 
         cache.add(this);

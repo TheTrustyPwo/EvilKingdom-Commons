@@ -54,29 +54,23 @@ public class TransmissionTask {
      * Allows you to start the task.
      */
     public void start() {
-        Bukkit.getScheduler().runTaskAsynchronously(this.site.getPlugin(), () -> {
-            Bukkit.getConsoleSender().sendMessage("sending that hoe async tbh");
-            final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
-            outputStream.writeUTF("Forward");
-            outputStream.writeUTF(this.targetServerName);
-            outputStream.writeUTF("Transmissions-" + this.targetSiteName);
-            final ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
-            final DataOutputStream message = new DataOutputStream(messageBytes);
-            try {
-                message.writeUTF(this.site.getServerName() + "|" + this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
-                message.writeShort(123);
-            } catch (final IOException ioException) {
-                //Does nothing, just in case! :)
-            }
-
-            outputStream.writeShort(messageBytes.toByteArray().length);
-            outputStream.write(messageBytes.toByteArray());
-            Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
-            if (this.type == TransmissionType.REQUEST) {
-                Bukkit.getConsoleSender().sendMessage("oh its a request lemme lowkey set it up");
-                this.site.getTasks().add(this);
-            }
-        });
+        final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
+        outputStream.writeUTF("Forward");
+        outputStream.writeUTF(this.targetServerName);
+        outputStream.writeUTF("Transmissions-" + this.targetSiteName);
+        final ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
+        final DataOutputStream messageStream = new DataOutputStream(messageBytes);
+        try {
+            messageStream.writeUTF(this.site.getServerName() + "|" + this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
+        } catch (final IOException ioException) {
+            //Does nothing, just in case! :)
+        }
+        outputStream.writeShort(messageBytes.toByteArray().length);
+        outputStream.write(messageBytes.toByteArray());
+        Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
+        if (this.type == TransmissionType.REQUEST) {
+            this.site.getTasks().add(this);
+        }
     }
 
     /**

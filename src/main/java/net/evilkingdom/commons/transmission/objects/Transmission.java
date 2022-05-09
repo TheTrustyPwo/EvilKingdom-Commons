@@ -47,17 +47,18 @@ public class Transmission {
     public CompletableFuture<String> send() {
         final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServerName, this.targetSiteName, this.uuid, this.data);
         task.start();
+        Bukkit.getConsoleSender().sendMessage("sending!");
         if (this.type == TransmissionType.REQUEST) {
             final long stopTime = System.currentTimeMillis() + 100L;
             return CompletableFuture.supplyAsync(() -> {
                 while (task.getResponseData() == null) {
                     if (stopTime > System.currentTimeMillis()) {
                         task.setResponseData("response=request_failed");
-                        System.out.println("ok lol ur taking too long");
+                        Bukkit.getConsoleSender().sendMessage("ok lol ur taking too long");
                         break;
                     }
                 }
-                System.out.println("wow it didnt take TOO long");
+                Bukkit.getConsoleSender().sendMessage("while is done lol");
                 return task.getResponseData();
             });
         } else {
