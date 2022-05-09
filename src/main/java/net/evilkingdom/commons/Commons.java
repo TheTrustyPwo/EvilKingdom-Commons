@@ -11,9 +11,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashSet;
+
 public class Commons extends JavaPlugin implements Listener {
 
     private static Commons plugin;
+    private HashSet<JavaPlugin> terminatablePlugins;
 
     /**
      * Bukkit's detection for the plugin enabling.
@@ -21,6 +24,7 @@ public class Commons extends JavaPlugin implements Listener {
     public void onEnable() {
         Bukkit.getConsoleSender().sendMessage(StringUtilities.colorize("&2[Commons] &aInitializing..."));
         plugin = this;
+        this.terminatablePlugins = new HashSet<JavaPlugin>();
         Bukkit.getConsoleSender().sendMessage(StringUtilities.colorize("&2[Commons] &aInitialized."));
     }
 
@@ -29,7 +33,6 @@ public class Commons extends JavaPlugin implements Listener {
      */
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage(StringUtilities.colorize("&4[Commons] &cTerminating..."));
-        plugin = null;
         Bukkit.getConsoleSender().sendMessage(StringUtilities.colorize("&4[Commons] &cTerminated."));
     }
 
@@ -40,6 +43,16 @@ public class Commons extends JavaPlugin implements Listener {
      */
     public static Commons getPlugin() {
         return plugin;
+    }
+
+    /**
+     * Allows you to retrieve the terminatable plugins.
+     * This is used for our custom plugins and easily shutting them down via the main library.
+     *
+     * @return The terminatable plugins.
+     */
+    public HashSet<JavaPlugin> getTerminatablePlugins() {
+        return this.terminatablePlugins;
     }
 
 }
