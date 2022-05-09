@@ -41,6 +41,7 @@ public class TransmissionImplementor {
         this.sites = new HashSet<TransmissionSite>();
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this.plugin, "BungeeCord");
         Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this.plugin, "BungeeCord", (channel, player, message) -> {
+            Bukkit.getConsoleSender().sendMessage("received cord message");
             Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
                 final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
                 String currentSiteName = null;
@@ -66,7 +67,10 @@ public class TransmissionImplementor {
                 final UUID finalUUID = uuid;
                 final String finalData = data;
                 final TransmissionSite currentSite = this.sites.stream().filter(site -> site.getName().equals(finalCurrentSiteName)).findFirst().get();
-                Bukkit.getScheduler().runTask(this.plugin, () -> currentSite.handleBungeeCordMessage(finalServerName, finalSiteName, finalType, finalUUID, finalData));
+                Bukkit.getScheduler().runTask(this.plugin, () -> {
+                    System.out.println("handling the cord msg");
+                    currentSite.handleBungeeCordMessage(finalServerName, finalSiteName, finalType, finalUUID, finalData);
+                });
             });
         });
 

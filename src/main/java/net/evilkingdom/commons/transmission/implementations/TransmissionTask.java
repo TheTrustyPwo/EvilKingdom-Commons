@@ -29,7 +29,6 @@ public class TransmissionTask {
     private final TransmissionType type;
     private final TransmissionSite site;
     private String responseData;
-    private long startedTime;
 
     /**
      * Allows you to create a transmission task for a plugin.
@@ -56,6 +55,7 @@ public class TransmissionTask {
      */
     public void start() {
         Bukkit.getScheduler().runTaskAsynchronously(this.site.getPlugin(), () -> {
+            Bukkit.getConsoleSender().sendMessage("sending that hoe async tbh");
             final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
             outputStream.writeUTF("Forward");
             outputStream.writeUTF(this.targetServerName);
@@ -67,7 +67,7 @@ public class TransmissionTask {
             outputStream.writeUTF(this.data);
             Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
             if (this.type == TransmissionType.REQUEST) {
-                this.startedTime = System.currentTimeMillis();
+                Bukkit.getConsoleSender().sendMessage("oh its a request lemme lowkey set it up");
                 this.site.getTasks().add(this);
             }
         });
@@ -98,16 +98,6 @@ public class TransmissionTask {
      */
     public String getResponseData() {
         return this.responseData;
-    }
-
-    /**
-     * Allows you to retrieve the task's started time.
-     * This will only not be null if the type is REQUEST.
-     *
-     * @return ~ The task's started time.
-     */
-    public long getStartedTime() {
-        return this.startedTime;
     }
 
     /**
