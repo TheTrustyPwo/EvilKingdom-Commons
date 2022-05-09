@@ -95,17 +95,12 @@ public class TransmissionImplementor {
      *
      * @param player ~ The player to send.
      * @param serverName ~ The server's name to send the player to.
-     * @param urgent ~ If the send is urgent (possibly if the plugin sending is disabling)
      */
-    public void send(final Player player, final String serverName, final boolean urgent) {
+    public void send(final Player player, final String serverName) {
         final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
         outputStream.writeUTF("Connect");
         outputStream.writeUTF(serverName);
-        if (urgent) {
-            player.sendPluginMessage(Commons.getPlugin(), "BungeeCord", outputStream.toByteArray());
-        } else {
-            player.sendPluginMessage(this.plugin, "BungeeCord", outputStream.toByteArray());
-        }
+        player.sendPluginMessage(this.plugin, "BungeeCord", outputStream.toByteArray());
     }
 
     /**
