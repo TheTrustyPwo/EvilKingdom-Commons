@@ -64,7 +64,6 @@ public class Transmission {
                         task.stop(); //This should break it by itself.
                     }
                 }
-                Bukkit.getConsoleSender().sendMessage("response data - " + task.getResponseData());
                 return task.getResponseData();
             });
         } else {
