@@ -47,14 +47,14 @@ public class Transmission {
     public CompletableFuture<String> send() {
         final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServerName, this.targetSiteName, this.uuid, this.data);
         task.start();
-        System.out.println("sent transmission ma boy");
+        Bukkit.broadcastMessage("task started!");
         if (this.type == TransmissionType.REQUEST) {
             return CompletableFuture.supplyAsync(() -> {
                 while (task.isRunning()) {
                     //Does nothing, just to halt the response until the task is done running.
                     //It will also detect if the response is taking too long and just respond that the request failed.
                 }
-                System.out.println("received a response ma boy");
+                Bukkit.broadcastMessage("response received");
                 return task.getResponseData();
             });
         } else {
