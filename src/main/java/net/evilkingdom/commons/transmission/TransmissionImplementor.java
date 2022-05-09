@@ -60,8 +60,13 @@ public class TransmissionImplementor {
                     //Does nothing, just in case! :)
                 }
                 final String finalCurrentSiteName = currentSiteName;
+                final String finalServerName = serverName;
+                final String finalSiteName = siteName;
+                final TransmissionType finalType = type;
+                final UUID finalUUID = uuid;
+                final String finalData = data;
                 final TransmissionSite currentSite = this.sites.stream().filter(site -> site.getName().equals(finalCurrentSiteName)).findFirst().get();
-                currentSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
+                Bukkit.getScheduler().runTask(this.plugin, () -> currentSite.handleBungeeCordMessage(finalServerName, finalSiteName, finalType, finalUUID, finalData));
             });
         });
 

@@ -48,10 +48,13 @@ public class Transmission {
         final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServerName, this.targetSiteName, this.uuid, this.data);
         task.start();
         if (this.type == TransmissionType.REQUEST) {
+            final long startTime = System.currentTimeMillis();
             return CompletableFuture.supplyAsync(() -> {
-                while (task.isRunning()) {
-                    //Does nothing, just to halt the response until the task is done running.
-                    //It will also detect if the response is taking too long and just respond that the request failed.
+                while (startTime < (System.currentTimeMillis() + 100L)) {
+                    //All this does is pause the thread until the time limit is reached.
+                }
+                if (task.getResponseData() == null) {
+                    return "response=request_failed";
                 }
                 return task.getResponseData();
             });

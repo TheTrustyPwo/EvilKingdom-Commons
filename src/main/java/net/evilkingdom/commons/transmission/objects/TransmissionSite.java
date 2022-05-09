@@ -29,7 +29,6 @@ public class TransmissionSite {
 
     private final JavaPlugin plugin;
 
-    private BukkitTask task;
     private final String name, serverName;
     private final HashSet<TransmissionTask> tasks;
     private TransmissionHandler handler;
@@ -109,16 +108,6 @@ public class TransmissionSite {
     public void register() {
         TransmissionImplementor implementor = TransmissionImplementor.get(this.plugin);
         implementor.getSites().add(this);
-        this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
-            for (final Iterator<TransmissionTask> taskIterator = this.tasks.stream().filter(task -> task.isRunning() && task.getType() == TransmissionType.REQUEST).iterator(); taskIterator.hasNext();) {
-                final TransmissionTask task = taskIterator.next();
-                if (task.getStartedTime() < (System.currentTimeMillis() + 100L)) {
-                    return;
-                }
-                task.setResponseData("response=request_failed");
-                taskIterator.remove();
-            }
-        }, 0L, 1L);
     }
 
     /**
@@ -137,7 +126,7 @@ public class TransmissionSite {
             task.setResponseData(data);
             task.stop();
         } else {
-            Bukkit.getScheduler().runTask(this.plugin, () -> this.handler.onReceive(serverName, siteName, type, uuid, data));
+            this.handler.onReceive(serverName, siteName, type, uuid, data);
         }
     }
 
@@ -147,7 +136,6 @@ public class TransmissionSite {
     public void unregister() {
         TransmissionImplementor transmissionImplementor = TransmissionImplementor.get(this.plugin);
         transmissionImplementor.getSites().remove(this);
-        this.task.cancel();
     }
 
 }
