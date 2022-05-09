@@ -31,7 +31,7 @@ public class TransmissionSite {
 
     private final JavaPlugin plugin;
 
-    private final String name, serverName, token;
+    private final String name, serverName, pterodactylURL, pterodactylToken;
     private final HashSet<TransmissionTask> tasks;
     private final HashSet<TransmissionServer> servers;
     private TransmissionHandler handler;
@@ -39,18 +39,21 @@ public class TransmissionSite {
 
     /**
      * Allows you to create a transmission site for a plugin.
+     * Abuses Pterodactyl's API, file magic, and much more.
      *
      * @param plugin ~ The plugin the transmission site is for.
      * @param serverName ~ The name of the transmission site's server.
      * @param name ~ The name of the transmission site.
-     * @param token ~ An administrator token.
+     * @param pterodactylURL ~ The pterodactyl panel's url.
+     * @param pterodactylToken ~ A client token that has administrator rights on the pterodactyl panel.
      */
-    public TransmissionSite(final JavaPlugin plugin, final String serverName, final String name, final String token) {
+    public TransmissionSite(final JavaPlugin plugin, final String serverName, final String name, final String pterodactylURL, final String pterodactylToken) {
         this.plugin = plugin;
 
         this.serverName = serverName;
         this.name = name;
-        this.token = token;
+        this.pterodactylURL = pterodactylURL;
+        this.pterodactylToken = pterodactylToken;
         this.tasks = new HashSet<TransmissionTask>();
         this.servers = new HashSet<TransmissionServer>();
         this.directoryFiles = new HashMap<String, ArrayList<File>>();
@@ -120,12 +123,21 @@ public class TransmissionSite {
     }
 
     /**
-     * Allows you to retrieve the transmission site's token.
+     * Allows you to retrieve the transmission site's pterodactyl token.
      *
-     * @return ~ The transmission site's token.
+     * @return ~ The transmission site' pterodactyl token.
      */
-    public String getToken() {
-        return this.token;
+    public String getPterodactylToken() {
+        return this.pterodactylToken;
+    }
+
+    /**
+     * Allows you to retrieve the transmission site's pterodactyl url.
+     *
+     * @return ~ The transmission site's pterodactyl url.
+     */
+    public String getPterodactylURL() {
+        return this.pterodactylURL;
     }
 
     /**

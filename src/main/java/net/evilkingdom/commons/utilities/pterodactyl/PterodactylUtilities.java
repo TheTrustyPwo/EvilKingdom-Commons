@@ -29,13 +29,15 @@ public class PterodactylUtilities {
      * Allows you to retrieve a server's file name's from a path and a server id.
      * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
      *
+     * @param url ~ The panel's url.
+     * @param token ~ A client token that has administrator rights on the panel.
      * @param id ~ The server's id.
      * @param path ~ The path.
      * @return The server's file name's from a path if all goes to plan- if it doesn't it will return an empty optional.
      */
-    public static CompletableFuture<Optional<ArrayList<String>>> getFileNames(final String token, final String id, final String path) {
+    public static CompletableFuture<Optional<ArrayList<String>>> getFileNames(final String url, final String token, final String id, final String path) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://pterodactyl.file.properties/api/client/servers/" + id + "/list?directory=" + URLEncoder.encode(path, StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/list?directory=" + URLEncoder.encode(path, StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty()) {
                 return Optional.empty();
@@ -54,13 +56,15 @@ public class PterodactylUtilities {
      * Allows you to retrieve a server's file from a path and a server id.
      * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
      *
+     * @param url ~ The panel's url.
+     * @param token ~ A client token that has administrator rights on the panel.
      * @param id ~ The server's id.
      * @param path ~ The path of the file.
      * @return The server's file from a path if all goes to plan- if it doesn't it will return an empty optional.
      */
-    public static CompletableFuture<Optional<File>> getFile(final String token, final String id, final Path path) {
+    public static CompletableFuture<Optional<File>> getFile(final String url, final String token, final String id, final Path path) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://pterodactyl.file.properties/api/client/servers/" + id + "/download?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/download?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApplyAsync(httpResponse -> {
             if (httpResponse.body().isEmpty()) {
                 return Optional.empty();
@@ -87,13 +91,15 @@ public class PterodactylUtilities {
      * Allows you to retrieve a server's file contents from a path and a server id.
      * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
      *
+     * @param url ~ The panel's url.
+     * @param token ~ A client token that has administrator rights on the panel.
      * @param id ~ The server's id.
      * @param path ~ The path of the file.
      * @return The server's file contents from a path if all goes to plan- if it doesn't it will return an empty optional.
      */
-    public static CompletableFuture<Optional<String>> getFileContents(final String token, final String id, final Path path) {
+    public static CompletableFuture<Optional<String>> getFileContents(final String url, final String token, final String id, final Path path) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://pterodactyl.file.properties/api/client/servers/" + id + "/contents?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/contents?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty() || httpResponse.body().contains("error")) {
                 return Optional.empty();
@@ -106,13 +112,15 @@ public class PterodactylUtilities {
      * Allows you to delete a server's file contents from a path and a server id.
      * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
      *
+     * @param url ~ The panel's url.
+     * @param token ~ A client token that has administrator rights on the panel.
      * @param id ~ The server's id.
      * @param path ~ The path of the file.
      * @return The file deletions success state if all goes to plan- if it doesn't it will return an empty optional.
      */
-    public static CompletableFuture<Optional<Boolean>> deleteFile(final String token, final String id, final Path path) {
+    public static CompletableFuture<Optional<Boolean>> deleteFile(final String url, final String token, final String id, final Path path) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://pterodactyl.file.properties/api/client/servers/" + id + "/delete?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/delete?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty() || httpResponse.body().contains("error")) {
                 return Optional.empty();
@@ -125,16 +133,18 @@ public class PterodactylUtilities {
      * Allows you to upload from a file and a server id.
      * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
      *
+     * @param url ~ The panel's url.
+     * @param token ~ A client token that has administrator rights on the panel.
      * @param id ~ The server's id.
      * @param path ~ The path of the file.
      * @return The file uploads success state if all goes to plan- if it doesn't it will return an empty optional.
      */
-    public static CompletableFuture<Optional<Boolean>> uploadFile(final String token, final String id, final Path path) {
+    public static CompletableFuture<Optional<Boolean>> uploadFile(final String url, final String token, final String id, final Path path) {
         if (!path.toFile().exists()) {
             return CompletableFuture.supplyAsync(() -> Optional.empty());
         }
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://pterodactyl.file.properties/api/client/servers/" + id + "/files/upload")).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/files/upload")).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenCompose(httpResponse -> {
             if (httpResponse.body().isEmpty()) {
                 return CompletableFuture.supplyAsync(() -> Optional.empty());
@@ -157,12 +167,14 @@ public class PterodactylUtilities {
      * Allows you to retrieve a server's status from a server id.
      * Uses Pterodactyl's API, website magic, and runs asynchronously in order to keep the server from lagging.
      *
+     * @param url ~ The panel's url.
+     * @param token ~ A client token that has administrator rights on the panel.
      * @param id ~ The server's id.
      * @return The server's status if all goes to plan- if it doesn't it will return an empty optional.
      */
-    public static CompletableFuture<Optional<String>> getStatus(final String token, final String id) {
+    public static CompletableFuture<Optional<String>> getStatus(final String url, final String token, final String id) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://pterodactyl.file.properties/api/client/servers/" + id + "/resources")).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/resources")).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty()) {
                 return Optional.empty();

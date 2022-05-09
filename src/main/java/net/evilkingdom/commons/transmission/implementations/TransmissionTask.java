@@ -72,7 +72,7 @@ public class TransmissionTask {
         } catch (final IOException ioException) {
             //Does nothing, just in case! :)
         }
-        PterodactylUtilities.uploadFile(this.site.getToken(), this.targetServer.getId(), file.toPath());
+        PterodactylUtilities.uploadFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file.toPath());
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);
         }
@@ -84,7 +84,7 @@ public class TransmissionTask {
      */
     public void delete() {
         final File file = new File(this.site.getPlugin() + File.separator + "transmissions" + File.separator + this.type.name() + "s", this.uuid.toString());
-        PterodactylUtilities.deleteFile(this.site.getToken(), this.targetServer.getId(), file.toPath());
+        PterodactylUtilities.deleteFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file.toPath());
     }
 
     /**

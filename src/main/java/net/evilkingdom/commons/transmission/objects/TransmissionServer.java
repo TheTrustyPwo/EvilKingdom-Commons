@@ -16,19 +16,19 @@ import java.util.UUID;
 public class TransmissionServer {
 
     private final TransmissionSite site;
-    private final String name, id;
+    private final String name, pterodactylId;
 
     /**
      * Allows you to create a transmission server for a plugin.
      *
      * @param site ~ The transmission site of the transmission server.
      * @param name ~ The name of the transmission server.
-     * @param id ~ The pterodactyl server id of the transmission server.
+     * @param pterodactylId ~ The pterodactyl server id of the transmission server.
      */
-    public TransmissionServer(final TransmissionSite site, final String name, final String id) {
+    public TransmissionServer(final TransmissionSite site, final String name, final String pterodactylId) {
         this.site = site;
         this.name = name;
-        this.id = id;
+        this.pterodactylId = pterodactylId;
     }
 
     /**
@@ -41,12 +41,12 @@ public class TransmissionServer {
     }
 
     /**
-     * Allows you to retrieve the transmission server's i;.
+     * Allows you to retrieve the transmission server's pterodactyl server id.
      *
-     * @return ~ The transmission server's id.
+     * @return ~ The transmission server's pterodactyl server id.
      */
-    public String getId() {
-        return this.id;
+    public String getPterodactylId() {
+        return this.pterodactylId;
     }
 
     /**
