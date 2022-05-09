@@ -60,11 +60,17 @@ public class TransmissionTask {
             outputStream.writeUTF("Forward");
             outputStream.writeUTF(this.targetServerName);
             outputStream.writeUTF("Transmissions-" + this.targetSiteName);
-            outputStream.writeUTF(this.site.getServerName());
-            outputStream.writeUTF(this.site.getName());
-            outputStream.writeUTF(this.type.name());
-            outputStream.writeUTF(this.uuid.toString());
-            outputStream.writeUTF(this.data);
+            final ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
+            final DataOutputStream message = new DataOutputStream(messageBytes);
+            try {
+                message.writeUTF(this.site.getServerName() + "|" + this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
+                message.writeShort(123);
+            } catch (final IOException ioException) {
+                //Does nothing, just in case! :)
+            }
+
+            outputStream.writeShort(messageBytes.toByteArray().length);
+            outputStream.write(messageBytes.toByteArray());
             Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
             if (this.type == TransmissionType.REQUEST) {
                 Bukkit.getConsoleSender().sendMessage("oh its a request lemme lowkey set it up");
@@ -78,16 +84,6 @@ public class TransmissionTask {
      */
     public void stop() {
         this.site.getTasks().remove(this);
-    }
-
-    /**
-     * Allows you to retrieve if the task is running.
-     * This will only not be false if the type is REQUEST.
-     *
-     * @return ~ If the task is running.
-     */
-    public boolean isRunning() {
-        return this.site.getTasks().contains(this);
     }
 
     /**

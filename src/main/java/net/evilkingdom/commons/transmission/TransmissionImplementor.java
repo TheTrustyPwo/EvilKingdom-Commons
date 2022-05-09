@@ -44,31 +44,28 @@ public class TransmissionImplementor {
             Bukkit.getConsoleSender().sendMessage("received cord message");
             Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
                 final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
-                String currentSiteName = null;
-                String serverName = null;
-                String siteName = null;
-                TransmissionType type = null;
-                UUID uuid = null;
-                String data = null;
+                String preInternalSiteName = null;
+                String[] preData = null;
                 try {
-                    currentSiteName = inputStream.readUTF().replace("Transmissions-", "");
-                    serverName = inputStream.readUTF();
-                    siteName = inputStream.readUTF();
-                    type = TransmissionType.valueOf(inputStream.readUTF());
-                    uuid = UUID.fromString(inputStream.readUTF());
-                    data = inputStream.readUTF();
+                    preInternalSiteName = inputStream.readUTF().replace("Transmissions-", "");
+                    preData = inputStream.readUTF().split("\\|");
                 } catch (final IOException ioException) {
                     //Does nothing, just in case! :)
                 }
-                final String finalCurrentSiteName = currentSiteName;
-                final String finalServerName = serverName;
-                final String finalSiteName = siteName;
-                final TransmissionType finalType = type;
-                final UUID finalUUID = uuid;
-                final String finalData = data;
-                final TransmissionSite currentSite = this.sites.stream().filter(site -> site.getName().equals(finalCurrentSiteName)).findFirst().get();
+                final String internalSiteName = preInternalSiteName;
+                final TransmissionSite internalSite = this.sites.stream().filter(site -> site.getName().equals(internalSiteName)).findFirst().get();
+                final String serverName = preData[0];
+                final String siteName = preData[1];
+                final TransmissionType type = TransmissionType.valueOf(preData[2]);
+                final UUID uuid = UUID.fromString(preData[3]);
+                final String data = preData[4];
+                System.out.println("received server name - " + serverName);
+                System.out.println("received site name - " + siteName);
+                System.out.println("received type - " + type.name());
+                System.out.println("received uuid - " + uuid);
+                System.out.println("received data - " + data);
                 Bukkit.getScheduler().runTask(this.plugin, () -> {
-                    currentSite.handleBungeeCordMessage(finalServerName, finalSiteName, finalType, finalUUID, finalData);
+                    internalSite.handleBungeeCordMessage(serverName, siteName, type, uuid, data);
                 });
             });
         });

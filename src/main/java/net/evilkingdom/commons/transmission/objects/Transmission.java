@@ -48,15 +48,16 @@ public class Transmission {
         final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServerName, this.targetSiteName, this.uuid, this.data);
         task.start();
         if (this.type == TransmissionType.REQUEST) {
-            final long stopTime = System.currentTimeMillis() + 200L;
+            final long stopTime = System.currentTimeMillis() + 100L;
             return CompletableFuture.supplyAsync(() -> {
-                while (System.currentTimeMillis() < stopTime) {
-                    //All this does is pause the thread until the time limit is reached.
+                while (task.getResponseData() == null) {
+                    if (stopTime > System.currentTimeMillis()) {
+                        task.setResponseData("response=request_failed");
+                        System.out.println("ok lol ur taking too long");
+                        break;
+                    }
                 }
-                Bukkit.getConsoleSender().sendMessage("home slice took WAY too long lol");
-                if (task.getResponseData() == null) {
-                    return "response=request_failed";
-                }
+                System.out.println("wow it didnt take TOO long");
                 return task.getResponseData();
             });
         } else {
