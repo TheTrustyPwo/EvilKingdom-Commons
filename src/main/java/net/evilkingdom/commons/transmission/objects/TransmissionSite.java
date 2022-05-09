@@ -24,6 +24,7 @@ import java.net.Socket;
 import java.net.SocketOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class TransmissionSite {
 
@@ -122,7 +123,7 @@ public class TransmissionSite {
      */
     public void handleBungeeCordMessage(final String serverName, final String siteName, final TransmissionType type, final UUID uuid, final String data) {
         if (type == TransmissionType.RESPONSE) {
-            final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getUUID() == uuid).findFirst().get();
+            final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getUUID().toString().equals(uuid.toString())).findFirst().get();
             task.setResponseData(data);
             task.stop();
         } else {

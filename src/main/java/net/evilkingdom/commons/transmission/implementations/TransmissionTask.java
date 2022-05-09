@@ -81,6 +81,16 @@ public class TransmissionTask {
     }
 
     /**
+     * Allows you to retrieve if the task is running.
+     * This will only not be false if the type is REQUEST.
+     *
+     * @return ~ If the task is running.
+     */
+    public boolean isRunning() {
+        return this.site.getTasks().contains(this);
+    }
+
+    /**
      * Allows you to retrieve the task's response data.
      * This will only not be null if the type is REQUEST and the task is no longer running (as it received a response).
      *

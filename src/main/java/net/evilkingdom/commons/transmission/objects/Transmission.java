@@ -58,7 +58,7 @@ public class Transmission {
         if (this.type == TransmissionType.REQUEST) {
             final long stopTime = System.currentTimeMillis() + 250L;
             return CompletableFuture.supplyAsync(() -> {
-                while (task.getResponseData() == null) {
+                while (task.isRunning()) {
                     if (stopTime > System.currentTimeMillis()) {
                         task.setResponseData("response=request_failed");
                         break;
