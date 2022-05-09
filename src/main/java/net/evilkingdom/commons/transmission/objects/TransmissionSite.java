@@ -110,7 +110,7 @@ public class TransmissionSite {
         TransmissionImplementor implementor = TransmissionImplementor.get(this.plugin);
         implementor.getSites().add(this);
         this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
-            for (final Iterator<TransmissionTask> taskIterator = this.tasks.iterator(); taskIterator.hasNext();) {
+            for (final Iterator<TransmissionTask> taskIterator = this.tasks.stream().filter(task -> task.isRunning() && task.getType() == TransmissionType.REQUEST).iterator(); taskIterator.hasNext();) {
                 final TransmissionTask task = taskIterator.next();
                 if (task.getStartedTime() < (System.currentTimeMillis() + 100L)) {
                     return;
