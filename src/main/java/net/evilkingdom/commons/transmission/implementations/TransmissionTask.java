@@ -61,7 +61,7 @@ public class TransmissionTask {
         final ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
         final DataOutputStream messageStream = new DataOutputStream(messageBytes);
         try {
-            messageStream.writeUTF((System.currentTimeMillis() + 100L) + "|" + this.site.getServerName() + "|" + this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
+            messageStream.writeUTF(System.currentTimeMillis() + "|" + this.site.getServerName() + "|" + this.site.getName() + "|" + this.type.name() + "|" + this.uuid.toString() + "|" + this.data);
         } catch (final IOException ioException) {
             //Does nothing, just in case! :)
         }

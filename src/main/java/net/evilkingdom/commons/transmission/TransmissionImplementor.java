@@ -54,15 +54,12 @@ public class TransmissionImplementor {
             } catch (final IOException ioException) {
                 //Does nothing, just in case! :)
             }
-            final long shouldBeReceivedBy = Long.parseLong(preData[0]);
-            if (shouldBeReceivedBy > System.currentTimeMillis()) {
-                Bukkit.getConsoleSender().sendMessage("too long ago lol");
+            final long timeSent = Long.parseLong(preData[0]);
+            if ((System.currentTimeMillis() - timeSent) > 250) {
                 return;
             }
             final String internalSiteName = preInternalSiteName;
-            Bukkit.getConsoleSender().sendMessage("internal site (not actual) name - " + internalSiteName);
             final TransmissionSite internalSite = this.sites.stream().filter(site -> site.getName().equals(internalSiteName)).findFirst().get();
-            Bukkit.getConsoleSender().sendMessage("internal site name - " + internalSite.getName());
             final String serverName = preData[1];
             final String siteName = preData[2];
             final TransmissionType type = TransmissionType.valueOf(preData[3]);

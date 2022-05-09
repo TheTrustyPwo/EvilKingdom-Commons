@@ -122,7 +122,7 @@ public class TransmissionSite {
      */
     public void handleBungeeCordMessage(final String serverName, final String siteName, final TransmissionType type, final UUID uuid, final String data) {
         if (type == TransmissionType.RESPONSE) {
-            final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getTargetServerName().equals(serverName) && transmissionTask.getTargetSiteName().equals(siteName) && transmissionTask.getUUID() == uuid).findFirst().get();
+            final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getUUID() == uuid).findFirst().get();
             task.setResponseData(data);
             task.stop();
         } else {
