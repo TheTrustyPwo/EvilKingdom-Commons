@@ -32,6 +32,7 @@ public class TransmissionSite {
 
     private final JavaPlugin plugin;
 
+    private BukkitTask task;
     private final String name, serverName;
     private final HashSet<TransmissionTask> tasks;
     private TransmissionHandler handler;
@@ -111,6 +112,14 @@ public class TransmissionSite {
     public void register() {
         TransmissionImplementor transmissionImplementor = TransmissionImplementor.get(this.plugin);
         transmissionImplementor.getSites().add(this);
+        this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
+            this.tasks.forEach(task -> {
+                if (task.getStartedTime() < (System.currentTimeMillis() + 100L)) {
+                    return;
+                }
+                task.setResponseData("response=request_failed");
+            });
+        }, 0L, 1L);
     }
 
     /**
@@ -125,10 +134,12 @@ public class TransmissionSite {
      */
     public void handleBungeeCordMessage(final String serverName, final String siteName, final TransmissionType type, final UUID uuid, final String data) {
         if (type == TransmissionType.RESPONSE) {
+            Bukkit.getConsoleSender().sendMessage("gonna respond");
             final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getTargetServerName().equals(serverName) && transmissionTask.getTargetSiteName().equals(siteName) && transmissionTask.getUUID() == uuid).findFirst().get();
             task.setResponseData(data);
             task.stop();
         } else {
+            Bukkit.getConsoleSender().sendMessage("need handling");
             this.handler.onReceive(serverName, siteName, type, uuid, data);
         }
     }

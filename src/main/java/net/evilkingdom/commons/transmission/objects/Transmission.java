@@ -51,6 +51,7 @@ public class Transmission {
             return CompletableFuture.supplyAsync(() -> {
                 while (task.isRunning()) {
                     //Does nothing, just to halt the response until the task is done running.
+                    //It will also detect if the response is taking too long and just respond that the request failed.
                 }
                 return task.getResponseData();
             });
