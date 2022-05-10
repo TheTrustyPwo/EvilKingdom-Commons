@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 public class Transmission {
 
     private final UUID uuid;
-    private final String data;
+    private final String data, targetSiteName;
     private final TransmissionServer targetServer;
     private final TransmissionType type;
     private final TransmissionSite site;
@@ -26,14 +26,16 @@ public class Transmission {
      *
      * @param site ~ The transmission site of the transmission.
      * @param targetServer ~ The target server of the transmission.
+     * @param targetSiteName ~ The target site of the transmission.
      * @param type ~ The type of the transmission.
      * @param uuid ~ The uuid of the transmission.
      * @param data ~ The data of the transmission.
      */
-    public Transmission(final TransmissionSite site, final TransmissionType type, final TransmissionServer targetServer, final UUID uuid, final String data) {
+    public Transmission(final TransmissionSite site, final TransmissionServer targetServer, final String targetSiteName, final TransmissionType type, final UUID uuid, final String data) {
         this.site = site;
         this.type = type;
         this.targetServer = targetServer;
+        this.targetSiteName = targetSiteName;
         this.uuid = uuid;
         this.data = data;
     }
@@ -52,7 +54,7 @@ public class Transmission {
                 return CompletableFuture.supplyAsync(() -> null);
             }
         }
-        final TransmissionTask task = new TransmissionTask(this.site, this.type, this.targetServer, this.uuid, this.data);
+        final TransmissionTask task = new TransmissionTask(this.site, this.targetServer, this.targetSiteName, this.type, this.uuid, this.data);
         task.start();
         if (this.type == TransmissionType.REQUEST) {
             final long startTime = System.currentTimeMillis();
