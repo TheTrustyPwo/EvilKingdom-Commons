@@ -53,11 +53,11 @@ public class Transmission {
             final long startTime = System.currentTimeMillis();
             return CompletableFuture.supplyAsync(() -> {
                 while (task.isRunning()) {
-                    if ((System.currentTimeMillis() - startTime) > 1000) {
-                        task.setResponseData("response=request_failed");
-                        task.delete();
-                        task.stop();
-                    }
+//                    if ((System.currentTimeMillis() - startTime) > 1000) {
+//                        task.setResponseData("response=request_failed");
+//                        task.delete();
+//                        task.stop();
+//                    }
                 }
                 System.out.println("received a reply in " + (System.currentTimeMillis() - startTime) + "ms");
                 return task.getResponseData();
