@@ -6,6 +6,7 @@ package net.evilkingdom.commons.utilities.pterodactyl;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import joptsimple.OptionException;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -26,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 public class PterodactylUtilities {
 
     /**
-     * Allows you to retrieve a server's file name's from a path and a server id.
+     * Allows you to retrieve a server's file names in a directory.
      * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
      *
      * @param url ~ The panel's url.
@@ -53,7 +54,7 @@ public class PterodactylUtilities {
     }
 
     /**
-     * Allows you to retrieve a server's file from a path and a server id.
+     * Allows you to retrieve a server's file.
      * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
      *
      * @param url ~ The panel's url.
@@ -88,18 +89,18 @@ public class PterodactylUtilities {
     }
 
     /**
-     * Allows you to retrieve a server's file contents from a path and a server id.
+     * Allows you to retrieve a server file's contents.
      * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
      *
      * @param url ~ The panel's url.
      * @param token ~ A client token that has administrator rights on the panel.
      * @param id ~ The server's id.
-     * @param path ~ The path of the file.
+     * @param file ~ The file to get the contents of.
      * @return The server's file contents from a path if all goes to plan- if it doesn't it will return an empty optional.
      */
-    public static CompletableFuture<Optional<String>> getFileContents(final String url, final String token, final String id, final Path path) {
+    public static CompletableFuture<Optional<String>> getFileContents(final String url, final String token, final String id, final File file) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/contents?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/contents?file=" + URLEncoder.encode(file.toPath().toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty() || httpResponse.body().contains("error")) {
                 return Optional.empty();
@@ -109,7 +110,7 @@ public class PterodactylUtilities {
     }
 
     /**
-     * Allows you to delete a server's file contents from a path and a server id.
+     * Allows you to delete a server's file.
      * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
      *
      * @param url ~ The panel's url.
@@ -130,7 +131,7 @@ public class PterodactylUtilities {
     }
 
     /**
-     * Allows you to upload from a file and a server id.
+     * Allows you to upload a file to a server.
      * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
      *
      * @param url ~ The panel's url.
@@ -166,7 +167,32 @@ public class PterodactylUtilities {
     }
 
     /**
-     * Allows you to retrieve a server's status from a server id.
+     * Allows you to write to a server's file.
+     * Uses Pterodactyl's API, website magic, hella file magic, and runs asynchronously in order to keep the server from lagging.
+     *
+     * @param url ~ The panel's url.
+     * @param token ~ A client token that has administrator rights on the panel.
+     * @param id ~ The server's id.
+     * @param file ~ The file to write to.
+     * @param message ~ The message to write.
+     * @return The file writes success state if all goes to plan- if it doesn't it will return an empty optional.
+     */
+    public static CompletableFuture<Optional<Boolean>> writeFile(final String url, final String token, final String id, final File file, final String message) {
+        if (!file.exists()) {
+            return CompletableFuture.supplyAsync(() -> Optional.empty());
+        }
+        final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/files/write?file=" + URLEncoder.encode(file.toPath().toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).POST(HttpRequest.BodyPublishers.ofString(message)).build();
+        return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
+            if (httpResponse.body().isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of(true);
+        });
+    }
+
+    /**
+     * Allows you to retrieve a server's status.
      * Uses Pterodactyl's API, website magic, and runs asynchronously in order to keep the server from lagging.
      *
      * @param url ~ The panel's url.

@@ -69,20 +69,12 @@ public class TransmissionTask {
         if (!temptransnetFolder.exists()) {
             temptransnetFolder.mkdirs();
         }
-        final File file = new File(temptransnetFolder, this.uuid.toString() + ".json");
-        file.delete();
-        try {
-            file.createNewFile();
-            final FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(new Gson().toJson(jsonObject));
-            fileWriter.flush();
-            fileWriter.close();
-        } catch (final IOException ioException) {
-            //Does nothing, just in case! :)
-        }
-        final File targetDirectory = new File(this.getSite().getPlugin().getDataFolder() + File.separator + "transmissions" + File.separator + this.targetSiteName, this.type.name() + "s");
-        PterodactylUtilities.uploadFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file, targetDirectory).whenComplete((uploadSuccess, uploadSuccessThrowable) -> {
-            file.delete();
+        final File file = new File(this.getSite().getPlugin().getDataFolder() + File.separator + "transmissions" + File.separator + this.targetSiteName + File.separator + this.type.name() + "s", this.uuid + ".json");
+        PterodactylUtilities.writeFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file, new Gson().toJson(jsonObject)).whenComplete((write, writeThrowable) -> {
+            System.out.println("done write");
+            if (writeThrowable != null) {
+                writeThrowable.printStackTrace();
+            }
         });
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);
