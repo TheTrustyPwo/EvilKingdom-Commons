@@ -85,7 +85,7 @@ public class TransmissionTask {
      * This should only be used in external means.
      */
     public void delete() {
-        final File file = new File(this.site.getPlugin() + File.separator + "transmissions" + File.separator + this.type.name() + "s", this.uuid.toString());
+        final File file = new File(this.site.getPlugin() + File.separator + "transmissions" + File.separator + this.targetSiteName + File.separator + this.type.name() + "s", this.uuid.toString());
         PterodactylUtilities.deleteFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file.toPath());
     }
 
