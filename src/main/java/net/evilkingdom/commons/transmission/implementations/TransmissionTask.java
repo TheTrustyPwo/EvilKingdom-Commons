@@ -65,7 +65,11 @@ public class TransmissionTask {
             jsonObject.addProperty("siteName", this.site.getName());
         }
         jsonObject.addProperty("data", this.data);
-        final File file = new File("_transnet", this.uuid.toString() + ".json");
+        final File transnetFolder = new File("_transnet");
+        if (!transnetFolder.exists()) {
+            transnetFolder.mkdirs();
+        }
+        final File file = new File(transnetFolder, this.uuid.toString() + ".json");
         file.delete();
         try {
             file.createNewFile();
