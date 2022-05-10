@@ -180,9 +180,9 @@ public class TransmissionSite {
         Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
             final HashMap<String, ArrayList<File>> previousDirectoryFiles = new HashMap<String, ArrayList<File>>(this.directoryFiles);
             this.directoryFiles.clear();
-            this.directoryFiles.put("messages", new ArrayList<File>(Arrays.stream(messagesFolder.listFiles()).toList()));
-            this.directoryFiles.put("requests", new ArrayList<File>(Arrays.stream(requestsFolder.listFiles()).toList()));
-            this.directoryFiles.put("responses", new ArrayList<File>(Arrays.stream(responsesFolder.listFiles()).toList()));
+            this.directoryFiles.put("messages", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(messagesFolder.listFiles())).toList()));
+            this.directoryFiles.put("requests", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(requestsFolder.listFiles())).toList()));
+            this.directoryFiles.put("responses", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(responsesFolder.listFiles())).toList()));
             final ArrayList<File> messagesFolderFiles = this.directoryFiles.get("messages");
             messagesFolderFiles.removeAll(previousDirectoryFiles.get("messages"));
             final ArrayList<File> requestsFolderFiles = this.directoryFiles.get("requests");
