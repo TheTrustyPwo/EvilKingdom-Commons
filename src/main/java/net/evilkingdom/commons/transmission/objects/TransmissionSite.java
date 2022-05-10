@@ -180,11 +180,11 @@ public class TransmissionSite {
             this.directoryFiles.put("requests", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(requestsFolder.listFiles())).toList()));
             this.directoryFiles.put("responses", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(responsesFolder.listFiles())).toList()));
             final ArrayList<File> messagesFolderFiles = this.directoryFiles.getOrDefault("messages", new ArrayList<File>());
-            messagesFolderFiles.removeAll(previousDirectoryFiles.get("messages"));
+            messagesFolderFiles.removeAll(previousDirectoryFiles.getOrDefault("messages", new ArrayList<File>()));
             final ArrayList<File> requestsFolderFiles = this.directoryFiles.getOrDefault("requests", new ArrayList<File>());
-            requestsFolderFiles.removeAll(previousDirectoryFiles.get("requests"));
+            requestsFolderFiles.removeAll(previousDirectoryFiles.getOrDefault("requests", new ArrayList<File>()));
             final ArrayList<File> responsesFolderFiles = this.directoryFiles.getOrDefault("responses", new ArrayList<File>());
-            responsesFolderFiles.removeAll(previousDirectoryFiles.get("responses"));
+            responsesFolderFiles.removeAll(previousDirectoryFiles.getOrDefault("responses", new ArrayList<File>()));
             messagesFolderFiles.forEach(file -> {
                 final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
                 Bukkit.getConsoleSender().sendMessage("message - " + uuid);
