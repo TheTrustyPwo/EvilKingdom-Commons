@@ -70,12 +70,7 @@ public class TransmissionTask {
             temptransnetFolder.mkdirs();
         }
         final File file = new File(this.getSite().getPlugin().getDataFolder() + File.separator + "transmissions" + File.separator + this.targetSiteName + File.separator + this.type.name() + "s", this.uuid + ".json");
-        PterodactylUtilities.writeFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file, new Gson().toJson(jsonObject)).whenComplete((write, writeThrowable) -> {
-            System.out.println("done write");
-            if (writeThrowable != null) {
-                writeThrowable.printStackTrace();
-            }
-        });
+        PterodactylUtilities.writeFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file, new Gson().toJson(jsonObject));
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);
         }
