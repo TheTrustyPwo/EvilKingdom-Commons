@@ -173,21 +173,17 @@ public class TransmissionSite {
         Arrays.stream(messagesFolder.listFiles()).filter(file -> file.delete());
         Arrays.stream(requestsFolder.listFiles()).filter(file -> file.delete());
         Arrays.stream(responsesFolder.listFiles()).filter(file -> file.delete());
-        this.directoryFiles.clear();
-        this.directoryFiles.put("messages", new ArrayList<File>());
-        this.directoryFiles.put("requests", new ArrayList<File>());
-        this.directoryFiles.put("responses", new ArrayList<File>());
         Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
             final HashMap<String, ArrayList<File>> previousDirectoryFiles = new HashMap<String, ArrayList<File>>(this.directoryFiles);
             this.directoryFiles.clear();
             this.directoryFiles.put("messages", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(messagesFolder.listFiles())).toList()));
             this.directoryFiles.put("requests", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(requestsFolder.listFiles())).toList()));
             this.directoryFiles.put("responses", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(responsesFolder.listFiles())).toList()));
-            final ArrayList<File> messagesFolderFiles = this.directoryFiles.get("messages");
+            final ArrayList<File> messagesFolderFiles = this.directoryFiles.getOrDefault("messages", new ArrayList<File>());
             messagesFolderFiles.removeAll(previousDirectoryFiles.get("messages"));
-            final ArrayList<File> requestsFolderFiles = this.directoryFiles.get("requests");
+            final ArrayList<File> requestsFolderFiles = this.directoryFiles.getOrDefault("requests", new ArrayList<File>());
             requestsFolderFiles.removeAll(previousDirectoryFiles.get("requests"));
-            final ArrayList<File> responsesFolderFiles = this.directoryFiles.get("responses");
+            final ArrayList<File> responsesFolderFiles = this.directoryFiles.getOrDefault("responses", new ArrayList<File>());
             responsesFolderFiles.removeAll(previousDirectoryFiles.get("responses"));
             messagesFolderFiles.forEach(file -> {
                 final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
