@@ -58,7 +58,7 @@ public class TransmissionTask {
      * Allows you to start the task.
      */
     public void start() {
-        System.out.println("starting");
+        Bukkit.getConsoleSender().sendMessage("starting");
         final JsonObject jsonObject = new JsonObject();
         if (this.type != TransmissionType.RESPONSE) {
             jsonObject.addProperty("serverName", this.site.getServerName());

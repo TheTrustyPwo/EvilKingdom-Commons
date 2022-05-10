@@ -180,24 +180,9 @@ public class TransmissionSite {
         Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
             final HashMap<String, ArrayList<File>> previousDirectoryFiles = new HashMap<String, ArrayList<File>>(this.directoryFiles);
             this.directoryFiles.clear();
-            this.directoryFiles.put("messages", new ArrayList<File>());
-            this.directoryFiles.put("requests", new ArrayList<File>());
-            this.directoryFiles.put("responses", new ArrayList<File>());
-            Arrays.stream(messagesFolder.listFiles()).forEach(file -> {
-                final ArrayList<File> previousMessagesFolderFiles = this.directoryFiles.get("messages");
-                previousMessagesFolderFiles.add(file);
-                this.directoryFiles.put("messages", previousMessagesFolderFiles);
-            });
-            Arrays.stream(requestsFolder.listFiles()).forEach(file -> {
-                final ArrayList<File> previousRequestsFolderFiles = this.directoryFiles.get("requests");
-                previousRequestsFolderFiles.add(file);
-                this.directoryFiles.put("requests", previousRequestsFolderFiles);
-            });
-            Arrays.stream(responsesFolder.listFiles()).forEach(file -> {
-                final ArrayList<File> previousResponsesFolderFiles = this.directoryFiles.get("responses");
-                previousResponsesFolderFiles.add(file);
-                this.directoryFiles.put("responses", previousResponsesFolderFiles);
-            });
+            this.directoryFiles.put("messages", new ArrayList<File>(Arrays.stream(messagesFolder.listFiles()).toList()));
+            this.directoryFiles.put("requests", new ArrayList<File>(Arrays.stream(requestsFolder.listFiles()).toList()));
+            this.directoryFiles.put("responses", new ArrayList<File>(Arrays.stream(responsesFolder.listFiles()).toList()));
             final ArrayList<File> messagesFolderFiles = this.directoryFiles.get("messages");
             messagesFolderFiles.removeAll(previousDirectoryFiles.get("messages"));
             final ArrayList<File> requestsFolderFiles = this.directoryFiles.get("requests");
@@ -206,7 +191,7 @@ public class TransmissionSite {
             responsesFolderFiles.removeAll(previousDirectoryFiles.get("responses"));
             messagesFolderFiles.forEach(file -> {
                 final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
-                System.out.println("message - " + uuid);
+                Bukkit.getConsoleSender().sendMessage("message - " + uuid);
                 JsonObject jsonObject = null;
                 try {
                     jsonObject = JsonParser.parseString(Files.readString(file.toPath())).getAsJsonObject();
@@ -222,7 +207,7 @@ public class TransmissionSite {
             });
             requestsFolderFiles.forEach(file -> {
                 final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
-                System.out.println("request - " + uuid);
+                Bukkit.getConsoleSender().sendMessage("request - " + uuid);
                 JsonObject jsonObject = null;
                 try {
                     jsonObject = JsonParser.parseString(Files.readString(file.toPath())).getAsJsonObject();
@@ -238,7 +223,7 @@ public class TransmissionSite {
             });
             responsesFolderFiles.forEach(file -> {
                 final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
-                System.out.println("response - " + uuid);
+                Bukkit.getConsoleSender().sendMessage("response - " + uuid);
                 JsonObject jsonObject = null;
                 try {
                     jsonObject = JsonParser.parseString(Files.readString(file.toPath())).getAsJsonObject();

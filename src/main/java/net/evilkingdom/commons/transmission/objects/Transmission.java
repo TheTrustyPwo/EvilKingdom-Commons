@@ -59,7 +59,7 @@ public class Transmission {
 //                        task.stop();
 //                    }
                 }
-                System.out.println("received a reply in " + (System.currentTimeMillis() - startTime) + "ms");
+                Bukkit.getConsoleSender().sendMessage("received a reply in " + (System.currentTimeMillis() - startTime) + "ms");
                 return task.getResponseData();
             });
         } else {
