@@ -147,7 +147,6 @@ public class PterodactylUtilities {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
         final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/files/upload?directory=" + URLEncoder.encode(targetDirectory.toPath().toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenCompose(httpResponse -> {
-            System.out.println("httpRequest - " + httpRequest.uri().toString());
             if (httpResponse.body().isEmpty()) {
                 return CompletableFuture.supplyAsync(() -> Optional.empty());
             }
@@ -155,9 +154,10 @@ public class PterodactylUtilities {
             if (!jsonObject.has("attributes")) {
                 return CompletableFuture.supplyAsync(() -> Optional.empty());
             }
+            final String uploadURL = jsonObject.get("attributes").getAsJsonObject().get("url").getAsString().replace("\\", "");
             HttpRequest uploadHttpRequest = null;
             try {
-                uploadHttpRequest = HttpRequest.newBuilder().uri(URI.create(jsonObject.get("attributes").getAsJsonObject().get("url").getAsString())).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).POST(HttpRequest.BodyPublishers.ofFile(file.toPath())).build();
+                uploadHttpRequest = HttpRequest.newBuilder().uri(URI.create(uploadURL)).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).POST(HttpRequest.BodyPublishers.ofFile(file.toPath())).build();
             } catch (final IOException ioException) {
                 //Does nothing, just in case! :)
             }
