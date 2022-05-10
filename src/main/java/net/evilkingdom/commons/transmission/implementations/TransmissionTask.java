@@ -58,13 +58,14 @@ public class TransmissionTask {
      * Allows you to start the task.
      */
     public void start() {
+        System.out.println("starting");
         final JsonObject jsonObject = new JsonObject();
         if (this.type != TransmissionType.RESPONSE) {
             jsonObject.addProperty("serverName", this.site.getServerName());
             jsonObject.addProperty("siteName", this.site.getName());
         }
         jsonObject.addProperty("data", this.data);
-        final File file = new File("d0ntt0uchm3", this.uuid.toString() + ".json");
+        final File file = new File("_transnet", this.uuid.toString() + ".json");
         file.delete();
         try {
             file.createNewFile();
@@ -76,7 +77,10 @@ public class TransmissionTask {
             //Does nothing, just in case! :)
         }
         final File targetDirectory = new File(this.getSite().getPlugin().getDataFolder() + File.separator + "transmissions" + File.separator + this.targetSiteName, this.type.name() + "s");
-        PterodactylUtilities.uploadFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file, targetDirectory).whenComplete((uploadSuccess, uploadSuccessThrowable) -> file.delete());
+        PterodactylUtilities.uploadFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file, targetDirectory).whenComplete((uploadSuccess, uploadSuccessThrowable) -> {
+            System.out.println("upload success!");
+//            file.delete();
+        });
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);
         }

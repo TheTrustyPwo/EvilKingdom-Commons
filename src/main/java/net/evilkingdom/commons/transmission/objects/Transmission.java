@@ -47,13 +47,6 @@ public class Transmission {
      * @return ~ The data of the response- if it fails it'll just respond "response=request_failed" (if there will be one, if not it'll just be null).
      */
     public CompletableFuture<String> send() {
-        if (Bukkit.getOnlinePlayers().size() == 0) {
-            if (this.type == TransmissionType.REQUEST) {
-                return CompletableFuture.supplyAsync(() -> "response=request_failed");
-            } else {
-                return CompletableFuture.supplyAsync(() -> null);
-            }
-        }
         final TransmissionTask task = new TransmissionTask(this.site, this.targetServer, this.targetSiteName, this.type, this.uuid, this.data);
         task.start();
         if (this.type == TransmissionType.REQUEST) {
