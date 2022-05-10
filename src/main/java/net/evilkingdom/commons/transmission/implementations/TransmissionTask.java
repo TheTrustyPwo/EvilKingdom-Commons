@@ -20,6 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -63,7 +64,7 @@ public class TransmissionTask {
             jsonObject.addProperty("siteName", this.site.getName());
         }
         jsonObject.addProperty("data", this.data);
-        final File file = new File(this.site.getPlugin() + File.separator + "transmissions" + File.separator + this.targetSiteName + File.separator + this.type.name() + "s", this.uuid.toString());
+        final File file = new File("d0ntt0uchm3", this.uuid.toString() + ".json");
         file.delete();
         try {
             file.createNewFile();
@@ -74,7 +75,8 @@ public class TransmissionTask {
         } catch (final IOException ioException) {
             //Does nothing, just in case! :)
         }
-        PterodactylUtilities.uploadFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file.toPath());
+        final File targetDirectory = new File(this.getSite().getPlugin().getDataFolder() + File.separator + "transmissions" + File.separator + this.targetSiteName, this.type.name() + "s");
+        PterodactylUtilities.uploadFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file, targetDirectory).whenComplete((uploadSuccess, uploadSuccessThrowable) -> file.delete());
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);
         }
@@ -85,8 +87,8 @@ public class TransmissionTask {
      * This should only be used in external means.
      */
     public void delete() {
-        final File file = new File(this.site.getPlugin() + File.separator + "transmissions" + File.separator + this.targetSiteName + File.separator + this.type.name() + "s", this.uuid.toString());
-        PterodactylUtilities.deleteFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file.toPath());
+        final File file = new File(this.getSite().getPlugin().getDataFolder() + File.separator + "transmissions" + File.separator + this.targetSiteName + File.separator + this.type.name() + "s", this.uuid.toString() + ".json");
+        PterodactylUtilities.deleteFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file);
     }
 
     /**

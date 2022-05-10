@@ -206,6 +206,7 @@ public class TransmissionSite {
             responsesFolderFiles.removeAll(previousDirectoryFiles.get("responses"));
             messagesFolderFiles.forEach(file -> {
                 final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
+                System.out.println("message - " + uuid);
                 JsonObject jsonObject = null;
                 try {
                     jsonObject = JsonParser.parseString(Files.readString(file.toPath())).getAsJsonObject();
@@ -221,6 +222,7 @@ public class TransmissionSite {
             });
             requestsFolderFiles.forEach(file -> {
                 final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
+                System.out.println("request - " + uuid);
                 JsonObject jsonObject = null;
                 try {
                     jsonObject = JsonParser.parseString(Files.readString(file.toPath())).getAsJsonObject();
@@ -236,6 +238,7 @@ public class TransmissionSite {
             });
             responsesFolderFiles.forEach(file -> {
                 final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
+                System.out.println("response - " + uuid);
                 JsonObject jsonObject = null;
                 try {
                     jsonObject = JsonParser.parseString(Files.readString(file.toPath())).getAsJsonObject();

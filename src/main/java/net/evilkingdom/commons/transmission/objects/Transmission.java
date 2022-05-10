@@ -60,7 +60,7 @@ public class Transmission {
             final long startTime = System.currentTimeMillis();
             return CompletableFuture.supplyAsync(() -> {
                 while (task.isRunning()) {
-                    if ((System.currentTimeMillis() - startTime) > 250) {
+                    if ((System.currentTimeMillis() - startTime) > 300) {
                         task.setResponseData("response=request_failed");
                         task.delete();
                         task.stop();

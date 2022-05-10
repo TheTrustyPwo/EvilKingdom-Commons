@@ -115,12 +115,12 @@ public class PterodactylUtilities {
      * @param url ~ The panel's url.
      * @param token ~ A client token that has administrator rights on the panel.
      * @param id ~ The server's id.
-     * @param path ~ The path of the file.
+     * @param file ~ The file to delete.
      * @return The file deletions success state if all goes to plan- if it doesn't it will return an empty optional.
      */
-    public static CompletableFuture<Optional<Boolean>> deleteFile(final String url, final String token, final String id, final Path path) {
+    public static CompletableFuture<Optional<Boolean>> deleteFile(final String url, final String token, final String id, final File file) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/delete?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/delete?file=" + URLEncoder.encode(file.toPath().toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty() || httpResponse.body().contains("error")) {
                 return Optional.empty();
@@ -136,15 +136,16 @@ public class PterodactylUtilities {
      * @param url ~ The panel's url.
      * @param token ~ A client token that has administrator rights on the panel.
      * @param id ~ The server's id.
-     * @param path ~ The path of the file.
+     * @param file ~ The file to upload.
+     * @param targetDirectory ~ The file's target directory.
      * @return The file uploads success state if all goes to plan- if it doesn't it will return an empty optional.
      */
-    public static CompletableFuture<Optional<Boolean>> uploadFile(final String url, final String token, final String id, final Path path) {
-        if (!path.toFile().exists()) {
+    public static CompletableFuture<Optional<Boolean>> uploadFile(final String url, final String token, final String id, final File file, final File targetDirectory) {
+        if (!file.exists()) {
             return CompletableFuture.supplyAsync(() -> Optional.empty());
         }
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/files/upload")).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/files/upload=?directory=" + URLEncoder.encode(targetDirectory.toPath().toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenCompose(httpResponse -> {
             if (httpResponse.body().isEmpty()) {
                 return CompletableFuture.supplyAsync(() -> Optional.empty());
@@ -155,7 +156,7 @@ public class PterodactylUtilities {
             }
             HttpRequest uploadHttpRequest = null;
             try {
-                uploadHttpRequest = HttpRequest.newBuilder().uri(URI.create(jsonObject.get("attributes").getAsJsonObject().get("url").getAsString())).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).POST(HttpRequest.BodyPublishers.ofFile(path)).build();
+                uploadHttpRequest = HttpRequest.newBuilder().uri(URI.create(jsonObject.get("attributes").getAsJsonObject().get("url").getAsString())).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).POST(HttpRequest.BodyPublishers.ofFile(file.toPath())).build();
             } catch (final IOException ioException) {
                 //Does nothing, just in case! :)
             }
