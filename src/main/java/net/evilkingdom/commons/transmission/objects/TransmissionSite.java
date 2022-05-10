@@ -199,7 +199,7 @@ public class TransmissionSite {
                 final TransmissionServer server = this.getServers().stream().filter(innerServer -> innerServer.getName().equals(serverName)).findFirst().get();
                 final String siteName = jsonObject.get("siteName").getAsString();
                 final String data = jsonObject.get("data").getAsString();
-                this.handler.onReceive(server, siteName, TransmissionType.MESSAGE, uuid, data);
+                Bukkit.getScheduler().runTask(this.plugin, () -> this.handler.onReceive(server, siteName, TransmissionType.MESSAGE, uuid, data));
             });
             requestsFolderFiles.forEach(file -> {
                 final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
@@ -215,7 +215,7 @@ public class TransmissionSite {
                 final TransmissionServer server = this.getServers().stream().filter(innerServer -> innerServer.getName().equals(serverName)).findFirst().get();
                 final String siteName = jsonObject.get("siteName").getAsString();
                 final String data = jsonObject.get("data").getAsString();
-                this.handler.onReceive(server, siteName, TransmissionType.REQUEST, uuid, data);
+                Bukkit.getScheduler().runTask(this.plugin, () -> this.handler.onReceive(server, siteName, TransmissionType.REQUEST, uuid, data));
             });
             responsesFolderFiles.forEach(file -> {
                 final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
