@@ -37,7 +37,7 @@ public class PterodactylUtilities {
      */
     public static CompletableFuture<Optional<ArrayList<String>>> getFileNames(final String url, final String token, final String id, final String path) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/list?directory=" + URLEncoder.encode(path, StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/list?directory=" + URLEncoder.encode(path, StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty()) {
                 return Optional.empty();
@@ -64,7 +64,7 @@ public class PterodactylUtilities {
      */
     public static CompletableFuture<Optional<File>> getFile(final String url, final String token, final String id, final Path path) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/download?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/download?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApplyAsync(httpResponse -> {
             if (httpResponse.body().isEmpty()) {
                 return Optional.empty();
@@ -99,7 +99,7 @@ public class PterodactylUtilities {
      */
     public static CompletableFuture<Optional<String>> getFileContents(final String url, final String token, final String id, final Path path) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/contents?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/contents?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty() || httpResponse.body().contains("error")) {
                 return Optional.empty();
@@ -120,7 +120,7 @@ public class PterodactylUtilities {
      */
     public static CompletableFuture<Optional<Boolean>> deleteFile(final String url, final String token, final String id, final Path path) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/delete?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/delete?file=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty() || httpResponse.body().contains("error")) {
                 return Optional.empty();
@@ -144,7 +144,7 @@ public class PterodactylUtilities {
             return CompletableFuture.supplyAsync(() -> Optional.empty());
         }
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/files/upload")).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/files/upload")).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenCompose(httpResponse -> {
             if (httpResponse.body().isEmpty()) {
                 return CompletableFuture.supplyAsync(() -> Optional.empty());
@@ -174,7 +174,7 @@ public class PterodactylUtilities {
      */
     public static CompletableFuture<Optional<String>> getStatus(final String url, final String token, final String id) {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
-        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url + "/api/client/servers/" + id + "/resources")).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
+        final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/resources")).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenApply(httpResponse -> {
             if (httpResponse.body().isEmpty()) {
                 return Optional.empty();
