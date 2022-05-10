@@ -147,6 +147,7 @@ public class PterodactylUtilities {
         final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
         final HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://" + url + "/api/client/servers/" + id + "/files/upload?directory=" + URLEncoder.encode(targetDirectory.toPath().toString(), StandardCharsets.UTF_8))).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).GET().build();
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString()).thenCompose(httpResponse -> {
+            System.out.println("httpRequest - " + httpRequest.uri().toString());
             if (httpResponse.body().isEmpty()) {
                 return CompletableFuture.supplyAsync(() -> Optional.empty());
             }
