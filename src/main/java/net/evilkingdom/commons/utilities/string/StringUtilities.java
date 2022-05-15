@@ -29,13 +29,13 @@ public class StringUtilities {
     }
 
     /**
-     * Allows you to validate if a string has any of the listed words in it.
+     * Allows you to validate if a string contains any of the listed words in it.
      * It will automatically detect replacements of numbers and other characters.
      *
      * @param string ~ The string that needs to be validated.
-     * @return If the string has any of the listed words in it.
+     * @return If the string contains any of the listed words in it.
      */
-    public static boolean has(String string, final ArrayList<String> words) {
+    public static boolean contains(String string, final ArrayList<String> words) {
         string = string.replace("1","i").replace("!","i").replace("3","e").replace("4","a").replace("@","a").replace("5","s").replace("7","t").replace("0","o").replace("9","g").toLowerCase().replaceAll("[^a-zA-Z]", "");
         for (int start = 0; start < string.length(); start++) {
             for (int offset = 1; offset < string.length() + 1 - start; offset++)  {
