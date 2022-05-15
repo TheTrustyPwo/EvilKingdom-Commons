@@ -40,26 +40,4 @@ public class MojangUtilities {
         });
     }
 
-    /**
-     * Allows you to retrieve if a server is online.
-     * Uses socket magic and runs asynchronously in order to keep the server from lagging.
-     *
-     * @param ip ~ The server's ip.
-     * @param port ~ The server's port.
-     * @return If the server is online.
-     */
-    public static CompletableFuture<Boolean> isOnline(final String ip, final int port) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                final Socket socket = new Socket();
-                socket.connect(new InetSocketAddress(ip, port), 15);
-                socket.close();
-                return true;
-            } catch (final Exception exception) {
-                // not online
-                return false;
-            }
-        });
-    }
-
 }
