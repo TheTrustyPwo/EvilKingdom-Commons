@@ -158,7 +158,7 @@ public class PterodactylUtilities {
             final String uploadURL = jsonObject.get("attributes").getAsJsonObject().get("url").getAsString().replace("\\", "");
             HttpRequest uploadHttpRequest = null;
             try {
-                uploadHttpRequest = HttpRequest.newBuilder().uri(URI.create(uploadURL)).header("Accept", "application/json").header("Content-Type", "application/json").header("Authorization", "Bearer " + token).POST(HttpRequest.BodyPublishers.ofFile(file.toPath())).build();
+                uploadHttpRequest = HttpRequest.newBuilder().uri(URI.create(uploadURL)).POST(HttpRequest.BodyPublishers.ofFile(file.toPath())).build();
             } catch (final IOException ioException) {
                 //Does nothing, just in case! :)
             }

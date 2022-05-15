@@ -58,31 +58,36 @@ public class TransmissionTask {
      * Allows you to start the task.
      */
     public void start() {
-        Bukkit.getConsoleSender().sendMessage("starting");
-        final JsonObject jsonObject = new JsonObject();
-        if (this.type != TransmissionType.RESPONSE) {
+        final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
+        outputStream.writeUTF("Forward");
+        outputStream.writeUTF(this.targetServer.getName());
+        outputStream.writeUTF("Transmissions-" + this.targetSiteName);
+        final ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
+        final DataOutputStream messageStream = new DataOutputStream(messageBytes);
+        try {
+            final JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("sentTime", System.currentTimeMillis());
             jsonObject.addProperty("serverName", this.site.getServerName());
             jsonObject.addProperty("siteName", this.site.getName());
+            jsonObject.addProperty("type", this.type.name());
+            jsonObject.addProperty("uuid", this.uuid.toString());
+            jsonObject.addProperty("data", this.data);
+            messageStream.writeUTF(new Gson().toJson(jsonObject));
+        } catch (final IOException ioException) {
+            //Does nothing, just in case! :)
         }
+        outputStream.writeShort(messageBytes.toByteArray().length);
+        outputStream.write(messageBytes.toByteArray());
+        Bukkit.getServer().sendPluginMessage(this.site.getPlugin(), "BungeeCord", outputStream.toByteArray());
+
+        final JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("serverName", this.site.getServerName());
+        jsonObject.addProperty("siteName", this.site.getName());
         jsonObject.addProperty("data", this.data);
-        final File temptransnetFolder = new File("temp_transnet");
-        if (!temptransnetFolder.exists()) {
-            temptransnetFolder.mkdirs();
-        }
-        final File file = new File(this.getSite().getPlugin().getDataFolder() + File.separator + "transmissions" + File.separator + this.targetSiteName + File.separator + this.type.name() + "s", this.uuid + ".json");
-        PterodactylUtilities.writeFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file, new Gson().toJson(jsonObject));
+
         if (this.type == TransmissionType.REQUEST) {
             this.site.getTasks().add(this);
         }
-    }
-
-    /**
-     * Allows you to delete the request.
-     * This should only be used in external means.
-     */
-    public void delete() {
-        final File file = new File(this.getSite().getPlugin().getDataFolder() + File.separator + "transmissions" + File.separator + this.targetSiteName + File.separator + this.type.name() + "s", this.uuid.toString() + ".json");
-        PterodactylUtilities.deleteFile(this.site.getPterodactylURL(), this.site.getPterodactylToken(), this.targetServer.getPterodactylId(), file);
     }
 
     /**

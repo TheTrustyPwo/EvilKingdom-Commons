@@ -6,12 +6,16 @@ package net.evilkingdom.commons.transmission;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.evilkingdom.commons.Commons;
 import net.evilkingdom.commons.scoreboard.implementations.ScoreboardListener;
 import net.evilkingdom.commons.scoreboard.implementations.ScoreboardRunnable;
 import net.evilkingdom.commons.scoreboard.objects.Scoreboard;
 import net.evilkingdom.commons.transmission.enums.TransmissionType;
 import net.evilkingdom.commons.transmission.objects.Transmission;
+import net.evilkingdom.commons.transmission.objects.TransmissionServer;
 import net.evilkingdom.commons.transmission.objects.TransmissionSite;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -40,6 +44,35 @@ public class TransmissionImplementor {
         this.plugin = plugin;
 
         this.sites = new HashSet<TransmissionSite>();
+        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this.plugin, "BungeeCord");
+        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this.plugin, "BungeeCord", (channel, player, message) -> {
+            final DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(message));
+            String preInternalSiteName = null;
+            JsonObject jsonObject = null;
+            try {
+                preInternalSiteName = inputStream.readUTF().replace("Transmissions-", "");
+                final short messageBytesLength = inputStream.readShort();
+                final byte[] messageBytes = new byte[messageBytesLength];
+                inputStream.readFully(messageBytes);
+                final DataInputStream messageStream = new DataInputStream(new ByteArrayInputStream(messageBytes));
+                jsonObject = JsonParser.parseString(messageStream.readUTF()).getAsJsonObject();
+            } catch (final IOException ioException) {
+                //Does nothing, just in case! :)
+            }
+            final long sentTime = jsonObject.get("sentTime").getAsLong();
+            if ((System.currentTimeMillis() - sentTime) > 250) {
+                return;
+            }
+            final String internalSiteName = preInternalSiteName;
+            final TransmissionSite internalSite = this.sites.stream().filter(site -> site.getName().equals(internalSiteName)).findFirst().get();
+            final String serverName = jsonObject.get("serverName").getAsString();
+            final TransmissionServer server = internalSite.getServers().stream().filter(internalServer -> internalServer.getName().equals(serverName)).findFirst().get();
+            final String siteName = jsonObject.get("siteName").getAsString();
+            final TransmissionType type = TransmissionType.valueOf(jsonObject.get("type").getAsString());
+            final UUID uuid = UUID.fromString(jsonObject.get("uuid").getAsString());
+            final String data = jsonObject.get("data").getAsString();
+            internalSite.handleBungeeCordMessage(server, siteName, type, uuid, data);
+        });
 
         cache.add(this);
     }
@@ -60,22 +93,6 @@ public class TransmissionImplementor {
      */
     public JavaPlugin getPlugin() {
         return this.plugin;
-    }
-
-    /**
-     * Allows you to send a player to a server.
-     * It'll temporarily register the BungeeCord channel, send the data, then unregister it.
-     *
-     * @param player ~ The player to send.
-     * @param serverName ~ The server's name to send the player to.
-     */
-    public void send(final Player player, final String serverName) {
-        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this.plugin, "BungeeCord");
-        final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
-        outputStream.writeUTF("Connect");
-        outputStream.writeUTF(serverName);
-        player.sendPluginMessage(this.plugin, "BungeeCord", outputStream.toByteArray());
-        Bukkit.getServer().getMessenger().unregisterOutgoingPluginChannel(this.plugin, "BungeeCord");
     }
 
     /**

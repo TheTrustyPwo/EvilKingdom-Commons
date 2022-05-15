@@ -5,6 +5,7 @@ package net.evilkingdom.commons.transmission.objects;
  */
 
 import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,6 +15,7 @@ import net.evilkingdom.commons.transmission.enums.TransmissionType;
 import net.evilkingdom.commons.transmission.implementations.TransmissionTask;
 import net.evilkingdom.commons.utilities.pterodactyl.PterodactylUtilities;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.scheduler.BukkitTask;
@@ -35,7 +37,6 @@ public class TransmissionSite {
     private final HashSet<TransmissionTask> tasks;
     private final HashSet<TransmissionServer> servers;
     private TransmissionHandler handler;
-    private final HashMap<String, ArrayList<File>> directoryFiles;
 
     /**
      * Allows you to create a transmission site for a plugin.
@@ -56,7 +57,6 @@ public class TransmissionSite {
         this.pterodactylToken = pterodactylToken;
         this.tasks = new HashSet<TransmissionTask>();
         this.servers = new HashSet<TransmissionServer>();
-        this.directoryFiles = new HashMap<String, ArrayList<File>>();
     }
 
     /**
@@ -141,98 +141,44 @@ public class TransmissionSite {
     }
 
     /**
+     * Allows you to send a player to a server.
+     *
+     * @param player ~ The player to send.
+     * @param server ~ The server to send the player to.
+     */
+    public void send(final Player player, final TransmissionServer server) {
+        final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
+        outputStream.writeUTF("Connect");
+        outputStream.writeUTF(server.getName());
+        player.sendPluginMessage(this.plugin, "BungeeCord", outputStream.toByteArray());
+    }
+
+    /**
+     * Allows you to handle the BungeeCord message.
+     * This should not be used inside your plugin whatsoever!
+     *
+     * @param server ~ The server of the transmission.
+     * @param siteName ~ The site name of the transmission.
+     * @param type ~ The type of the transmission.
+     * @param uuid ~ The uuid of the transmission.
+     * @param data ~ The data of the transmission.
+     */
+    public void handleBungeeCordMessage(final TransmissionServer server, final String siteName, final TransmissionType type, final UUID uuid, final String data) {
+        if (type == TransmissionType.RESPONSE) {
+            final TransmissionTask task = this.tasks.stream().filter(transmissionTask -> transmissionTask.getUUID().toString().equals(uuid.toString())).findFirst().get();
+            task.setResponseData(data);
+            task.stop();
+        } else {
+            this.handler.onReceive(server, siteName, type, uuid, data);
+        }
+    }
+
+    /**
      * Allows you to register the transmission site.
      */
     public void register() {
         TransmissionImplementor implementor = TransmissionImplementor.get(this.plugin);
         implementor.getSites().add(this);
-        final File dataFolder = this.plugin.getDataFolder();
-        if (!dataFolder.exists()) {
-            dataFolder.mkdirs();
-        }
-        final File transmissionsFolder = new File(dataFolder, "transmissions");
-        if (!transmissionsFolder.exists()) {
-            transmissionsFolder.mkdirs();
-        }
-        final File siteFolder = new File(transmissionsFolder, this.name);
-        if (!siteFolder.exists()) {
-            siteFolder.mkdirs();
-        }
-        final File messagesFolder = new File(siteFolder, "messages");
-        if (!messagesFolder.exists()) {
-            messagesFolder.mkdirs();
-        }
-        final File requestsFolder = new File(siteFolder, "requests");
-        if (!requestsFolder.exists()) {
-            requestsFolder.mkdirs();
-        }
-        final File responsesFolder = new File(siteFolder, "responses");
-        if (!responsesFolder.exists()) {
-            responsesFolder.mkdirs();
-        }
-        Arrays.stream(messagesFolder.listFiles()).filter(file -> file.delete());
-        Arrays.stream(requestsFolder.listFiles()).filter(file -> file.delete());
-        Arrays.stream(responsesFolder.listFiles()).filter(file -> file.delete());
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
-            final HashMap<String, ArrayList<File>> previousDirectoryFiles = new HashMap<String, ArrayList<File>>(this.directoryFiles);
-            this.directoryFiles.clear();
-            this.directoryFiles.put("messages", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(messagesFolder.listFiles())).toList()));
-            this.directoryFiles.put("requests", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(requestsFolder.listFiles())).toList()));
-            this.directoryFiles.put("responses", new ArrayList<File>(Arrays.stream(Objects.requireNonNull(responsesFolder.listFiles())).toList()));
-            final ArrayList<File> messagesFolderFiles = this.directoryFiles.getOrDefault("messages", new ArrayList<File>());
-            messagesFolderFiles.removeAll(previousDirectoryFiles.getOrDefault("messages", new ArrayList<File>()));
-            final ArrayList<File> requestsFolderFiles = this.directoryFiles.getOrDefault("requests", new ArrayList<File>());
-            requestsFolderFiles.removeAll(previousDirectoryFiles.getOrDefault("requests", new ArrayList<File>()));
-            final ArrayList<File> responsesFolderFiles = this.directoryFiles.getOrDefault("responses", new ArrayList<File>());
-            responsesFolderFiles.removeAll(previousDirectoryFiles.getOrDefault("responses", new ArrayList<File>()));
-            messagesFolderFiles.forEach(file -> {
-                final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
-                Bukkit.getConsoleSender().sendMessage("message - " + uuid);
-                JsonObject jsonObject = null;
-                try {
-                    jsonObject = JsonParser.parseString(Files.readString(file.toPath())).getAsJsonObject();
-                } catch (final IOException ioException) {
-                    //Does nothing, just in case! :)
-                }
-                file.delete();
-                final String serverName = jsonObject.get("serverName").getAsString();
-                final TransmissionServer server = this.getServers().stream().filter(innerServer -> innerServer.getName().equals(serverName)).findFirst().get();
-                final String siteName = jsonObject.get("siteName").getAsString();
-                final String data = jsonObject.get("data").getAsString();
-                Bukkit.getScheduler().runTask(this.plugin, () -> this.handler.onReceive(server, siteName, TransmissionType.MESSAGE, uuid, data));
-            });
-            requestsFolderFiles.forEach(file -> {
-                final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
-                Bukkit.getConsoleSender().sendMessage("request - " + uuid);
-                JsonObject jsonObject = null;
-                try {
-                    jsonObject = JsonParser.parseString(Files.readString(file.toPath())).getAsJsonObject();
-                } catch (final IOException ioException) {
-                    //Does nothing, just in case! :)
-                }
-                file.delete();
-                final String serverName = jsonObject.get("serverName").getAsString();
-                final TransmissionServer server = this.getServers().stream().filter(innerServer -> innerServer.getName().equals(serverName)).findFirst().get();
-                final String siteName = jsonObject.get("siteName").getAsString();
-                final String data = jsonObject.get("data").getAsString();
-                Bukkit.getScheduler().runTask(this.plugin, () -> this.handler.onReceive(server, siteName, TransmissionType.REQUEST, uuid, data));
-            });
-            responsesFolderFiles.forEach(file -> {
-                final UUID uuid = UUID.fromString(file.getName().replaceFirst(".json", ""));
-                Bukkit.getConsoleSender().sendMessage("response - " + uuid);
-                JsonObject jsonObject = null;
-                try {
-                    jsonObject = JsonParser.parseString(Files.readString(file.toPath())).getAsJsonObject();
-                } catch (final IOException ioException) {
-                    //Does nothing, just in case! :)
-                }
-                file.delete();
-                final String data = jsonObject.get("data").getAsString();
-                final TransmissionTask task = this.tasks.stream().filter(innerTask -> innerTask.getUUID().toString().equals(uuid.toString())).findFirst().get();
-                task.setResponseData(data);
-                task.stop();
-            });
-        }, 0L, 1L);
     }
 
     /**
@@ -241,18 +187,6 @@ public class TransmissionSite {
     public void unregister() {
         TransmissionImplementor implementor = TransmissionImplementor.get(this.plugin);
         implementor.getSites().remove(this);
-        final File dataFolder = this.plugin.getDataFolder();
-        if (!dataFolder.exists()) {
-            dataFolder.mkdirs();
-        }
-        final File transmissionsFolder = new File(dataFolder, "transmissions");
-        if (!transmissionsFolder.exists()) {
-            try {
-                Files.walk(transmissionsFolder.toPath()).sorted(Comparator.reverseOrder()).map(path -> path.toFile()).forEach(file -> file.delete());
-            } catch (final IOException ioException) {
-                //Does nothing, just in case! :)
-            }
-        }
     }
 
 }
