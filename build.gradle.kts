@@ -19,7 +19,7 @@ repositories {
 dependencies {
     paperDevBundle("1.18.2-R0.1-SNAPSHOT")
     compileOnly("net.luckperms:api:5.4")
-    implementation("org.mongodb:mongo-java-driver:3.12.10")
+    implementation("org.mongodb:mongo-java-driver:3.12.11")
     compileOnly("me.lucko:spark-api:0.1-SNAPSHOT")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.1.2")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.1.2") {
