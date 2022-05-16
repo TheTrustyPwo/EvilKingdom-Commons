@@ -4,6 +4,7 @@ package net.evilkingdom.commons.utilities.time;
  * Made with love by https://kodirati.com/.
  */
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class TimeUtilities {
@@ -42,7 +43,7 @@ public class TimeUtilities {
      * @param time ~ The formatted time.
      * @return The time from the formatted time.
      */
-    public static long get(String time) {
+    public static Optional<Long> get(String time) {
         try {
             long timeLong = parseLong(time);
             if (time.contains("d")) {
@@ -59,11 +60,10 @@ public class TimeUtilities {
             }
             if (time.contains("s")) {
                 timeLong += parseLong(time.split("s")[0]);
-                time = split(time, "s");
             }
-            return timeLong * 1000;
+            return Optional.of((timeLong * 1000));
         } catch (final Exception exception) {
-            return -1;
+            return Optional.empty();
         }
     }
 
