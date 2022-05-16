@@ -20,6 +20,7 @@ public class Command {
 
     /**
      * Allows you to create a command for a plugin.
+     * This should be used for commands WITH aliases.
      *
      * @param plugin ~ The plugin the command is for.
      * @param name ~ The name of the command.
@@ -30,6 +31,21 @@ public class Command {
         this.plugin = plugin;
         this.name = name;
         this.aliases = aliases;
+        this.handler = handler;
+    }
+
+    /**
+     * Allows you to create a command for a plugin.
+     * This should be used for commands WITHOUT aliases.
+     *
+     * @param plugin ~ The plugin the command is for.
+     * @param name ~ The name of the command.
+     * @param handler ~ The handler of the command.
+     */
+    public Command(final JavaPlugin plugin, final String name, final CommandHandler handler) {
+        this.plugin = plugin;
+        this.name = name;
+        this.aliases = new ArrayList<String>();
         this.handler = handler;
     }
 
