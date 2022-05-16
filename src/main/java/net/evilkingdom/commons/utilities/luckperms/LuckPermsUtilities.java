@@ -22,8 +22,8 @@ public class LuckPermsUtilities {
      * @param uuid ~ The player's uuid.
      * @return The player's rank.
      */
-    public static String getRankViaCache(final UUID uuid) {
-        return LuckPermsProvider.get().getUserManager().getUser(uuid).getCachedData().getMetaData().getPrimaryGroup();
+    public static Optional<String> getRankViaCache(final UUID uuid) {
+        return Optional.ofNullable(LuckPermsProvider.get().getUserManager().getUser(uuid).getCachedData().getMetaData().getPrimaryGroup());
     }
 
     /**
@@ -34,8 +34,8 @@ public class LuckPermsUtilities {
      * @param uuid ~ The player's uuid.
      * @return The player's prefix.
      */
-    public static String getPrefixViaCache(final UUID uuid) {
-        return LuckPermsProvider.get().getUserManager().getUser(uuid).getCachedData().getMetaData().getPrefix();
+    public static Optional<String> getPrefixViaCache(final UUID uuid) {
+        return Optional.ofNullable(LuckPermsProvider.get().getUserManager().getUser(uuid).getCachedData().getMetaData().getPrefix());
     }
 
     /**
@@ -46,8 +46,8 @@ public class LuckPermsUtilities {
      * @param uuid ~ The player's uuid.
      * @return The player's suffix.
      */
-    public static String getSuffixViaCache(final UUID uuid) {
-        return LuckPermsProvider.get().getUserManager().getUser(uuid).getCachedData().getMetaData().getSuffix();
+    public static Optional<String> getSuffixViaCache(final UUID uuid) {
+        return Optional.ofNullable(LuckPermsProvider.get().getUserManager().getUser(uuid).getCachedData().getMetaData().getSuffix());
     }
 
     /**
@@ -70,8 +70,8 @@ public class LuckPermsUtilities {
      * @param uuid ~ The player's uuid.
      * @return The player's rank.
      */
-    public static CompletableFuture<String> getRank(final UUID uuid) {
-        return LuckPermsProvider.get().getUserManager().loadUser(uuid).thenApply(user -> user.getCachedData().getMetaData().getPrimaryGroup());
+    public static CompletableFuture<Optional<String>> getRank(final UUID uuid) {
+        return LuckPermsProvider.get().getUserManager().loadUser(uuid).thenApply(user -> Optional.ofNullable(user.getCachedData().getMetaData().getPrimaryGroup()));
     }
 
     /**
@@ -82,8 +82,8 @@ public class LuckPermsUtilities {
      * @param uuid ~ The player's uuid.
      * @return The player's prefix.
      */
-    public static CompletableFuture<String> getPrefix(final UUID uuid) {
-        return LuckPermsProvider.get().getUserManager().loadUser(uuid).thenApply(user -> user.getCachedData().getMetaData().getPrefix());
+    public static CompletableFuture<Optional<String>> getPrefix(final UUID uuid) {
+        return LuckPermsProvider.get().getUserManager().loadUser(uuid).thenApply(user -> Optional.ofNullable(user.getCachedData().getMetaData().getPrefix()));
     }
 
     /**
@@ -94,8 +94,8 @@ public class LuckPermsUtilities {
      * @param uuid ~ The player's uuid.
      * @return The player's suffix.
      */
-    public static CompletableFuture<String> getSuffix(final UUID uuid) {
-        return LuckPermsProvider.get().getUserManager().loadUser(uuid).thenApply(user -> user.getCachedData().getMetaData().getSuffix());
+    public static CompletableFuture<Optional<String>> getSuffix(final UUID uuid) {
+        return LuckPermsProvider.get().getUserManager().loadUser(uuid).thenApply(user -> Optional.ofNullable(user.getCachedData().getMetaData().getSuffix()));
     }
 
     /**
