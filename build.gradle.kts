@@ -43,7 +43,7 @@ bukkit {
     website = "kodirati.com"
     description = "Used as the library for the servers of Evil Kingdom."
     main = "net.evilkingdom.commons.Commons"
-    version = "commit-" + gitCommit()
+    version = "master-" + gitCommit()
     apiVersion = "1.18"
     depend = listOf("FastAsyncWorldEdit", "LuckPerms")
 }
