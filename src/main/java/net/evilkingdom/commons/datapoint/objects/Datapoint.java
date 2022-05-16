@@ -5,6 +5,7 @@ package net.evilkingdom.commons.datapoint.objects;
  */
 
 import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClients;
@@ -13,7 +14,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
 import net.evilkingdom.commons.datapoint.enums.DatasiteType;
 import org.bson.Document;
-import org.bson.json.JsonReader;
 import org.bson.json.JsonWriter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -87,35 +87,29 @@ public class Datapoint {
      * Allows you to retrieve a datapoint model from an identifier.
      *
      * @param identifier ~ The identifier of the datapoint model.
-     * @return The datapoint model (if it could be retrieved).
+     * @return The json object.
      */
-    public CompletableFuture<Optional<DatapointModel>> get(final String identifier) {
+    public CompletableFuture<Optional<JsonObject>> get(final String identifier) {
         return CompletableFuture.supplyAsync(() -> {
             switch (this.site.getType()) {
                 case MONGO_DATABASE -> {
                     final Optional<Document> optionalDocument = Optional.ofNullable(this.site.getMongoClient().getDatabase(this.site.getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
                     if (optionalDocument.isPresent()) {
                         final Document document = optionalDocument.get();
-                        return Optional.of(DatapointModel.fromMongo(document));
-                    } else {
-                        return Optional.empty();
+                        return Optional.of(JsonParser.parseString(document.toJson()).getAsJsonObject());
                     }
                 }
                 case JSON -> {
                     final Optional<File> optionalFile = Arrays.stream(new File(this.site.getPlugin().getDataFolder() + File.separator + "data", this.name).listFiles()).filter(file -> file.getName().equals(identifier + ".json")).findFirst();
                     if (optionalFile.isPresent()) {
                         final File file = optionalFile.get();
-                        final String jsonString;
+                        String jsonString = null;
                         try {
                             jsonString = Files.readString(file.toPath());
-                            if (jsonString.length() < 1) {
-                                return Optional.empty();
-                            }
                         } catch (final IOException ioException) {
-                            return Optional.empty();
+                            //Does nothing, just in case :)
                         }
-                        final JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
-                        return Optional.of(DatapointModel.fromJson(jsonObject));
+                        return Optional.of(JsonParser.parseString(jsonString).getAsJsonObject());
                     }
                 }
             }
@@ -126,14 +120,14 @@ public class Datapoint {
     /**
      * Allows you to save a datapoint model.
      *
-     * @param datapointModel ~ The datapoint model to save.
+     * @param jsonObject ~ The json object to save.
      * @param asynchronous ~ If the save is asynchronous (should always be unless it's an emergency saves).
      */
-    public void save(final DatapointModel datapointModel, final boolean asynchronous) {
+    public void save(final JsonObject jsonObject, final boolean asynchronous) {
         switch (this.site.getType()) {
             case MONGO_DATABASE -> {
-                final String identifier = (String) datapointModel.getObjects().get("_id").getObject();
-                final Document document = datapointModel.asMongo();
+                final String identifier = jsonObject.get("_id").getAsString();
+                final Document document = Document.parse(new Gson().toJson(jsonObject));
                 if (asynchronous) {
                     CompletableFuture.runAsync(() -> this.site.getMongoClient().getDatabase(this.site.getName()).getCollection(this.name).findOneAndReplace(Filters.eq("_id", identifier), document, new FindOneAndReplaceOptions().upsert(true)));
                 } else {
@@ -141,8 +135,7 @@ public class Datapoint {
                 }
             }
             case JSON -> {
-                final String identifier = (String) datapointModel.getObjects().get("_id").getObject();
-                final JsonObject jsonObject = datapointModel.asJson();
+                final String identifier = jsonObject.get("_id").getAsString();
                 if (asynchronous) {
                     CompletableFuture.runAsync(() -> {
                         final File file = new File(this.site.getPlugin().getDataFolder() + File.separator + "data" + File.separator + this.name, identifier + ".json");
