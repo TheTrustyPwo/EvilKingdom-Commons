@@ -73,7 +73,7 @@ public class TimeUtilities {
     private static String split(final String arg0, final String arg1) {
         try {
             return arg0.split(arg1)[1];
-        } catch (Exception e) {
+        } catch (final Exception exception) {
             return "";
         }
     }
