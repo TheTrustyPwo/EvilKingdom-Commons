@@ -14,7 +14,9 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
 import net.evilkingdom.commons.datapoint.enums.DatasiteType;
 import org.bson.Document;
+import org.bson.json.JsonMode;
 import org.bson.json.JsonWriter;
+import org.bson.json.JsonWriterSettings;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.print.Doc;
@@ -96,7 +98,7 @@ public class Datapoint {
                     final Optional<Document> optionalDocument = Optional.ofNullable(this.site.getMongoClient().getDatabase(this.site.getName()).getCollection(this.name).find(Filters.eq("_id", identifier)).first());
                     if (optionalDocument.isPresent()) {
                         final Document document = optionalDocument.get();
-                        return Optional.of(JsonParser.parseString(document.toJson()).getAsJsonObject());
+                        return Optional.of(JsonParser.parseString(document.toJson(JsonWriterSettings.builder().outputMode(JsonMode.RELAXED).build())).getAsJsonObject());
                     }
                 }
                 case JSON -> {
