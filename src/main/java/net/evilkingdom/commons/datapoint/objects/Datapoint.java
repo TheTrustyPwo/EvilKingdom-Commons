@@ -125,10 +125,9 @@ public class Datapoint {
      * @param jsonObject ~ The json object to save.
      * @param asynchronous ~ If the save is asynchronous (should always be unless it's an emergency saves).
      */
-    public void save(final JsonObject jsonObject, final boolean asynchronous) {
+    public void save(final JsonObject jsonObject, final String identifier, final boolean asynchronous) {
         switch (this.site.getType()) {
             case MONGO_DATABASE -> {
-                final String identifier = jsonObject.get("_id").getAsString();
                 final Document document = Document.parse(new Gson().toJson(jsonObject));
                 if (asynchronous) {
                     CompletableFuture.runAsync(() -> this.site.getMongoClient().getDatabase(this.site.getName()).getCollection(this.name).findOneAndReplace(Filters.eq("_id", identifier), document, new FindOneAndReplaceOptions().upsert(true)));
@@ -137,7 +136,6 @@ public class Datapoint {
                 }
             }
             case JSON -> {
-                final String identifier = jsonObject.get("_id").getAsString();
                 if (asynchronous) {
                     CompletableFuture.runAsync(() -> {
                         final File file = new File(this.site.getPlugin().getDataFolder() + File.separator + "data" + File.separator + this.name, identifier + ".json");
