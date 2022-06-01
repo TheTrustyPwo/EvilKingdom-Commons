@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class Datapoint {
     
@@ -86,9 +87,55 @@ public class Datapoint {
     }
 
     /**
-     * Allows you to retrieve a datapoint model from an identifier.
+     * Allows you to retrieve all of the json objects.
      *
-     * @param identifier ~ The identifier of the datapoint model.
+     * @return All of the json objects.
+     */
+    public CompletableFuture<ArrayList<JsonObject>> getAll() {
+        return CompletableFuture.supplyAsync(() -> {
+            switch (this.site.getType()) {
+                case MONGO_DATABASE -> {
+                    return new ArrayList<JsonObject>(this.site.getMongoClient().getDatabase(this.site.getName()).getCollection(this.name).find().into(new ArrayList<Document>()).stream().map(document -> JsonParser.parseString(document.toJson(JsonWriterSettings.builder().outputMode(JsonMode.RELAXED).build())).getAsJsonObject()).collect(Collectors.toList()));
+                }
+                case JSON -> {
+                    return new ArrayList<JsonObject>(Arrays.stream(new File(this.site.getPlugin().getDataFolder() + File.separator + "data", this.name).listFiles()).map(file -> {
+                        String jsonString = null;
+                        try {
+                            jsonString = Files.readString(file.toPath());
+                        } catch (final IOException ioException) {
+                            //Does nothing, just in case :)
+                        }
+                        return JsonParser.parseString(jsonString).getAsJsonObject();
+                    }).collect(Collectors.toList()));
+                }
+            }
+            return new ArrayList<JsonObject>();
+        });
+    }
+
+    /**
+     * Allows you to retrieve the count all of the json objects.
+     *
+     * @return The count of all the json objects.
+     */
+    public CompletableFuture<Long> countAll() {
+        return CompletableFuture.supplyAsync(() -> {
+            switch (this.site.getType()) {
+                case MONGO_DATABASE -> {
+                    return this.site.getMongoClient().getDatabase(this.site.getName()).getCollection(this.name).countDocuments();
+                }
+                case JSON -> {
+                    return Arrays.stream(new File(this.site.getPlugin().getDataFolder() + File.separator + "data", this.name).listFiles()).count();
+                }
+            }
+            return 0L;
+        });
+    }
+
+    /**
+     * Allows you to retrieve a json object from an identifier.
+     *
+     * @param identifier ~ The identifier of the json object.
      * @return The json object.
      */
     public CompletableFuture<Optional<JsonObject>> get(final String identifier) {
@@ -120,7 +167,7 @@ public class Datapoint {
     }
 
     /**
-     * Allows you to save a datapoint model.
+     * Allows you to save a json object.
      *
      * @param jsonObject ~ The json object to save.
      * @param asynchronous ~ If the save is asynchronous (should always be unless it's an emergency saves).
@@ -171,10 +218,10 @@ public class Datapoint {
         }
     }
     /**
-     * Allows you to retrieve if a datapoint model exists from an identifier.
+     * Allows you to retrieve if a json object exists from an identifier.
      *
-     * @param identifier ~ The identifier of the datapoint model.
-     * @return If a datapoint model exists from the identifier.
+     * @param identifier ~ The identifier of the json object.
+     * @return If a json object exists from the identifier.
      */
 
     public CompletableFuture<Boolean> exists(final String identifier) {
